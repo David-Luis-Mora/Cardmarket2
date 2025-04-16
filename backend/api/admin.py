@@ -5,6 +5,9 @@ from django.contrib import admin
 from .models import Card
 
 
-@admin.register(Joint)
-class PostAdmin(admin.ModelAdmin):
-    filter_horizontal = ('labels',)
+@admin.register(Card)
+class CardAdmin(admin.ModelAdmin):
+    list_display = [
+        'id',
+        'name',
+    ]
