@@ -6,4 +6,6 @@ app_name = 'api'
 
 urlpatterns = [
     path('', views.card_list, name='card-list'),
+    path('card/<str:slug>/', views.card_detail, name='game-detail'),
+
 ]
