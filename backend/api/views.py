@@ -55,9 +55,9 @@ def user_login(request):
     
 
 def user_signup(request):
-    username = request.data.get('username')
-    password = request.data.get('password')
-    email = request.data.get('email')
+    username = request.data.Get.get('username')
+    password = request.data.Get.get('password')
+    email = request.data.Get.get('email')
 
     if not validate_email_unique(email):
         return JsonResponse({'error': 'The email is already registered'}, status=400)
