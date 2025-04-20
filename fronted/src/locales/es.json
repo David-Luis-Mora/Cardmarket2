@@ -1,0 +1,43 @@
+{
+    "language": "Idioma",
+    "cart": "Carrito",
+    "cards": "Cartas",
+    "home": "Home",
+    "welcome": "Bienvenido a CardShop",
+    "mesaje1": "Nuestras cartas",
+    "tendencies": "Tendencias",
+    "products": "Productos",
+    "login": "Iniciar Sesión",
+    "filterByExpansion": "Filtrar por Expansión",
+    "allExpansions": "Todas las Expansiones",
+    "Cimientos": "Cimientos",
+    "PhantomRage": "Phantom Rage",
+    "DarkSideOfDimensions": "Dark Side of Dimensions",
+    "type": "Tipo",
+    "rarity": "Rareza",
+    "price": "Precio",
+    "addToCart": "Añadir al Carrito",
+    "prev": "Anterior",
+    "next": "Siguiente",
+    "page": "Página",
+    "of": "de",
+    "quickLinks": "Enlaces Rápidos",
+    "aboutUs": "Sobre Nosotros",
+    "contact": "Contacto",
+    "followUs": "Síguenos",
+    "allRightsReserved": "Todos los derechos reservados",
+    "cartt": {
+      "title": "Tu Carrito",
+      "rarity": "Rareza",
+      "remove": "Eliminar",
+      "total": "Total",
+      "clear": "Vaciar Carrito"
+    },
+    "aboutus": {
+      "text1": "Bienvenido a CardShop, el rincón donde los planeswalkers como tú se reúnen para comprar, vender e intercambiar cartas legendarias de Magic: The Gathering.",
+      "text2": "Si tienes cartas que ya no usas, puedes venderlas fácilmente. Solo necesitas iniciar sesión y empezar a compartir tu colección con otros fans.",
+      "text3": "¿Necesitas ayuda o estás buscando una carta específica? Nuestro sistema de chat con vendedores te conecta directamente con expertos que te pueden asesorar y ofrecerte justo lo que buscas.",
+      "text4": "¡Únete ahora!"
+    }
+
+}
