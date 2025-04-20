@@ -6,7 +6,7 @@
         <label for="email">Correo Electrónico</label>
         <input
           id="email"
-          v-model="email"
+          v-model="username"
           type="email"
           placeholder="Ingresa tu correo"
           required
@@ -27,74 +27,78 @@
       </div>
 
       <button type="submit">Iniciar Sesión</button>
-      <p>¿No tienes cuenta? <router-link :to="`/${$i18n.locale}/register`">Regístrate aquí</router-link></p>
+      <p>
+        ¿No tienes cuenta?
+        <router-link :to="`/${$i18n.locale}/register`">Regístrate aquí</router-link>
+      </p>
     </form>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, inject, type Ref } from 'vue';
-import { useRouter } from 'vue-router';
-import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
-import { auth, db } from '../firebaseConfig';
-import ChildComponent from './ProductItem.vue';
+import { ref, inject, type Ref } from "vue";
+import { useRouter } from "vue-router";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
+import { auth, db } from "../firebaseConfig";
+import ChildComponent from "./ProductItem.vue";
 
+const login = inject("login") as (userData: any) => void;
 
-const login = inject('login') as (userData: any) => void;
-
-const email = ref('');
-const password = ref('');
+const username = ref("");
+const password = ref("");
 const errors = ref({
-  email: '',
-  password: '',
+  email: "",
+  password: "",
 });
-const logueado = inject('logueado') as Ref<boolean>;
+const logueado = inject("logueado") as Ref<boolean>;
 const router = useRouter();
-
 const handleLogin = async () => {
   errors.value = {
-    email: '',
-    password: '',
+    email: "",
+    password: "",
   };
 
-  // Validaciones de los campos
-  if (!email.value.trim()) {
-    errors.value.email = 'El correo es obligatorio.';
+  if (!username.value.trim()) {
+    errors.value.email = "El correo es obligatorio.";
     return;
   }
 
   if (!password.value.trim()) {
-    errors.value.password = 'La contraseña es obligatoria.';
+    errors.value.password = "La contraseña es obligatoria.";
     return;
   }
 
   try {
-    // Autenticación con Firebase
-    // const userCredential = await signInWithEmailAndPassword(auth, email.value, password.value);
-    // const user = userCredential.user;
-    
-    // Ahora obtenemos datos adicionales desde Firestore si es necesario
-    const userDocRef = doc(db, 'Users',  email.value); // Usamos UID para obtener el doc
-    const userDoc = await getDoc(userDocRef);
+    const response = await fetch("http://localhost:8000/users/login/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        username: username.value, // Asumimos que usas el correo como username
+        password: password.value,
+      }),
+    });
 
-    if (userDoc.exists()) {
-      const userData = userDoc.data();
-      alert(`Bienvenido ${userData.firstName} ${userData.lastName}!`);
-      logueado.value = true; // Definir la variable 'logueado' como un ref      
+    const data = await response.json();
+
+    if (response.ok) {
+      // Guardar el token en localStorage o en Pinia/composable
+      localStorage.setItem("token", data.token);
+      logueado.value = true;
+      alert("Inicio de sesión exitoso");
+      router.push("/");
     } else {
-      console.log('No se encontraron datos adicionales del usuario.');
+      if (data.error === "Invalid credentials") {
+        errors.value.password = "Correo o contraseña incorrectos.";
+      } else {
+        alert("Error inesperado");
+      }
     }
-    router.push('/');
-  } catch (error: any) {
-    console.error('Error al iniciar sesión:', error);
-    if (error.code === 'auth/user-not-found') {
-      errors.value.email = 'El correo no está registrado.';
-    } else if (error.code === 'auth/wrong-password') {
-      errors.value.password = 'La contraseña es incorrecta.';
-    } else {
-      alert('Ocurrió un error inesperado. Inténtalo nuevamente.');
-    }
+  } catch (error) {
+    console.error("Error al hacer login:", error);
+    alert("Error de red o servidor.");
   }
 };
 </script>

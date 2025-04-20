@@ -30,13 +30,7 @@
 
       <div>
         <label for="email">Correo Electrónico</label>
-        <input
-          id="email"
-          v-model="email"
-          type="email"
-          placeholder="Ingresa tu correo"
-          required
-        />
+        <input id="email" v-model="email" type="email" placeholder="Ingresa tu correo" required />
         <span v-if="errors.email">{{ errors.email }}</span>
       </div>
 
@@ -58,23 +52,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref, inject } from 'vue';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
-import { auth, db } from '../firebaseConfig';
-import { useRouter } from 'vue-router';
+import { ref, inject } from "vue";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { doc, setDoc, getDoc } from "firebase/firestore";
+import { auth, db } from "../firebaseConfig";
+import { useRouter } from "vue-router";
 
-const register = inject('register') as (userData: any) => void;
+const register = inject("register") as (userData: any) => void;
 
-const firstName = ref('');
-const lastName = ref('');
-const email = ref('');
-const password = ref('');
+const firstName = ref("");
+const lastName = ref("");
+const email = ref("");
+const password = ref("");
 const errors = ref({
-  firstName: '',
-  lastName: '',
-  email: '',
-  password: '',
+  firstName: "",
+  lastName: "",
+  email: "",
+  password: "",
 });
 
 const router = useRouter();
@@ -90,7 +84,7 @@ const validatePassword = (password: string): boolean => {
 };
 
 const checkUsers = async (email: string) => {
-  const docRef = doc(db, 'Users', email);
+  const docRef = doc(db, "Users", email);
   const docSnap = await getDoc(docRef);
 
   return docSnap.exists();
@@ -105,70 +99,87 @@ const addUser = async () => {
       password: password.value,
     };
 
-    await setDoc(doc(db, 'Users', email.value), data);
-    alert('Registro exitoso!');
-    firstName.value = '';
-    lastName.value = '';
-    email.value = '';
-    password.value = '';
+    await setDoc(doc(db, "Users", email.value), data);
+    alert("Registro exitoso!");
+    firstName.value = "";
+    lastName.value = "";
+    email.value = "";
+    password.value = "";
   } catch (error: any) {
-    console.error('Error al registrar:', error.message);
-    if (error.code === 'auth/email-already-in-use') {
-      errors.value.email = 'El correo ya está en uso.';
+    console.error("Error al registrar:", error.message);
+    if (error.code === "auth/email-already-in-use") {
+      errors.value.email = "El correo ya está en uso.";
     } else {
-      alert('Ocurrió un error inesperado.');
+      alert("Ocurrió un error inesperado.");
     }
   }
 };
 
 const handleRegister = async () => {
   errors.value = {
-    firstName: '',
-    lastName: '',
-    email: '',
-    password: '',
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
   };
 
   let isValid = true;
 
-  if (firstName.value.trim() === '') {
-    errors.value.firstName = 'El nombre es obligatorio.';
+  if (firstName.value.trim() === "") {
+    errors.value.firstName = "El nombre es obligatorio.";
     isValid = false;
   }
 
-  if (lastName.value.trim() === '') {
-    errors.value.lastName = 'El apellido es obligatorio.';
+  if (lastName.value.trim() === "") {
+    errors.value.lastName = "El apellido es obligatorio.";
     isValid = false;
   }
 
   if (!validateEmail(email.value)) {
-    errors.value.email = 'El formato del correo es inválido.';
+    errors.value.email = "El formato del correo es inválido.";
     isValid = false;
   }
 
   if (!validatePassword(password.value)) {
     errors.value.password =
-      'La contraseña debe tener al menos 8 caracteres, una letra mayúscula, un número y un carácter especial.';
+      "La contraseña debe tener al menos 8 caracteres, una letra mayúscula, un número y un carácter especial.";
     isValid = false;
   }
 
-  if (isValid) {
-    const userExists = await checkUsers(email.value);
-    if (!userExists) {
-      try {
-        await addUser();
-        alert('Registro exitoso');
+  if (!isValid) return;
 
-        // const userData = { email: email.value, name: firstName.value };
+  try {
+    const response = await fetch("http://localhost:8000/api/users/signup/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        username: firstName.value + lastName.value, // O usa un campo separado si lo necesitas
+        email: email.value,
+        password: password.value,
+      }),
+    });
 
-        // register(userData);
-      } catch (error: any) {
-        console.error('Error al registrar:', error.message);
-        alert('Hubo un problema con el registro');
+    const result = await response.json();
+
+    if (!response.ok) {
+      if (result.error.includes("email")) {
+        errors.value.email = result.error;
+      } else if (result.error.includes("username")) {
+        errors.value.firstName = result.error; // O crea un campo `username` separado
+      } else {
+        alert(result.error || "Error desconocido");
       }
     } else {
-      alert('Ya el usuario está registrado');
+      alert("Registro exitoso");
+      // Guarda el token si lo deseas
+      localStorage.setItem("token", result.token);
+      router.push("/"); // redirige a la página principal
     }
+  } catch (error) {
+    console.error("Error al registrar:", error);
+    alert("Hubo un error al conectar con el servidor.");
   }
 };
 </script>

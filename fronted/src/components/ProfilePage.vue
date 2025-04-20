@@ -37,9 +37,60 @@
       <button @click="edit" class="btn btn-blue">Editar Perfil</button>
     </div>
   </div>
+  <!-- Cartas Compradas -->
+  <div class="cards-section">
+    <h3 class="cards-title">Cartas Compradas</h3>
+    <table class="cards-table">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Precio</th>
+          <th>Fecha</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="card in purchasedCards" :key="card.id">
+          <td>{{ card.name }}</td>
+          <td>{{ card.price }} €</td>
+          <td>{{ card.date }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Cartas Vendidas -->
+  <div class="cards-section">
+    <h3 class="cards-title">Cartas Vendidas</h3>
+    <table class="cards-table">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Precio</th>
+          <th>Fecha</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="card in soldCards" :key="card.id">
+          <td>{{ card.name }}</td>
+          <td>{{ card.price }} €</td>
+          <td>{{ card.date }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </template>
 
 <script setup lang="ts">
+const purchasedCards = ref([
+  { id: 1, name: "Dragón de Fuego", price: 12.5, date: "April 12, 2025" },
+  { id: 2, name: "Caballero de Hielo", price: 7.0, date: "April 15, 2025" },
+]);
+
+const soldCards = ref([
+  { id: 1, name: "Gólem de Piedra", price: 9.99, date: "April 10, 2025" },
+  { id: 2, name: "Hechicera Arcana", price: 15.0, date: "April 14, 2025" },
+]);
+
 import { ref, computed } from "vue";
 import { useUserStore } from "@/stores/userStore";
 
@@ -100,6 +151,40 @@ function save() {
 </script>
 
 <style scoped>
+.cards-section {
+  margin-top: 2rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 1rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.cards-title {
+  color: #facc15;
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.cards-table {
+  width: 100%;
+  border-collapse: collapse;
+  color: #e9d8fd;
+}
+
+.cards-table th,
+.cards-table td {
+  padding: 0.75rem;
+  border: 1px solid #facc15;
+  text-align: center;
+}
+
+.cards-table th {
+  background-color: #1e293b;
+  color: #facc15;
+}
+
 .profile-container {
   max-width: 500px;
   margin: 2rem auto;

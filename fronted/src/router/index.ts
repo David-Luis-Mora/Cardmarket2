@@ -6,6 +6,7 @@ import RegisterForm from '../components/RegisterForm.vue';
 import LoginForm from '../components/LoginPage.vue';
 import ProfileForm from '../components/ProfilePage.vue'
 import AboutUs from '../components/AboutUs.vue';
+import PaymentForm from '@/components/PaymentPage.vue';
 
 const routes = [
   { path: "/", redirect: "/en/" },
@@ -16,6 +17,7 @@ const routes = [
   { path: '/:lang/register', name: "Register", component: RegisterForm, beforeEnter: validateLang },
   { path: '/:lang/user', name: "User", component: ProfileForm, beforeEnter: validateLang },
   { path: '/:lang/aboutus', name: "AboutUs", component: AboutUs, beforeEnter: validateLang },
+  { path: '/:lang/payment', name: "Payment", component: PaymentForm, beforeEnter: validateLang },
 
 
   {

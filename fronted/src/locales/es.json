@@ -27,17 +27,35 @@
     "followUs": "Síguenos",
     "allRightsReserved": "Todos los derechos reservados",
     "cartt": {
-      "title": "Tu Carrito",
-      "rarity": "Rareza",
-      "remove": "Eliminar",
-      "total": "Total",
-      "clear": "Vaciar Carrito"
-    },
+    "title": "Carrito de Compras",
+    "rarity": "Rareza",
+    "quantity": "Cantidad",
+    "summary": "Resumen",
+    "totalQuantity": "Cantidad Total",
+    "totalPrice": "Precio Total",
+    "buy": "Comprar",
+    "clear": "Vaciar Carrito",
+    "emptyMessage": "Tu carrito está vacío.",
+    "goShop": "Ir a la tienda"
+  },
     "aboutus": {
       "text1": "Bienvenido a CardShop, el rincón donde los planeswalkers como tú se reúnen para comprar, vender e intercambiar cartas legendarias de Magic: The Gathering.",
       "text2": "Si tienes cartas que ya no usas, puedes venderlas fácilmente. Solo necesitas iniciar sesión y empezar a compartir tu colección con otros fans.",
       "text3": "¿Necesitas ayuda o estás buscando una carta específica? Nuestro sistema de chat con vendedores te conecta directamente con expertos que te pueden asesorar y ofrecerte justo lo que buscas.",
       "text4": "¡Únete ahora!"
-    }
+    },
+
+    "payment": {
+      "title": "Pago con tarjeta",
+      "cardHolderName": "Nombre del titular",
+      "address": "Dirección",
+      "cardInfo": "Información de la tarjeta",
+      "cardNumber": "Número de tarjeta",
+      "expiryDate": "Fecha de expiración",
+      "cvv": "CVV",
+      "pay": "Pagar",
+      "customerInfo": "Información del cliente",
+      "orderSummary": "Resumen de la compra"
+  }
 
 }

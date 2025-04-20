@@ -12,10 +12,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, inject, ref, type Ref } from 'vue';
-import { useCartStore } from '@/stores/cart';
-import { useRouter } from 'vue-router';
-import { useI18n } from 'vue-i18n';
+import { defineComponent, inject, ref, type Ref } from "vue";
+import { useCartStore } from "@/stores/cart";
+import { useRouter } from "vue-router";
+import { useI18n } from "vue-i18n";
 
 interface Product {
   id: number;
@@ -29,7 +29,7 @@ interface Product {
 }
 
 export default defineComponent({
-  name: 'ProductItem',
+  name: "ProductItem",
   props: {
     product: {
       type: Object as () => Product,
@@ -37,7 +37,7 @@ export default defineComponent({
     },
   },
   setup(props) {
-    const logueado = inject('logueado') as Ref<boolean>;
+    const logueado = inject("logueado") as Ref<boolean>;
     const cartStore = useCartStore();
     const router = useRouter();
     const { locale } = useI18n();
@@ -45,16 +45,15 @@ export default defineComponent({
     const selectedQuantity = ref(1);
 
     const addToCart = () => {
-      if (!logueado.value) {
-        router.push(`/${locale.value}/login`);
-        return;
-      }
+      // if (!logueado.value) {
+      //   router.push(`/${locale.value}/login`);
+      //   return;
+      // }
 
       const productToAdd: Product = {
-      ...(props.product as Product),
-      quantity: selectedQuantity.value,
-    };
-
+        ...(props.product as Product),
+        quantity: selectedQuantity.value,
+      };
 
       cartStore.addProduct(productToAdd);
     };
@@ -65,7 +64,6 @@ export default defineComponent({
     };
   },
 });
-
 </script>
 
 <style scoped>
@@ -112,9 +110,9 @@ export default defineComponent({
 }
 
 .product-item img {
-  width: 100%;   /* Ajusta el ancho de la imagen al contenedor */
-  height: auto;  /* Mantiene la proporción de la imagen */
-  object-fit: contain;  /* Asegura que la imagen se vea completa sin recorte */
+  width: 100%; /* Ajusta el ancho de la imagen al contenedor */
+  height: auto; /* Mantiene la proporción de la imagen */
+  object-fit: contain; /* Asegura que la imagen se vea completa sin recorte */
 }
 
 .quantity-select {

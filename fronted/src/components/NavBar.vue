@@ -40,7 +40,7 @@
       <!-- Mostrar Login o Logout dependiendo del estado de logueado -->
       <div v-if="!userLoggedIn">
         <div class="box">
-          <router-link class="nav-link" :to="`/${$i18n.locale}/user`">
+          <router-link class="nav-link" :to="`/${$i18n.locale}/login`">
             <i class="bi bi-person"></i> {{ $t("login") }}
           </router-link>
         </div>

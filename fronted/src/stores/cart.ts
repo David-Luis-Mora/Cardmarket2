@@ -24,7 +24,11 @@ export const useCartStore = defineStore('cart', {
   }),
 
   getters: {
-    total: (state) => state.products.reduce((sum, product) => sum + product.price * product.quantity, 0),
+    total: (state) =>
+      state.products.reduce((sum, product) => sum + product.price * product.quantity, 0),
+  
+    totalQuantity: (state) =>
+      state.products.reduce((total, product) => total + product.quantity, 0),
   },
 
   actions: {
@@ -92,4 +96,5 @@ export const useCartStore = defineStore('cart', {
       return shuffled.slice(0, n);
     },
   },
+  
 });

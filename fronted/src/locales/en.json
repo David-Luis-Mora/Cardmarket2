@@ -27,10 +27,28 @@
     "followUs": "Follow Us",
     "allRightsReserved": "All rights reserved",
     "cartt": {
-      "title": "Your Cart",
+      "title": "Shopping Cart",
       "rarity": "Rarity",
-      "remove": "Remove",
-      "total": "Total",
-      "clear": "Clear Cart"
+      "quantity": "Quantity",
+      "summary": "Summary",
+      "totalQuantity": "Total Quantity",
+      "totalPrice": "Total Price",
+      "buy": "Buy",
+      "clear": "Clear Cart",
+      "emptyMessage": "Your cart is empty.",
+    "goShop": "Go to the store"
+    },
+    "payment": {
+      "title": "Card Payment",
+      "cardHolderName": "Cardholder Name",
+      "address": "Address",
+      "cardInfo": "Card Information",
+      "cardNumber": "Card Number",
+      "expiryDate": "Expiry Date",
+      "cvv": "CVV",
+      "pay": "Pay",
+      "customerInfo": "Customer Information",
+      "orderSummary": "Order Summary"
     }
+    
 }
