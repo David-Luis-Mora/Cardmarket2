@@ -8,6 +8,9 @@ from django.core.exceptions import ValidationError
 from django.http import JsonResponse
 from .models import Token, Profile
 import uuid
+from django.views.decorators.csrf import csrf_exempt
+import json
+
 
 # Create your views here.
 
@@ -54,10 +57,12 @@ def user_login(request):
         return JsonResponse({'error': 'Invalid credentials'}, status=401)
     
 
+@csrf_exempt
 def user_signup(request):
-    username = request.data.Get.get('username')
-    password = request.data.Get.get('password')
-    email = request.data.Get.get('email')
+    data = json.loads(request.body)
+    username = data.get('username')
+    password = data.get('password')
+    email = data.get('email')
 
     if not validate_email_unique(email):
         return JsonResponse({'error': 'The email is already registered'}, status=400)
