@@ -38,11 +38,10 @@ def card_detail(request, slug):
         card = Card.objects.get(id=slug)
         serializer = CardSerializer(card, request=request)
         return serializer.json_response()
-    except Game.DoesNotExist:
+    except Card.DoesNotExist:
         return JsonResponse({'error': 'Game not found'}, status=404)
     
 def user_login(request):
-    # username = request.data.get('username')
     username = request.data.get('username')
     password = request.data.get('password')
 
@@ -69,13 +68,14 @@ def user_signup(request):
     user = User.objects.create_user(username=username, password=password)
     profile = Profile.objects.create(
         user=user,
+        name="",
+        nickname="",
         country='',
         email=email,
         balance=0,
         address='',
         phone='', 
         bio='',
-        avatar=None
     )
 
     token = Token.objects.create(user=user)

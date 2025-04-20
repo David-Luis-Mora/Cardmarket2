@@ -64,7 +64,7 @@ class Profile(models.Model):
     country = models.CharField(max_length=255)
     email = models.CharField(max_length=255)
     name = models.CharField(max_length=255)
-    nick = models.CharField(max_length=255)
+    nickname = models.CharField(max_length=255)
     balance = models.SmallIntegerField()
     address = models.TextField()
     phone = models.CharField(max_length=255)
