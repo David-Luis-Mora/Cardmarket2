@@ -44,9 +44,11 @@ def card_detail(request, slug):
     except Card.DoesNotExist:
         return JsonResponse({'error': 'Game not found'}, status=404)
     
+@csrf_exempt
 def user_login(request):
-    username = request.data.get('username')
-    password = request.data.get('password')
+    data = json.loads(request.body)
+    username = data.get('username')
+    password = data.get('password')
 
     
     if user := authenticate(request, username=username, password=password):
@@ -60,6 +62,8 @@ def user_login(request):
 @csrf_exempt
 def user_signup(request):
     data = json.loads(request.body)
+    firstname = data.get('firstname')
+    lastname = data.get('lastname')
     username = data.get('username')
     password = data.get('password')
     email = data.get('email')
@@ -70,10 +74,17 @@ def user_signup(request):
     if not validate_username_unique(username):
         return JsonResponse({'error': 'The username is already registered'}, status=400)
     
-    user = User.objects.create_user(username=username, password=password)
+    user = User.objects.create_user(
+        email=email,
+        username=username,
+        password=password,
+        first_name=firstname,
+        last_name=lastname
+    )
+
     profile = Profile.objects.create(
         user=user,
-        name="",
+        name=f"{firstname} {lastname}",
         nickname="",
         country='',
         email=email,
