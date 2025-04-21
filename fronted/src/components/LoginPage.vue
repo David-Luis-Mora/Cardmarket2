@@ -3,15 +3,16 @@
     <h1>Iniciar Sesión</h1>
     <form @submit.prevent="handleLogin">
       <div>
-        <label for="email">Correo Electrónico</label>
+        <label for="username">Nombre de usuario</label>
         <input
-          id="email"
+          id="username"
           v-model="username"
-          type="email"
-          placeholder="Ingresa tu correo"
+          type="text"
+          maxlength="50"
+          placeholder="Ingresa tu nombre de usuario"
           required
         />
-        <span v-if="errors.email">{{ errors.email }}</span>
+        <span v-if="errors.username">{{ errors.username }}</span>
       </div>
 
       <div>
@@ -48,19 +49,19 @@ const login = inject("login") as (userData: any) => void;
 const username = ref("");
 const password = ref("");
 const errors = ref({
-  email: "",
+  username: "",
   password: "",
 });
 const logueado = inject("logueado") as Ref<boolean>;
 const router = useRouter();
 const handleLogin = async () => {
   errors.value = {
-    email: "",
+    username: "",
     password: "",
   };
 
   if (!username.value.trim()) {
-    errors.value.email = "El correo es obligatorio.";
+    errors.value.username = "El correo es obligatorio.";
     return;
   }
 
@@ -70,13 +71,13 @@ const handleLogin = async () => {
   }
 
   try {
-    const response = await fetch("http://localhost:8000/users/login/", {
+    const response = await fetch("http://localhost:8000/api/users/login/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        username: username.value, // Asumimos que usas el correo como username
+        username: username.value,
         password: password.value,
       }),
     });

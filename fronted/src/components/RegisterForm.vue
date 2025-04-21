@@ -35,6 +35,19 @@
       </div>
 
       <div>
+        <label for="username">Nombre de usuario</label>
+        <input
+          id="username"
+          v-model="username"
+          type="text"
+          maxlength="50"
+          placeholder="Ingresa tu nombre de usuario"
+          required
+        />
+        <span v-if="errors.username">{{ errors.username }}</span>
+      </div>
+
+      <div>
         <label for="password">Contraseña</label>
         <input
           id="password"
@@ -64,10 +77,12 @@ const firstName = ref("");
 const lastName = ref("");
 const email = ref("");
 const password = ref("");
+const username = ref("");
 const errors = ref({
   firstName: "",
   lastName: "",
   email: "",
+  username: "",
   password: "",
 });
 
@@ -95,6 +110,7 @@ const addUser = async () => {
     const data = {
       firstName: firstName.value,
       lastName: lastName.value,
+      username: username.value,
       email: email.value,
       password: password.value,
     };
@@ -103,6 +119,7 @@ const addUser = async () => {
     alert("Registro exitoso!");
     firstName.value = "";
     lastName.value = "";
+    username.value = "";
     email.value = "";
     password.value = "";
   } catch (error: any) {
@@ -120,6 +137,7 @@ const handleRegister = async () => {
     firstName: "",
     lastName: "",
     email: "",
+    username: "",
     password: "",
   };
 
@@ -155,7 +173,9 @@ const handleRegister = async () => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        username: firstName.value + lastName.value, // O usa un campo separado si lo necesitas
+        username: username.value,
+        firstname: firstName.value,
+        lastname: lastName.value,
         email: email.value,
         password: password.value,
       }),
@@ -167,7 +187,7 @@ const handleRegister = async () => {
       if (result.error.includes("email")) {
         errors.value.email = result.error;
       } else if (result.error.includes("username")) {
-        errors.value.firstName = result.error; // O crea un campo `username` separado
+        errors.value.username = result.error; // O crea un campo `username` separado
       } else {
         alert(result.error || "Error desconocido");
       }
