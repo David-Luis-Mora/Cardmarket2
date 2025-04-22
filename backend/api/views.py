@@ -101,7 +101,7 @@ def edit_profile(request):
     token_key = request.data.get('token')
     country = request.data.get('country')
     name = request.data.get('name')
-    nick = request.data.get('nick')
+    nickname = request.data.get('nick')
     address = request.data.get('address')
     phone = request.data.get('phone')
     bio = request.data.get('bio')
@@ -114,7 +114,7 @@ def edit_profile(request):
     profile = Profile.objects.get(key=token.user)
     profile.country = country
     profile.name = name
-    profile.nick = nick
+    profile.nickname = nickname
     profile.address = address
     profile.phone = phone
     profile.bio = bio

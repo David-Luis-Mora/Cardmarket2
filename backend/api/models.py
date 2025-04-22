@@ -3,41 +3,6 @@ import uuid
 from django.conf import settings
 from django.db import models
 
-# from django.contrib.postgres.fields import ArrayField, JSONField
-# Create your models here.
-
-
-# class Card(models.Model):
-#     scryfall_id = models.UUIDField(primary_key=True)
-#     oracle_id = models.UUIDField(null=True, blank=True)
-#     name = models.CharField(max_length=255)
-#     layout = models.CharField(max_length=50)
-#     lang = models.CharField(max_length=10)
-#     mana_cost = models.CharField(max_length=50, null=True, blank=True)
-#     cmc = models.DecimalField(max_digits=5, decimal_places=2)
-#     type_line = models.CharField(max_length=255)
-#     oracle_text = models.TextField(null=True, blank=True)
-#     power = models.CharField(max_length=10, null=True, blank=True)
-#     toughness = models.CharField(max_length=10, null=True, blank=True)
-#     loyalty = models.CharField(max_length=10, null=True, blank=True)
-#     # colors = ArrayField(models.CharField(max_length=10), null=True, blank=True)
-#     # color_identity = ArrayField(models.CharField(max_length=10), null=True, blank=True)
-#     # keywords = ArrayField(models.CharField(max_length=50), null=True, blank=True)
-#     # legalities = JSONField()
-#     rarity = models.CharField(max_length=20)
-#     set_name = models.CharField(max_length=100)
-#     set_code = models.CharField(max_length=10)
-#     collector_number = models.CharField(max_length=10)
-#     released_at = models.DateField()
-#     # image_uris = JSONField(null=True, blank=True)
-#     # prices = JSONField()
-#     scryfall_uri = models.URLField()
-#     uri = models.URLField()
-#     # card_faces = JSONField(null=True, blank=True)
-#     def __str__(self):
-#         return self.name
-
-
 class Card(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     name = models.CharField(max_length=255)
@@ -87,6 +52,33 @@ class Profile(models.Model):
         return self.user.username
 
 
+# Cuando el usuario añade al carrito
+class CartItem(models.Model):
+    user = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='cart_items')
+    card = models.ForeignKey(Card, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+    added_at = models.DateTimeField(auto_now_add=True)
+
+
+# Cuando el usuario vende las cartas
+class CardForSale(models.Model):
+    seller = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='cards_for_sale')
+    card = models.ForeignKey(Card, on_delete=models.CASCADE)
+    price = models.DecimalField(max_digits=6, decimal_places=2)
+    quantity = models.PositiveIntegerField(default=1)
+    listed_at = models.DateTimeField(auto_now_add=True)
+
+# Cuando el usuario compra las cartas [Que se mostrara en el perfil]
+class Purchase(models.Model):
+    buyer = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='purchases')
+    card = models.ForeignKey(Card, on_delete=models.CASCADE)
+    seller = models.ForeignKey(Profile, on_delete=models.SET_NULL, null=True, related_name='sales')
+    quantity = models.PositiveIntegerField()
+    price = models.DecimalField(max_digits=6, decimal_places=2)
+    purchased_at = models.DateTimeField(auto_now_add=True)
+
+
+
 class Chat(models.Model):
     participants = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='conversations')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -126,7 +118,9 @@ class CardListing(models.Model):
 
     def __str__(self):
         return f'{self.seller.username} vende {self.quantity}x {self.card.name}'
-    
+
+
+
 
 class Token(models.Model):
     user = models.ForeignKey(
