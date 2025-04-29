@@ -260,7 +260,7 @@ def sell_card(request):
 
 
 
-@require_GET
+@require_get
 @validate_json(required_fields=['number-start'])
 def cards_by_expansion(request, code):
     number_start = request.json_data['number-start']
@@ -280,6 +280,6 @@ def cards_by_expansion(request, code):
                 'price': card.price,
             }
             data.append(card)
-            
+
 
     return JsonResponse({'cards': data}, status=200)
