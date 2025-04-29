@@ -55,7 +55,7 @@ class Profile(models.Model):
 # Cuando el usuario añade al carrito
 class CartItem(models.Model):
     user = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='cart_items')
-    card = models.ForeignKey(Card, on_delete=models.CASCADE)
+    card_for_sale  = models.ForeignKey(CardForSale, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
     added_at = models.DateTimeField(auto_now_add=True)
 
