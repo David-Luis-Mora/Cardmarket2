@@ -37,8 +37,13 @@
           <li><a class="dropdown-item" href="#" @click="changeLanguage('en')">English</a></li>
         </ul>
       </div>
+      <div v-if="logueado" class="box">
+        <router-link class="nav-link js-scroll-trigger" :to="`/${$i18n.locale}/profile`">
+          <i class="bi bi-person-fill"></i> {{ $t("profile") }}
+        </router-link>
+      </div>
       <!-- Mostrar Login o Logout dependiendo del estado de logueado -->
-      <div v-if="!userLoggedIn">
+      <div v-if="!logueado">
         <div class="box">
           <router-link class="nav-link" :to="`/${$i18n.locale}/login`">
             <i class="bi bi-person"></i> {{ $t("login") }}
@@ -89,14 +94,18 @@ export default defineComponent({
     const router = useRouter();
 
     // Verificar si hay usuario autenticado en Firebase
-    onMounted(() => {
-      onAuthStateChanged(auth, (user) => {
-        if (user) {
-          logueado.value = true; // El usuario está autenticado
-        } else {
-          logueado.value = false; // No hay usuario autenticado
-        }
-      });
+    onMounted(async () => {
+      const token = localStorage.getItem("token");
+      if (token) {
+        const res = await fetch("http://localhost:8000/api/users/check-token", {
+          headers: {
+            Authorization: `Token ${token}`,
+          },
+        });
+        logueado.value = res.ok;
+      } else {
+        logueado.value = false;
+      }
     });
 
     const toggleSidebar = () => {
@@ -109,19 +118,10 @@ export default defineComponent({
       window.location.href = `/${lang}/${currentPath}`;
     };
 
-    const logout = async () => {
-      try {
-        await signOut(auth);
-        const currentPath = window.location.pathname;
-        logueado.value = false; // Actualiza el estado de logueado
-
-        // Solo redirigir si no estamos ya en /login
-        if (!currentPath.includes("/login")) {
-          window.location.href = `/${locale.value}/login`;
-        }
-      } catch (error) {
-        console.error("Error al cerrar sesión: ", error);
-      }
+    const logout = () => {
+      localStorage.removeItem("token"); // Borra el token
+      logueado.value = false; // Actualiza el estado reactivo
+      router.push(`/${locale.value}/login`); // Redirige al login
     };
 
     const goToProfile = () => {
@@ -135,6 +135,7 @@ export default defineComponent({
       changeLanguage,
       logout,
       goToProfile,
+      logueado,
     };
   },
 });

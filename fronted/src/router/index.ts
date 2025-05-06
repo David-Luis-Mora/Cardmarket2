@@ -7,6 +7,7 @@ import LoginForm from '../components/LoginPage.vue';
 import ProfileForm from '../components/ProfilePage.vue'
 import AboutUs from '../components/AboutUs.vue';
 import PaymentForm from '@/components/PaymentPage.vue';
+import ProfilePage from '../components/ProfilePage.vue';
 
 const routes = [
   { path: "/", redirect: "/en/" },
@@ -18,6 +19,7 @@ const routes = [
   { path: '/:lang/user', name: "User", component: ProfileForm, beforeEnter: validateLang },
   { path: '/:lang/aboutus', name: "AboutUs", component: AboutUs, beforeEnter: validateLang },
   { path: '/:lang/payment', name: "Payment", component: PaymentForm, beforeEnter: validateLang },
+  { path: '/:lang/profile', name: "Profile", component: ProfilePage, beforeEnter: validateLang},
 
 
   {

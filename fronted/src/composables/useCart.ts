@@ -16,4 +16,5 @@ export function useCart() {
     calculateTax,
     getTotalWithTax,
   };
+  
 }

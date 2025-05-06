@@ -26,6 +26,7 @@ interface Product {
   quantity: number;
   img: string;
   basePrice: number;
+  sellerNickname: string;
 }
 
 export default defineComponent({
@@ -44,20 +45,40 @@ export default defineComponent({
 
     const selectedQuantity = ref(1);
 
-    const addToCart = () => {
-      // if (!logueado.value) {
-      //   router.push(`/${locale.value}/login`);
-      //   return;
-      // }
-
+    const addToCart = async () => {
       const productToAdd: Product = {
         ...(props.product as Product),
         quantity: selectedQuantity.value,
       };
 
-      cartStore.addProduct(productToAdd);
-    };
+      cartStore.addProduct(productToAdd); // local store
 
+      // Llamar a backend
+      try {
+        const response = await fetch("/api/cart/add", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            "card-id": productToAdd.id,
+            nickname: productToAdd.sellerNickname,
+            "number-cards": productToAdd.quantity,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || "Failed to add to cart");
+        }
+
+        console.log("Backend response:", data.message);
+      } catch (error: unknown) {
+        const errMsg = error instanceof Error ? error.message : String(error);
+        console.error("Backend error:", errMsg);
+      }
+    };
     return {
       selectedQuantity,
       addToCart,

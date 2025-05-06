@@ -65,7 +65,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, inject } from "vue";
+import { ref, inject, type Ref } from "vue";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { auth, db } from "../firebaseConfig";
@@ -131,7 +131,6 @@ const addUser = async () => {
     }
   }
 };
-
 const handleRegister = async () => {
   errors.value = {
     firstName: "",
@@ -184,18 +183,19 @@ const handleRegister = async () => {
     const result = await response.json();
 
     if (!response.ok) {
-      if (result.error.includes("email")) {
+      if (result.error?.includes("email")) {
         errors.value.email = result.error;
-      } else if (result.error.includes("username")) {
-        errors.value.username = result.error; // O crea un campo `username` separado
+      } else if (result.error?.includes("username")) {
+        errors.value.username = result.error;
       } else {
         alert(result.error || "Error desconocido");
       }
     } else {
       alert("Registro exitoso");
-      // Guarda el token si lo deseas
       localStorage.setItem("token", result.token);
-      router.push("/"); // redirige a la página principal
+      const logueado = inject("logueado") as Ref<boolean>;
+      if (logueado) logueado.value = true;
+      router.push("/");
     }
   } catch (error) {
     console.error("Error al registrar:", error);

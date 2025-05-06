@@ -74,7 +74,10 @@
             :style="cartItems.length >= 10 ? { maxHeight: '200px', overflowY: 'auto' } : {}"
           >
             <li v-for="(item, index) in cartItems" :key="index">
-              {{ item.name }} - {{ item.quantity }} × ${{ item.price.toFixed(2) }}
+              <strong>{{ item.name }}</strong> – {{ item.quantity }} × ${{
+                item.price.toFixed(2)
+              }}
+              = <span class="item-total">${{ (item.quantity * item.price).toFixed(2) }}</span>
             </li>
           </ul>
 
@@ -93,13 +96,15 @@
     </div>
   </div>
 </template>
-
 <script lang="ts">
 import { defineComponent, ref, computed } from "vue";
+import { useCartStore } from "@/stores/cart"; // importa el store del carrito
 
 export default defineComponent({
   name: "CreditCardPayment",
   setup() {
+    const cartStore = useCartStore(); // accede al store del carrito
+
     const cardNumber = ref("");
     const expiryDate = ref("");
     const cvv = ref("");
@@ -107,26 +112,9 @@ export default defineComponent({
     const address = ref("");
     const paymentStatus = ref<{ success: boolean; message: string } | null>(null);
 
-    const cartItems = ref([
-      { name: "Item 1", quantity: 2, price: 12.99 },
-      { name: "Item 2", quantity: 1, price: 24.5 },
-      { name: "Item 1", quantity: 2, price: 12.99 },
-      { name: "Item 2", quantity: 1, price: 24.5 },
-      { name: "Item 1", quantity: 2, price: 12.99 },
-      { name: "Item 2", quantity: 1, price: 24.5 },
-      { name: "Item 1", quantity: 2, price: 12.99 },
-      { name: "Item 2", quantity: 1, price: 24.5 },
-      { name: "Item 1", quantity: 2, price: 12.99 },
-      { name: "Item 2", quantity: 1, price: 24.5 },
-      { name: "Item 1", quantity: 2, price: 12.99 },
-      { name: "Item 2", quantity: 1, price: 24.5 },
-      { name: "Item 1", quantity: 2, price: 12.99 },
-      { name: "Item 2", quantity: 1, price: 24.5 },
-    ]);
-
-    const totalAmount = computed(() =>
-      cartItems.value.reduce((sum, item) => sum + item.quantity * item.price, 0)
-    );
+    // Ya no usas un ref local, sino el store
+    const cartItems = computed(() => cartStore.products);
+    const totalAmount = computed(() => cartStore.total); // o calcula manualmente si prefieres
 
     const submitPayment = () => {
       if (
@@ -143,7 +131,13 @@ export default defineComponent({
         return;
       }
 
-      paymentStatus.value = { success: true, message: "Payment successful! Thank you." };
+      paymentStatus.value = {
+        success: true,
+        message: "Payment successful! Thank you.",
+      };
+
+      // Limpia el carrito después de un pago exitoso
+      cartStore.clearCart();
     };
 
     return {

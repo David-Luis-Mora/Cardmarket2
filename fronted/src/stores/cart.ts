@@ -1,7 +1,7 @@
 // stores/cart.ts
 import { defineStore } from 'pinia';
 
-interface Product {
+export interface Product {
   id: number;
   name: string;
   type: string;
@@ -10,6 +10,7 @@ interface Product {
   price: number;
   quantity: number;
   img: string;
+  sellerNickname:string;
 }
 
 interface CartState {

@@ -1,7 +1,9 @@
 {
+    "searchByName": "Search by Name",
     "language": "Language",
     "cart": "Cart",
     "cards": "Cards",
+    "profile": "Profile",
     "home": "Home",
     "welcome": "Welcome to CardShop",
     "mesaje1": "Our cards",

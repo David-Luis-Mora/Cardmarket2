@@ -1,25 +1,53 @@
 <template>
   <div class="container my-4">
     <div class="mb-4">
-      <label for="expansionFilter" class="form-label">{{ $t('filterByExpansion') }}</label>
-      <select id="expansionFilter" v-model="selectedExpansion" class="form-select" @change="resetPage">
-        <option value="">{{ $t('allExpansions') }} ({{ totalCardCount }})</option>
-        <option value="Cimientos">{{ $t('Cimientos') }} ({{ getCardCount('Cimientos') }})</option>
-        <option value="The Brothers' War">{{ $t("The Brothers' War") }} ({{ getCardCount("The Brothers' War") }})</option>
-        <option value="Dominaria United">{{ $t('Dominaria United') }} ({{ getCardCount('Dominaria United') }})</option>
+      <div class="mb-3">
+        <input
+          type="text"
+          v-model="searchTerm"
+          class="form-control"
+          :placeholder="$t('searchByName')"
+          @input="resetPage"
+        />
+      </div>
+
+      <label for="expansionFilter" class="form-label">{{ $t("filterByExpansion") }}</label>
+      <select
+        id="expansionFilter"
+        v-model="selectedExpansion"
+        class="form-select"
+        @change="resetPage"
+      >
+        <option value="">{{ $t("allExpansions") }} ({{ totalCardCount }})</option>
+        <option value="Cimientos">{{ $t("Cimientos") }} ({{ getCardCount("Cimientos") }})</option>
+        <option value="The Brothers' War">
+          {{ $t("The Brothers' War") }} ({{ getCardCount("The Brothers' War") }})
+        </option>
+        <option value="Dominaria United">
+          {{ $t("Dominaria United") }} ({{ getCardCount("Dominaria United") }})
+        </option>
       </select>
     </div>
 
     <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4 justify-content-center">
-      <ProductItem v-for="product in currentProducts" :key="product.id" :product="product" @add-to-cart="addToCart"
-        class="col" />
+      <ProductItem
+        v-for="product in currentProducts"
+        :key="product.id"
+        :product="product"
+        @add-to-cart="addToCart"
+        class="col"
+      />
     </div>
 
     <!-- Botones de Paginación -->
     <div v-if="!loading && !error" class="d-flex justify-content-center mt-4">
-      <button class="btn btn-primary" @click="prevPage" :disabled="currentPage === 1">{{ $t('prev') }}</button>
-      <span class="mx-3">{{ $t('page') }} {{ currentPage }} {{ $t('of') }} {{ totalPages }}</span>
-      <button class="btn btn-primary" @click="nextPage" :disabled="currentPage === totalPages">{{ $t('next') }}</button>
+      <button class="btn btn-primary" @click="prevPage" :disabled="currentPage === 1">
+        {{ $t("prev") }}
+      </button>
+      <span class="mx-3">{{ $t("page") }} {{ currentPage }} {{ $t("of") }} {{ totalPages }}</span>
+      <button class="btn btn-primary" @click="nextPage" :disabled="currentPage === totalPages">
+        {{ $t("next") }}
+      </button>
     </div>
 
     <div v-if="selectedProduct" class="modal-overlay" @click.self="closeModal">
@@ -31,10 +59,18 @@
           </div>
           <div class="modal-body">
             <img :src="selectedProduct.image" :alt="selectedProduct.name" class="img-fluid mb-3" />
-            <p><strong>{{ $t('type') }}:</strong> {{ selectedProduct.type }}</p>
-            <p><strong>{{ $t('rarity') }}:</strong> {{ selectedProduct.rarity }}</p>
-            <p><strong>{{ $t('price') }}:</strong> ${{ selectedProduct.price }}</p>
-            <button class="btn btn-success" @click="addToCart(selectedProduct)">{{ $t('addToCart') }}</button>
+            <p>
+              <strong>{{ $t("type") }}:</strong> {{ selectedProduct.type }}
+            </p>
+            <p>
+              <strong>{{ $t("rarity") }}:</strong> {{ selectedProduct.rarity }}
+            </p>
+            <p>
+              <strong>{{ $t("price") }}:</strong> ${{ selectedProduct.price }}
+            </p>
+            <button class="btn btn-success" @click="addToCart(selectedProduct)">
+              {{ $t("addToCart") }}
+            </button>
           </div>
         </div>
       </div>
@@ -43,20 +79,21 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, onMounted } from 'vue';
-import ProductItem from '../components/ProductItem.vue';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { auth } from '../firebaseConfig'; // Asegúrate de tener la configuración de Firebase correctamente importada
-import { useAuthStore } from '../stores/authStore';
-import { useRouter } from 'vue-router';
+import { defineComponent, ref, computed, onMounted } from "vue";
+import ProductItem from "../components/ProductItem.vue";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { auth } from "../firebaseConfig"; // Asegúrate de tener la configuración de Firebase correctamente importada
+import { useAuthStore } from "../stores/authStore";
+import { useRouter } from "vue-router";
 
 export default defineComponent({
-  name: 'ProductList',
+  name: "ProductList",
   components: { ProductItem },
   setup() {
+    const searchTerm = ref("");
     const products = ref<any[]>([]); // Definir la variable como un arreglo vacío
     const selectedProduct = ref<any | null>(null); // Aquí defines la variable selectedProduct
-    const selectedExpansion = ref('');
+    const selectedExpansion = ref("");
     const currentPage = ref(1);
     const productsPerPage = 20;
     const loading = ref(true); // Estado de carga
@@ -74,7 +111,7 @@ export default defineComponent({
         products.value = data; // Asignar los productos cargados
         loading.value = false; // Cambiar el estado de carga a falso
       } catch (err) {
-        error.value = err instanceof Error ? err.message : 'Error desconocido';
+        error.value = err instanceof Error ? err.message : "Error desconocido";
         loading.value = false;
       }
     };
@@ -85,12 +122,19 @@ export default defineComponent({
     });
 
     const filteredProducts = computed(() => {
-      return selectedExpansion.value
-        ? products.value.filter((product: any) =>
-          product.expansions === selectedExpansion.value // Compara directamente como cadenas
+      let result = products.value;
 
-          )
-        : products.value;
+      if (selectedExpansion.value) {
+        result = result.filter((product) => product.expansions === selectedExpansion.value);
+      }
+
+      if (searchTerm.value.trim()) {
+        result = result.filter((product) =>
+          product.name.toLowerCase().includes(searchTerm.value.toLowerCase())
+        );
+      }
+
+      return result;
     });
 
     const totalPages = computed(() => {
@@ -107,10 +151,7 @@ export default defineComponent({
     });
 
     const getCardCount = (expansion: string) => {
-      return products.value.filter((product: any) =>
-      product.expansions === expansion
-
-      ).length;
+      return products.value.filter((product: any) => product.expansions === expansion).length;
     };
 
     const resetPage = () => {
@@ -146,16 +187,17 @@ export default defineComponent({
 
     // **Aquí está la corrección del método addToCart**
     const addToCart = (product: any) => {
-    if (isAuthenticated.value) {
-      cart.value.push(product);
-      console.log('Added to cart:', product);
-    } else {
-      alert('Por favor, inicie sesión para añadir productos al carrito.');
-    }
-  };
+      if (isAuthenticated.value) {
+        cart.value.push(product);
+        console.log("Added to cart:", product);
+      } else {
+        alert("Por favor, inicie sesión para añadir productos al carrito.");
+      }
+    };
 
     // Devolver todas las variables y métodos a la plantilla
     return {
+      searchTerm,
       selectedExpansion,
       filteredProducts,
       totalPages,
@@ -172,12 +214,11 @@ export default defineComponent({
       resetPage,
       loading,
       error,
-      cart
+      cart,
     };
-  }
+  },
 });
 </script>
-
 
 <style scoped>
 .container {

@@ -1,7 +1,9 @@
 {
+    "searchByName": "Buscar por nombre",
     "language": "Idioma",
     "cart": "Carrito",
     "cards": "Cartas",
+    "profile": "Perfil",
     "home": "Home",
     "welcome": "Bienvenido a CardShop",
     "mesaje1": "Nuestras cartas",

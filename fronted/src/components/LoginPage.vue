@@ -39,11 +39,12 @@
 <script setup lang="ts">
 import { ref, inject, type Ref } from "vue";
 import { useRouter } from "vue-router";
+import { useI18n } from "vue-i18n";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "../firebaseConfig";
 import ChildComponent from "./ProductItem.vue";
-
+const { locale } = useI18n();
 const login = inject("login") as (userData: any) => void;
 
 const username = ref("");
@@ -85,10 +86,19 @@ const handleLogin = async () => {
     const data = await response.json();
 
     if (response.ok) {
-      // Guardar el token en localStorage o en Pinia/composable
-      localStorage.setItem("token", data.token);
-      logueado.value = true;
+      const token = data.token;
+
+      // Guardar token en localStorage
+      localStorage.setItem("token", token);
+      window.location.href = `/${locale.value}/`;
+      // También puedes guardar el usuario si el backend lo manda
+      if (data.user) {
+        localStorage.setItem("user", JSON.stringify(data.user));
+      }
+
+      // Redireccionar
       alert("Inicio de sesión exitoso");
+
       router.push("/");
     } else {
       if (data.error === "Invalid credentials") {
