@@ -52,14 +52,6 @@ class Profile(models.Model):
         return self.user.username
 
 
-# Cuando el usuario añade al carrito
-class CartItem(models.Model):
-    user = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='cart_items')
-    card_for_sale  = models.ForeignKey(CardForSale, on_delete=models.CASCADE)
-    quantity = models.PositiveIntegerField(default=1)
-    added_at = models.DateTimeField(auto_now_add=True)
-
-
 # Cuando el usuario vende las cartas
 class CardForSale(models.Model):
     seller = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='cards_for_sale')
@@ -67,6 +59,13 @@ class CardForSale(models.Model):
     price = models.DecimalField(max_digits=6, decimal_places=2)
     quantity = models.PositiveIntegerField(default=1)
     listed_at = models.DateTimeField(auto_now_add=True)
+    
+# Cuando el usuario añade al carrito
+class CartItem(models.Model):
+    user = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='cart_items')
+    card_for_sale  = models.ForeignKey(CardForSale, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+    added_at = models.DateTimeField(auto_now_add=True)
 
 # Cuando el usuario compra las cartas [Que se mostrara en el perfil]
 class Purchase(models.Model):

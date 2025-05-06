@@ -45,14 +45,21 @@ def card_detail(request,slug):
     except Card.DoesNotExist:
         return JsonResponse({'error': 'Game not found'}, status=404)
     
+def check_token(request):
+    token_key = request.headers.get('Authorization', '').replace('Token ', '')
+    try:
+        token = Token.objects.get(key=token_key)
+        return JsonResponse({'valid': True})
+    except Token.DoesNotExist:
+        return JsonResponse({'valid': False}, status=401)
+    
 @csrf_exempt
 @require_post
-@auth_required
 @validate_json(required_fields=['username','password'])
 def user_login(request):
     # data = json.loads(request.body)
-    username =  request.json_data('username')
-    password =  request.json_data('password')
+    username =  request.json_data['username']
+    password =  request.json_data['password']
 
     if user := authenticate(request, username=username, password=password):
         request.user = user
@@ -64,15 +71,14 @@ def user_login(request):
 
 @csrf_exempt
 @require_post
-@auth_required
 @validate_json(required_fields=['firstname','lastname','username','password','email'])
 def user_signup(request):
-    # data = json.loads(request.body)
-    firstname =  request.json_data('firstname')
-    lastname =  request.json_data('lastname')
-    username =  request.json_data('username')
-    password =  request.json_data('password')
-    email =  request.json_data('email')
+    #data = json.loads(request.body)
+    firstname =  request.json_data['firstname']
+    lastname =  request.json_data['lastname']
+    username =  request.json_data['username']
+    password =  request.json_data['password']
+    email =  request.json_data['email']
 
     if not validate_email_unique(email):
         return JsonResponse({'error': 'The email is already registered'}, status=400)
@@ -134,39 +140,45 @@ def edit_profile(request):
     return JsonResponse({'message': 'Profile updated successfully', 'token': token.key}, status=200)
 
 
-
 @require_post
 @validate_json(required_fields=['card-id', 'nickname','number-cards'])
 @auth_required
 def add_cart(request):
-    # token_key = request.data.get('token')
-    card_id = request.json_data('card-id')
+    card_id = request.json_data['card-id']
     nickname_user_sellers = request.json_data['nickname']
     number_cards = request.json_data['number-cards']
-    # token_users = request.user
+
     try:
         card = Card.objects.get(id=card_id)
     except Card.DoesNotExist:
         return JsonResponse({'error': 'Card not found'}, status=404)
-    
+
     try:
         profile_sellers = Profile.objects.get(nickname=nickname_user_sellers)
     except Profile.DoesNotExist:
-        return JsonResponse({'error': 'Card not found'}, status=404)
-    
-    # if number_cards > 0 and number_cards % 10 * len(number_cards) < 0 Para que el numero no sea negativo y que no tenga decimales
-    
+        return JsonResponse({'error': 'Seller not found'}, status=404)
+
     try:
-        cards_for_sellers = CardForSale.objects.get(seller=profile_sellers,card=card)
-    except Profile.DoesNotExist:
-        return JsonResponse({'error': 'Card not found'}, status=404)
-    
+        cards_for_sellers = CardForSale.objects.get(seller=profile_sellers, card=card)
+    except CardForSale.DoesNotExist:
+        return JsonResponse({'error': 'Card for sale not found'}, status=404)
+
     if cards_for_sellers.quantity < number_cards:
-        return JsonResponse({'error': 'Number not format'}, status=404) # Mirar que error devolver al no tener el formato de numero
-    
-    cards_for_sellers.quantity = cards_for_sellers.quantity - number_cards
-    
-    return JsonResponse({'message': 'Card add for CartItem',}, status=200)
+        return JsonResponse({'error': 'Not enough stock'}, status=400)
+
+    # Descontar stock temporalmente del vendedor
+    cards_for_sellers.quantity -= number_cards
+    cards_for_sellers.save()
+
+    # Guardar el item en el carrito para el usuario logueado
+    CartItem.objects.create(
+        user=request.user.profile,
+        card_for_sale=cards_for_sellers,
+        quantity=number_cards
+    )
+
+    return JsonResponse({'message': 'Card added to cart'}, status=200)
+
 
 
 
@@ -271,8 +283,7 @@ def cards_by_expansion(request, code):
     data = []
     for index in range(len(cards)):
         if index < (20 * number_start) - 1:
-            card =
-            {
+            card = {
                 'id': str(card.id),
                 'name': card.name,
                 'image': card.image_uris,
