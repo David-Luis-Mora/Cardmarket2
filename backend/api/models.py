@@ -37,11 +37,16 @@ class Profile(models.Model):
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile'
     )
     bio = models.TextField(blank=True)
-    avatar = models.ImageField(
-        upload_to='avatars',
+    avatar_url = models.URLField(
         blank=True,
         null=True,
-        default='avatars/noavatar.png',
+        help_text="URL de un avatar remoto"
+    )
+    avatar_file = models.ImageField(
+        upload_to='avatars/',
+        blank=True,
+        null=True,
+        help_text="Imagen subida por el usuario"
     )
 
     # Cartas Comprada [Imagen de la carta, precio,vendedor, fecha,cantidad]

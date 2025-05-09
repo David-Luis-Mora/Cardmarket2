@@ -50,19 +50,22 @@ def validate_json(required_fields=None):
 
 
 
-def auth_required(func):
-    BEARER_TOKEN_REGEX = (
-        r'Bearer (?P<token>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})'
-    )
 
+def auth_required(view_func):
     def wrapper(request, *args, **kwargs):
-        if not (m := re.fullmatch(BEARER_TOKEN_REGEX, request.headers.get('Authorization', ''))):
-            return JsonResponse({'error': 'Invalid authentication token'}, status=400)
+        auth_header = request.headers.get('Authorization', '')
+        if auth_header.startswith('Token '):
+            token_str = auth_header[len('Token '):].strip()
+        elif auth_header.startswith('Bearer '):
+            token_str = auth_header[len('Bearer '):].strip()
+        else:
+            return JsonResponse({'error': 'Invalid authentication header'}, status=400)
+
         try:
-            token = Token.objects.get(key=m['token'])
+            token = Token.objects.get(key=token_str)
         except Token.DoesNotExist:
             return JsonResponse({'error': 'Unregistered authentication token'}, status=401)
-        request.user = token.user
-        return func(request, *args, **kwargs)
 
+        request.user = token.user
+        return view_func(request, *args, **kwargs)
     return wrapper

@@ -37,3 +37,4 @@ class BaseSerializer(ABC):
 
     def json_response(self) -> str:
         return JsonResponse(self.serialize(), safe=False)
+
