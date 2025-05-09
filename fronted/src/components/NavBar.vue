@@ -1,8 +1,8 @@
 <template>
   <nav>
     <div class="logo-menu-container">
-      <router-link class="nav-link js-scroll-trigger" :to="`/${$i18n.locale}/`">
-        <img src="../../public/logo.png" alt="CardShop Logo" class="logo" />
+      <router-link class="nav-link js-scroll-trigger" :to="`/${locale}/`">
+        <img src="/logo.png" alt="CardShop Logo" class="logo" />
       </router-link>
       <button class="menu-btn" @click="toggleSidebar" aria-label="Abrir menú lateral">
         <i class="bi bi-list" aria-hidden="true"></i>
@@ -11,13 +11,13 @@
 
     <div class="nav-links">
       <div class="box">
-        <router-link class="nav-link js-scroll-trigger" :to="`/${$i18n.locale}/cards`">
-          <i class="bi bi-suit-spade"></i> {{ $t("cards") }}
+        <router-link class="nav-link js-scroll-trigger" :to="`/${locale}/cards`">
+          <i class="bi bi-suit-spade"></i> {{ t("cards") }}
         </router-link>
       </div>
       <div class="box">
-        <router-link class="nav-link js-scroll-trigger" :to="`/${$i18n.locale}/cart`">
-          <i class="bi bi-cart2"></i> {{ $t("cart") }}
+        <router-link class="nav-link js-scroll-trigger" :to="`/${locale}/cart`">
+          <i class="bi bi-cart2"></i> {{ t("cart") }}
         </router-link>
       </div>
       <div class="nav-item dropdown box">
@@ -29,33 +29,27 @@
           data-bs-toggle="dropdown"
           aria-expanded="false"
         >
-          <i class="bi bi-translate"></i>
-          {{ $t("language") }}
+          <i class="bi bi-translate"></i> {{ t("language") }}
         </a>
         <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-          <li><a class="dropdown-item" href="#" @click="changeLanguage('es')">Español</a></li>
-          <li><a class="dropdown-item" href="#" @click="changeLanguage('en')">English</a></li>
+          <li><a class="dropdown-item" @click.prevent="changeLanguage('es')">Español</a></li>
+          <li><a class="dropdown-item" @click.prevent="changeLanguage('en')">English</a></li>
         </ul>
       </div>
-      <div v-if="logueado" class="box">
-        <router-link class="nav-link js-scroll-trigger" :to="`/${$i18n.locale}/profile`">
-          <i class="bi bi-person-fill"></i> {{ $t("profile") }}
+      <div v-if="isLoggedIn" class="box">
+        <router-link class="nav-link" :to="{ name: 'MyProfile', params: { lang: locale } }">
+          <i class="bi bi-person-fill"></i> {{ t("profile") }}
         </router-link>
       </div>
-      <!-- Mostrar Login o Logout dependiendo del estado de logueado -->
-      <div v-if="!logueado">
-        <div class="box">
-          <router-link class="nav-link" :to="`/${$i18n.locale}/login`">
-            <i class="bi bi-person"></i> {{ $t("login") }}
-          </router-link>
-        </div>
+      <div v-if="!isLoggedIn" class="box">
+        <router-link class="nav-link" :to="`/${locale}/login`">
+          <i class="bi bi-person"></i> {{ t("login") }}
+        </router-link>
       </div>
-      <div v-else>
-        <div class="box">
-          <button class="nav-link" @click="logout">
-            <i class="bi bi-box-arrow-right"></i> {{ $t("logout") }}
-          </button>
-        </div>
+      <div v-else class="box">
+        <button class="nav-link btn-logout" @click="logout">
+          <i class="bi bi-box-arrow-right"></i> {{ t("logout") }}
+        </button>
       </div>
     </div>
   </nav>
@@ -63,81 +57,70 @@
   <div class="overlay" v-if="isSidebarOpen" @click="toggleSidebar"></div>
   <div class="sidebar" :class="{ open: isSidebarOpen }">
     <button class="close-btn" @click="toggleSidebar">&times;</button>
-    <h3>{{ $t("options") }}</h3>
+    <h3>{{ t("options") }}</h3>
     <ul>
       <li>
-        <a href="#">{{ $t("profile") }}</a>
+        <a @click.prevent="goToProfile">{{ t("profile") }}</a>
       </li>
       <li>
-        <a href="#">{{ $t("settings") }}</a>
+        <a href="#">{{ t("settings") }}</a>
       </li>
       <li>
-        <a href="#" @click="logout">{{ $t("logout") }}</a>
+        <a @click.prevent="logout">{{ t("logout") }}</a>
       </li>
     </ul>
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref, inject, onMounted, type Ref } from "vue";
+<script lang="ts" setup>
+import { ref, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
-import { getAuth, signOut, onAuthStateChanged } from "firebase/auth";
 import { useRouter } from "vue-router";
 
-export default defineComponent({
-  name: "NavBar",
-  setup() {
-    const { t, locale } = useI18n();
-    const isSidebarOpen = ref(false);
-    const auth = getAuth();
-    const logueado = inject("logueado") as Ref<boolean>; // Crear una referencia reactiva
-    const router = useRouter();
+const { t, locale } = useI18n();
+const router = useRouter();
 
-    // Verificar si hay usuario autenticado en Firebase
-    onMounted(async () => {
-      const token = localStorage.getItem("token");
-      if (token) {
-        const res = await fetch("http://localhost:8000/api/users/check-token", {
-          headers: {
-            Authorization: `Token ${token}`,
-          },
-        });
-        logueado.value = res.ok;
-      } else {
-        logueado.value = false;
-      }
+const isSidebarOpen = ref(false);
+const isLoggedIn = ref(false);
+
+function toggleSidebar() {
+  isSidebarOpen.value = !isSidebarOpen.value;
+}
+
+function changeLanguage(lang: string) {
+  locale.value = lang;
+  const path = window.location.pathname.split("/").slice(2).join("/");
+  router.push(`/${lang}/${path}`);
+}
+
+function logout() {
+  localStorage.removeItem("token");
+  isLoggedIn.value = false;
+  router.push(`/${locale.value}/login`);
+}
+
+function goToProfile() {
+  router.push(`/${locale.value}/profile`);
+}
+
+async function checkLogin() {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    isLoggedIn.value = false;
+    return;
+  }
+  try {
+    const res = await fetch(`http://localhost:8000/api/users/check-token/`, {
+      headers: { Authorization: `Bearer ${token}` },
     });
+    isLoggedIn.value = res.ok;
+  } catch {
+    isLoggedIn.value = false;
+  }
+}
 
-    const toggleSidebar = () => {
-      isSidebarOpen.value = !isSidebarOpen.value;
-    };
-
-    const changeLanguage = (lang: string) => {
-      locale.value = lang;
-      const currentPath = window.location.pathname.split("/").slice(2).join("/");
-      window.location.href = `/${lang}/${currentPath}`;
-    };
-
-    const logout = () => {
-      localStorage.removeItem("token"); // Borra el token
-      logueado.value = false; // Actualiza el estado reactivo
-      router.push(`/${locale.value}/login`); // Redirige al login
-    };
-
-    const goToProfile = () => {
-      router.push(`/${locale.value}/profile`);
-    };
-
-    return {
-      t,
-      isSidebarOpen,
-      toggleSidebar,
-      changeLanguage,
-      logout,
-      goToProfile,
-      logueado,
-    };
-  },
+onMounted(() => {
+  checkLogin();
 });
 </script>
 

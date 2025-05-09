@@ -1,146 +1,264 @@
 <template>
-  <div class="product-item">
-    <img :src="product.img" :alt="product.name" />
-    <p>{{ product.price }} $</p>
-    <!-- Selección de cantidad basada en la cantidad disponible en el JSON -->
-    <select v-model="selectedQuantity" class="quantity-select">
-      <option v-for="n in product.quantity" :key="n" :value="n">{{ n }}</option>
-    </select>
+  <div class="product-card card shadow-sm">
+    <!-- Title and View Button Above Image -->
+    <div class="d-flex justify-content-between align-items-center mb-3 title-row p-3">
+      <h5 class="card-title text-primary mb-0">{{ product.name }}</h5>
+      <router-link
+        v-if="totalSellers > 5"
+        class="btn btn-link p-0 view-button"
+        :to="{ name: 'ProductDetail', params: { locale: $i18n.locale, productId: product.id } }"
+        >{{ totalSellers }} artículos ->
+      </router-link>
+    </div>
 
-    <button @click="addToCart">Add to Cart</button>
+    <div class="row g-0 align-items-stretch">
+      <!-- Image Column -->
+      <div class="col-md-2 p-0">
+        <router-link
+          class="btn btn-link p-0 view-button"
+          :to="{ name: 'ProductDetail', params: { locale: $i18n.locale, productId: product.id } }"
+        >
+          <img
+            :src="product.image"
+            :alt="product.name"
+            class="img-fluid rounded-start product-img"
+          />
+        </router-link>
+      </div>
+      <!-- Content Column -->
+      <div class="col-md-10">
+        <div class="card-body d-flex flex-column">
+          <!-- No Sellers Message -->
+          <div v-if="totalSellers === 0" class="no-sellers mt-3">
+            <i class="bi bi-emoji-frown-fill"></i>
+            <p>No hay cartas disponibles</p>
+          </div>
+
+          <!-- Sellers List Sorted by Price Ascending -->
+          <div v-else>
+            <div
+              v-for="(seller, index) in displayedSellers"
+              :key="seller.sellerNickname + '-' + index"
+              class="seller-row d-flex justify-content-between align-items-center py-2 px-4 border-top"
+            >
+              <div class="seller-info d-flex align-items-center">
+                <span class="me-4">
+                  <strong>Vendedor:</strong>
+                  <router-link
+                    :to="{
+                      name: 'SellerProfile',
+                      params: { lang: currentLang, nickname: seller.sellerNickname },
+                    }"
+                    class="seller-link ms-1"
+                  >
+                    {{ seller.sellerNickname }}
+                  </router-link>
+                </span>
+                <span class="me-4"
+                  ><strong>Precio: </strong>
+                  <span class="text-warning">${{ seller.price.toFixed(2) }}</span></span
+                >
+                <span><strong>Disponible:</strong> {{ seller.quantity }}</span>
+              </div>
+              <div class="action-controls d-flex align-items-center">
+                <select v-model="selectedQuantities[index]" class="form-select form-select-sm me-2">
+                  <option v-for="n in seller.quantity" :key="n" :value="n">{{ n }}</option>
+                </select>
+                <button class="btn btn-success btn-sm" @click="onAddToCart(seller, index)">
+                  Añadir
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, inject, ref, type Ref } from "vue";
+<script lang="ts" setup>
+import { ref, computed, watch } from "vue";
 import { useCartStore } from "@/stores/cart";
-import { useRouter } from "vue-router";
-import { useI18n } from "vue-i18n";
+import { useRoute, useRouter } from "vue-router";
 
-interface Product {
+interface Seller {
+  sellerNickname: string;
+  price: number;
+  quantity: number;
+}
+
+interface CartProduct {
   id: number;
   name: string;
   type: string;
   rarity: string;
+  basePrice: number;
   price: number;
   quantity: number;
-  img: string;
-  basePrice: number;
   sellerNickname: string;
+  img: string;
 }
 
-export default defineComponent({
-  name: "ProductItem",
-  props: {
-    product: {
-      type: Object as () => Product,
-      required: true,
-    },
+interface Product {
+  id: number;
+  name: string;
+  image: string;
+  type: string;
+  rarity: string;
+  basePrice: number;
+  sellers: Seller[];
+}
+
+const route = useRoute();
+const currentLang = (route.params.lang as string) || "es";
+const props = defineProps<{ product: Product }>();
+const cartStore = useCartStore();
+const router = useRouter();
+
+const selectedQuantities = ref<number[]>([]);
+
+const totalSellers = computed(() => props.product.sellers.length);
+const displayedSellers = computed(() =>
+  props.product.sellers
+    .slice()
+    .sort((a, b) => a.price - b.price || a.sellerNickname.localeCompare(b.sellerNickname))
+    .slice(0, 5)
+);
+
+watch(
+  () => props.product.sellers,
+  (sellers) => {
+    selectedQuantities.value = sellers.map(() => 1);
   },
-  setup(props) {
-    const logueado = inject("logueado") as Ref<boolean>;
-    const cartStore = useCartStore();
-    const router = useRouter();
-    const { locale } = useI18n();
+  { immediate: true }
+);
 
-    const selectedQuantity = ref(1);
+async function onAddToCart(seller: Seller, idx: number) {
+  const qty = selectedQuantities.value[idx] || 1;
+  const cartItem: CartProduct = {
+    id: props.product.id,
+    name: props.product.name,
+    type: props.product.type,
+    rarity: props.product.rarity,
+    basePrice: props.product.basePrice,
+    price: seller.price,
+    quantity: qty,
+    sellerNickname: seller.sellerNickname,
+    img: props.product.image,
+  };
 
-    const addToCart = async () => {
-      const productToAdd: Product = {
-        ...(props.product as Product),
-        quantity: selectedQuantity.value,
-      };
+  try {
+    await cartStore.addProduct(cartItem);
+    alert("¡Carta añadida al carrito!");
+  } catch (err: any) {
+    console.error("Error al añadir al carrito:", err);
+    alert("Error al añadir: " + err.message);
+  }
+}
 
-      cartStore.addProduct(productToAdd); // local store
-
-      // Llamar a backend
-      try {
-        const response = await fetch("/api/cart/add", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            "card-id": productToAdd.id,
-            nickname: productToAdd.sellerNickname,
-            "number-cards": productToAdd.quantity,
-          }),
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.error || "Failed to add to cart");
-        }
-
-        console.log("Backend response:", data.message);
-      } catch (error: unknown) {
-        const errMsg = error instanceof Error ? error.message : String(error);
-        console.error("Backend error:", errMsg);
-      }
-    };
-    return {
-      selectedQuantity,
-      addToCart,
-    };
-  },
-});
+function viewAllSellers() {
+  router.push({
+    name: "ProductSellers",
+    params: { locale: currentLang, productId: props.product.id },
+  });
+}
 </script>
 
 <style scoped>
-.product-item {
+.product-card {
   border: none;
-  background: none;
-  padding: 10px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  border-radius: 1rem;
+  background-color: #0f172a;
+  color: #e9d8fd;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.product-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+}
+
+.title-row {
+  background-color: #1e293b;
+  border-bottom: 1px solid #334155;
+}
+.title-row .text-primary {
+  color: #facc15 !important;
+}
+.view-button {
+  color: #facc15;
+  font-weight: 600;
+}
+.view-button:hover {
+  color: #bb9a15;
+}
+
+.col-md-2 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.product-img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  background-color: #1e293b;
+}
+
+.seller-row {
+  background-color: #1e293b;
+}
+.seller-info span {
+  font-size: 0.9rem;
+}
+
+.form-select-sm {
+  background-color: #ffffff;
+  color: #000000;
+  border: 1px solid #334155;
+}
+.btn-success {
+  background-color: #28a745;
+  border-color: #28a745;
+  color: white;
+  transition: background 0.2s ease-in-out;
+}
+.btn-success:hover {
+  background-color: #218838;
+  border-color: #218838;
+}
+.text-warning {
+  color: #facc15 !important;
+}
+
+.btn-link {
+  text-decoration: none;
+  padding: 0;
+}
+.btn-link:hover {
+  text-decoration: underline;
+}
+
+.no-sellers {
+  color: #facc15;
+  padding: 1rem;
+  font-size: 1rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 220px;
-  box-sizing: border-box;
-}
-
-.product-item:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-}
-
-.image-card {
-  display: flex;
   justify-content: center;
-  margin-bottom: 10px;
+}
+.no-sellers i {
+  font-size: 3rem;
+  margin-bottom: 0.5rem;
 }
 
-.image-card img {
-  width: 200px;
-  object-fit: cover;
-  border-radius: 8px;
+.seller-link {
+  color: #a78bfa;
+  text-decoration: none;
 }
-
-.name-card {
-  text-align: center;
-  font-weight: bold;
-}
-
-.product-item img {
-  width: 100px;
-  height: 100px;
-  object-fit: cover;
-}
-
-.product-item img {
-  width: 100%; /* Ajusta el ancho de la imagen al contenedor */
-  height: auto; /* Mantiene la proporción de la imagen */
-  object-fit: contain; /* Asegura que la imagen se vea completa sin recorte */
-}
-
-.quantity-select {
-  margin: 5px 0;
-  padding: 5px;
-  font-size: 14px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
+.seller-link:hover {
+  text-decoration: underline;
 }
 </style>

@@ -92,18 +92,17 @@ export default defineComponent({
   name: "Cart",
   setup() {
     const cartStore = useCartStore();
-
     onMounted(() => {
-      cartStore.loadCartFromLocalStorage();
+      cartStore.fetchCartFromAPI();
     });
 
     const updateQuantity = (id: number, quantity: number) => {
       cartStore.updateQuantity(id, quantity);
     };
 
-    const removeProduct = (id: number) => {
+    function removeProduct(id: number) {
       cartStore.removeProduct(id);
-    };
+    }
 
     return {
       cartStore,

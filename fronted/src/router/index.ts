@@ -8,6 +8,9 @@ import ProfileForm from '../components/ProfilePage.vue'
 import AboutUs from '../components/AboutUs.vue';
 import PaymentForm from '@/components/PaymentPage.vue';
 import ProfilePage from '../components/ProfilePage.vue';
+import SellCardList from "@/components/SellCards.vue";
+import ProductDetail from '@/views/ProductDetail.vue';
+import SellerProfile from '@/views/SellerProfile.vue'
 
 const routes = [
   { path: "/", redirect: "/en/" },
@@ -19,7 +22,43 @@ const routes = [
   { path: '/:lang/user', name: "User", component: ProfileForm, beforeEnter: validateLang },
   { path: '/:lang/aboutus', name: "AboutUs", component: AboutUs, beforeEnter: validateLang },
   { path: '/:lang/payment', name: "Payment", component: PaymentForm, beforeEnter: validateLang },
-  { path: '/:lang/profile', name: "Profile", component: ProfilePage, beforeEnter: validateLang},
+  { path: "/:lang/sell-cards", name: "SellCards", component: SellCardList, meta: { requiresAuth: true },},
+  {
+    path: '/:lang/profile',
+    name: 'MyProfile',
+    component: ProfileForm,
+    beforeEnter: validateLang,
+    props: (route: any) => ({ lang: route.params.lang as string }),
+  },
+  {
+    path: '/:lang/seller/:nickname',
+    name: 'SellerProfile',
+    component: SellerProfile,
+    beforeEnter: validateLang,
+    props: (route: any) => ({
+      lang: route.params.lang as string,
+      nickname: route.params.nickname as string,
+    }),
+  },
+  {
+    path: '/:lang/login',
+    name: 'Login',
+    component: LoginForm,
+    beforeEnter: validateLang,
+    props: (route: any) => ({ lang: route.params.lang as string }),
+  },
+  {
+    path: '/:lang/product/:productId',
+    name: 'ProductDetail',
+    component: ProductDetail,
+    beforeEnter: validateLang,
+    props: (route: any) => ({
+      lang: route.params.lang as string,
+      productId: route.params.productId as string,
+    }),
+  },
+  
+  
 
 
   {

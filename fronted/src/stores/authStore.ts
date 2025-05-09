@@ -2,10 +2,7 @@
 import { defineStore } from 'pinia';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
-export function isAuthenticated(): boolean {
-  const token = localStorage.getItem("token");
-  return !!token;
-}
+
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: null,

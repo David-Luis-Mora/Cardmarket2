@@ -1,52 +1,93 @@
 <template>
   <div class="container my-4">
-    <div class="mb-4">
-      <div class="mb-3">
+    <div class="row mb-3">
+      <div class="col-md-6 mb-2">
         <input
-          type="text"
           v-model="searchTerm"
-          class="form-control"
-          :placeholder="$t('searchByName')"
           @input="resetPage"
+          class="form-control"
+          placeholder="Buscar por nombre"
         />
       </div>
-
-      <label for="expansionFilter" class="form-label">{{ $t("filterByExpansion") }}</label>
-      <select
-        id="expansionFilter"
-        v-model="selectedExpansion"
-        class="form-select"
-        @change="resetPage"
-      >
-        <option value="">{{ $t("allExpansions") }} ({{ totalCardCount }})</option>
-        <option value="Cimientos">{{ $t("Cimientos") }} ({{ getCardCount("Cimientos") }})</option>
-        <option value="The Brothers' War">
-          {{ $t("The Brothers' War") }} ({{ getCardCount("The Brothers' War") }})
-        </option>
-        <option value="Dominaria United">
-          {{ $t("Dominaria United") }} ({{ getCardCount("Dominaria United") }})
-        </option>
-      </select>
+      <div class="col-md-6">
+        <select v-model="selectedExpansion" @change="resetPage" class="form-select">
+          <option value="">Todas las expansiones</option>
+          <option v-for="exp in expansions" :key="exp.set_code" :value="exp.set_name">
+            {{ exp.set_name }}
+          </option>
+        </select>
+      </div>
     </div>
 
-    <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4 justify-content-center">
+    <div v-if="!loading && currentProducts.length === 0" class="no-results my-4">
+      <i class="bi bi-emoji-frown-fill"></i>
+      <p>No se encontraron cartas para esta búsqueda.</p>
+    </div>
+
+    <div v-if="loading" class="text-center my-4">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Cargando cartas...</span>
+      </div>
+    </div>
+
+    <div class="d-flex flex-column gap-3">
       <ProductItem
         v-for="product in currentProducts"
         :key="product.id"
         :product="product"
         @add-to-cart="addToCart"
-        class="col"
       />
     </div>
 
-    <!-- Botones de Paginación -->
-    <div v-if="!loading && !error" class="d-flex justify-content-center mt-4">
-      <button class="btn btn-primary" @click="prevPage" :disabled="currentPage === 1">
-        {{ $t("prev") }}
+    <div
+      v-if="!loading && !error"
+      class="d-flex justify-content-center align-items-center gap-2 mt-4 flex-wrap"
+    >
+      <!-- Ir a la primera página -->
+      <button
+        class="btn btn-sm btn-outline-secondary"
+        @click="goToPage(1)"
+        :disabled="currentPage === 1"
+      >
+        «
       </button>
-      <span class="mx-3">{{ $t("page") }} {{ currentPage }} {{ $t("of") }} {{ totalPages }}</span>
-      <button class="btn btn-primary" @click="nextPage" :disabled="currentPage === totalPages">
-        {{ $t("next") }}
+
+      <!-- Retroceder una página -->
+      <button
+        class="btn btn-sm btn-outline-secondary"
+        @click="goToPage(currentPage - 1)"
+        :disabled="currentPage === 1"
+      >
+        ‹
+      </button>
+
+      <!-- Mostrar hasta 5 páginas alrededor de la actual -->
+      <button
+        v-for="page in visiblePages"
+        :key="page"
+        class="btn btn-sm"
+        :class="page === currentPage ? 'btn-primary' : 'btn-outline-primary'"
+        @click="goToPage(page)"
+      >
+        {{ page }}
+      </button>
+
+      <!-- Avanzar una página -->
+      <button
+        class="btn btn-sm btn-outline-secondary"
+        @click="goToPage(currentPage + 1)"
+        :disabled="currentPage === totalPages"
+      >
+        ›
+      </button>
+
+      <!-- Ir a la última página -->
+      <button
+        class="btn btn-sm btn-outline-secondary"
+        @click="goToPage(totalPages)"
+        :disabled="currentPage === totalPages"
+      >
+        »
       </button>
     </div>
 
@@ -79,79 +120,129 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, onMounted } from "vue";
+import { defineComponent, ref, computed, onMounted, watch } from "vue";
 import ProductItem from "../components/ProductItem.vue";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { auth } from "../firebaseConfig"; // Asegúrate de tener la configuración de Firebase correctamente importada
 import { useAuthStore } from "../stores/authStore";
-import { useRouter } from "vue-router";
-
 export default defineComponent({
-  name: "ProductList",
+  name: "ProductList", // ✅ nombre correcto
   components: { ProductItem },
   setup() {
     const searchTerm = ref("");
-    const products = ref<any[]>([]); // Definir la variable como un arreglo vacío
-    const selectedProduct = ref<any | null>(null); // Aquí defines la variable selectedProduct
+    const sort = ref("name");
+    const selectedProduct = ref<any | null>(null);
     const selectedExpansion = ref("");
     const currentPage = ref(1);
     const productsPerPage = 20;
-    const loading = ref(true); // Estado de carga
-    const error = ref<string | null>(null); // Estado de error
-    const cart = ref<any[]>([]); // El carrito de compras
+    const loading = ref(true);
+    const error = ref<string | null>(null);
+    const cart = ref<any[]>([]);
+    const products = ref<any[]>([]);
 
-    // Cargar los productos desde el archivo JSON
-    const fetchProducts = async () => {
+    const totalCardCount = ref(0); // ahora es reactivo, no computed
+    const expansions = ref<{ set_name: string; set_code: string }[]>([]);
+    const pageWindowSize = 6;
+
+    const paginationStart = computed(() => {
+      return Math.max(1, currentPage.value - Math.floor(pageWindowSize / 2));
+    });
+
+    const paginationEnd = computed(() => {
+      return Math.min(totalPages.value, paginationStart.value + pageWindowSize - 1);
+    });
+
+    const visiblePages = computed(() => {
+      const pages = [];
+      for (let i = paginationStart.value; i <= paginationEnd.value; i++) {
+        pages.push(i);
+      }
+      return pages;
+    });
+
+    const goToPage = (page: number) => {
+      if (page >= 1 && page <= totalPages.value) {
+        currentPage.value = page;
+      }
+    };
+
+    const fetchExpansions = async () => {
       try {
-        const response = await fetch("/cards.json");
-        if (!response.ok) {
-          throw new Error("No se pudo cargar el archivo JSON");
+        const res = await fetch("http://localhost:8000/api/cards/expansions/");
+        const text = await res.text();
+
+        // Intenta parsear como JSON
+        let data;
+        try {
+          data = JSON.parse(text);
+        } catch {
+          throw new Error("Respuesta no válida: no es JSON");
         }
-        const data = await response.json();
-        products.value = data; // Asignar los productos cargados
-        loading.value = false; // Cambiar el estado de carga a falso
+
+        expansions.value = data.expansions || [];
+
+        if (expansions.value.length > 0 && !selectedExpansion.value) {
+          selectedExpansion.value = expansions.value[0].set_name;
+        }
       } catch (err) {
-        error.value = err instanceof Error ? err.message : "Error desconocido";
+        console.error("❌ Error al cargar expansiones:", err);
+      }
+    };
+
+    const fetchProducts = async () => {
+      loading.value = true;
+
+      const selected = expansions.value.find((e) => e.set_name === selectedExpansion.value);
+      const expansionCode = selected?.set_code;
+
+      const params = new URLSearchParams({
+        "number-start": currentPage.value.toString(),
+        search: searchTerm.value,
+        sort: sort.value,
+      });
+
+      const url = expansionCode
+        ? `http://localhost:8000/api/cards/expansion/${expansionCode}/?${params.toString()}`
+        : `http://localhost:8000/api/cards/all/?${params.toString()}`;
+
+      try {
+        const response = await fetch(url);
+        const responseText = await response.text();
+        const data = JSON.parse(responseText);
+
+        if (!response.ok) {
+          throw new Error(data.error || `Error ${response.status}`);
+        }
+
+        products.value = data.cards || [];
+        totalCardCount.value = data.total || 0;
+        error.value = null;
+      } catch (err: any) {
+        error.value = err.message || "Error desconocido";
+        products.value = [];
+        totalCardCount.value = 0;
+        console.error("❌ Error al obtener productos:", err);
+      } finally {
         loading.value = false;
       }
     };
 
-    // Llamar a la función fetchProducts cuando el componente se monta
-    onMounted(() => {
+    watch([searchTerm, selectedExpansion, sort], () => {
+      resetPage();
       fetchProducts();
     });
 
-    const filteredProducts = computed(() => {
-      let result = products.value;
-
-      if (selectedExpansion.value) {
-        result = result.filter((product) => product.expansions === selectedExpansion.value);
-      }
-
-      if (searchTerm.value.trim()) {
-        result = result.filter((product) =>
-          product.name.toLowerCase().includes(searchTerm.value.toLowerCase())
-        );
-      }
-
-      return result;
-    });
+    watch(currentPage, fetchProducts);
 
     const totalPages = computed(() => {
-      return Math.ceil(filteredProducts.value.length / productsPerPage);
+      return Math.ceil(totalCardCount.value / productsPerPage);
     });
 
     const currentProducts = computed(() => {
-      const startIndex = (currentPage.value - 1) * productsPerPage;
-      return filteredProducts.value.slice(startIndex, startIndex + productsPerPage);
-    });
-
-    const totalCardCount = computed(() => {
-      return products.value.length;
+      console.log("📦 currentProducts:", products.value);
+      return products.value;
     });
 
     const getCardCount = (expansion: string) => {
-      return products.value.filter((product: any) => product.expansions === expansion).length;
+      return products.value.filter((product: any) => product.expansion === expansion).length;
     };
 
     const resetPage = () => {
@@ -181,11 +272,14 @@ export default defineComponent({
     const authStore = useAuthStore();
     const isAuthenticated = computed(() => authStore.isAuthenticated);
 
-    onMounted(() => {
+    const init = async () => {
       authStore.initAuth();
-    });
+      await fetchExpansions(); // 👈 debe ir primero
+      await fetchProducts();
+    };
 
-    // **Aquí está la corrección del método addToCart**
+    onMounted(init);
+
     const addToCart = (product: any) => {
       if (isAuthenticated.value) {
         cart.value.push(product);
@@ -195,26 +289,30 @@ export default defineComponent({
       }
     };
 
-    // Devolver todas las variables y métodos a la plantilla
     return {
       searchTerm,
+      sort,
       selectedExpansion,
-      filteredProducts,
-      totalPages,
+      selectedProduct,
       currentPage,
       currentProducts,
+      totalPages,
       totalCardCount,
       getCardCount,
-      selectedProduct,
+      loading,
+      error,
+      addToCart,
       selectProduct,
       closeModal,
-      addToCart,
       prevPage,
       nextPage,
       resetPage,
-      loading,
-      error,
       cart,
+      expansions,
+      goToPage,
+      paginationStart,
+      visiblePages,
+      paginationEnd,
     };
   },
 });
@@ -225,6 +323,9 @@ export default defineComponent({
   max-width: 1200px;
 }
 
+.text-center {
+  color: white;
+}
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -271,5 +372,16 @@ export default defineComponent({
 .modal-content {
   display: flex;
   flex-direction: column;
+}
+
+.no-results {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #facc15; /* color de acento */
+}
+.no-results i {
+  font-size: 3rem; /* emoji más grande */
+  margin-bottom: 0.5rem;
 }
 </style>

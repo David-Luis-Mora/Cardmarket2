@@ -84,6 +84,7 @@ const handleLogin = async () => {
     });
 
     const data = await response.json();
+    console.log("Login response data:", data);
 
     if (response.ok) {
       const token = data.token;

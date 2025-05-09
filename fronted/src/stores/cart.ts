@@ -4,98 +4,110 @@ import { defineStore } from 'pinia';
 export interface Product {
   id: number;
   name: string;
-  type: string;
-  rarity: string;
-  basePrice: number;
+  img: string;
   price: number;
   quantity: number;
-  img: string;
-  sellerNickname:string;
+  rarity: string;
+  sellerNickname: string;
 }
-
-interface CartState {
-  products: Product[]; // Productos en el carrito
-  storeProducts: Product[]; // Productos disponibles en la tienda
+interface CartItemDTO {
+  card_id: number;
+  number_cards: number;
+  card: {
+    id: number;
+    name: string;
+    img: string;
+    price: number;
+    seller: string;
+  };
+  quantity: number;
 }
 
 export const useCartStore = defineStore('cart', {
-  state: (): CartState => ({
-    products: [],
-    storeProducts: [],
+  state: () => ({
+    products: [] as Product[],
   }),
 
   getters: {
-    total: (state) =>
-      state.products.reduce((sum, product) => sum + product.price * product.quantity, 0),
-  
-    totalQuantity: (state) =>
-      state.products.reduce((total, product) => total + product.quantity, 0),
+    total:   (state) => state.products.reduce((sum,p) => sum + p.price*p.quantity, 0),
+    totalQuantity: (state) => state.products.reduce((sum,p) => sum + p.quantity, 0),
   },
 
   actions: {
-    // Cargar carrito desde localStorage
-    loadCartFromLocalStorage() {
-      const cartData = localStorage.getItem('cart');
-      if (cartData) {
-        const parsedData = JSON.parse(cartData);
-        this.products = parsedData.products;
+    /** 1) Traer carrito */
+    async fetchCartFromAPI() {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+      const res = await fetch('http://localhost:8000/api/users/cart/', {
+        headers: { 'Authorization': `Token ${token}` }
+      });
+      if (!res.ok) throw new Error('No autorizado');
+      const { cart } = await res.json() as { cart: CartItemDTO[] };
+
+      this.products = cart.map(ci => ({
+        id: ci.card.id,
+        name: ci.card.name,
+        img: ci.card.img,
+        price: ci.card.price,
+        quantity: ci.quantity,
+        rarity: '',             // rellénalo si lo necesitas
+        sellerNickname: ci.card.seller
+      }));
+    },
+
+    /** 2) Añadir producto */
+    async addProduct(product: Product) {
+      const token = localStorage.getItem('token');
+      if (!token) throw new Error('No autenticado');
+
+      const res = await fetch('http://localhost:8000/api/users/cart/add/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          // ¡OJO! tu vista espera "Token", no "Bearer"
+          'Authorization': `Token ${token}`,
+        },
+        body: JSON.stringify({
+          'card-id': product.id,
+          nickname: product.sellerNickname,
+          'number-cards': product.quantity
+        })
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || `HTTP ${res.status}`);
       }
+
+      // recargamos el carrito tras añadir
+      await this.fetchCartFromAPI();
     },
 
-    // Guardar carrito en localStorage
-    saveCartToLocalStorage() {
-      const cartData = {
-        products: this.products,
-      };
-      localStorage.setItem('cart', JSON.stringify(cartData));
+    /** 3) Actualizar cantidad */
+    async updateQuantity(itemId: number, quantity: number) {
+      const token = localStorage.getItem('token');
+      if (!token) throw new Error('No autenticado');
+      const res = await fetch(`http://localhost:8000/api/cart/${itemId}/`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type':  'application/json',
+          'Authorization': `Token ${token}`,
+        },
+        body: JSON.stringify({ quantity }),
+      });
+      if (!res.ok) console.error('Error actualizando:', await res.text());
+      await this.fetchCartFromAPI();
     },
 
-    // Fetch productos de una fuente externa (como un archivo JSON)
-    async fetchProducts() {
-      try {
-        const response = await fetch("/cards.json"); // 📌 Ajusta la ruta de tu JSON
-        const data: Product[] = await response.json();
-        this.storeProducts = this.getRandomItems(data, 5); // Guardar en storeProducts, NO en el carrito
-      } catch (error) {
-        console.error("Error al cargar los productos:", error);
-      }
-    },
-
-    // Agregar producto al carrito con la cantidad del JSON
-    addProduct(product: Product) {
-      const existingProduct = this.products.find(
-        (p) => p.id === product.id && p.rarity === product.rarity
-      );
-      if (existingProduct) {
-        existingProduct.quantity += product.quantity;
-      } else {
-        this.products.push({...product, quantity: product.quantity});
-      }
-      this.saveCartToLocalStorage(); // Guardar cada vez que se agregue un producto
-    },
-
-    removeProduct(id: number) {
-      this.products = this.products.filter((product) => product.id !== id);
-      this.saveCartToLocalStorage(); // Guardar después de eliminar un producto
-    },
-
-    updateQuantity(id: number, quantity: number) {
-      const product = this.products.find((p) => p.id === id);
-      if (product) {
-        product.quantity = quantity;
-      }
-      this.saveCartToLocalStorage(); // Guardar después de actualizar cantidad
-    },
-
-    clearCart() {
-      this.products = [];
-      localStorage.removeItem('cart'); // Eliminar carrito de localStorage
-    },
-
-    getRandomItems(items: Product[], n: number): Product[] {
-      const shuffled = [...items].sort(() => 0.5 - Math.random());
-      return shuffled.slice(0, n);
+    /** 4) Eliminar item */
+    async removeProduct(cartItemId: number) {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`http://localhost:8000/api/cart/${cartItemId}/`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Token ${token}` }
+      });
+      if (!res.ok) console.error('Error eliminando del carrito');
+      await this.fetchCartFromAPI();
     },
   },
-  
 });

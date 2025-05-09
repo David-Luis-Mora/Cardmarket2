@@ -1,18 +1,26 @@
 import { defineStore } from 'pinia'
 
-export const useUserStore = defineStore('user', {
-  state: () => ({
-    user: {
-      name: 'Juan Pérez',
-      email: 'juan@example.com',
-      role: 'Administrador',
-      avatar: ''
-    } as null | { name: string; email: string; role: string; avatar?: string }
-  }),
+export interface UserProfile {
+  username: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  nickname: string;
+  avatar?: string;
+  country?: string;
+  address?: string;
+  phone?: string;
+  bio?: string;
+}
 
+export const useUserStore = defineStore("user", {
+  state: () => ({
+    user: null as UserProfile | null,
+  }),
   actions: {
-    setUser(newUser) {
-      this.user = newUser
-    }
-  }
-})
+    setUser(userData: UserProfile) {
+      this.user = userData;
+    },
+  },
+});
+
