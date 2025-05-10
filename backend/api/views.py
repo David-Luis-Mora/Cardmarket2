@@ -800,3 +800,22 @@ def check_token(request):
         "method": request.method,
         "body": request.body.decode('utf-8')
     })
+
+
+
+
+
+@csrf_exempt
+@auth_required
+@require_http_methods(["POST"])
+def delete_all_cart_items(request):
+    user = request.user
+    try:
+        profile = user.profile
+    except Profile.DoesNotExist:
+        return JsonResponse({'error': 'Perfil no encontrado'}, status=400)
+
+    # Elimina todos los ítems del carrito de ese usuario
+    deleted, _ = CartItem.objects.filter(user=profile).delete()
+
+    return JsonResponse({'success': f'{deleted} productos eliminados del carrito'}, status=200)
