@@ -19,6 +19,7 @@ interface CartItemDTO {
     img: string;
     price: number;
     seller: string;
+    rarity : string;
   };
   quantity: number;
 }
@@ -39,7 +40,10 @@ export const useCartStore = defineStore('cart', {
       const token = localStorage.getItem('token');
       if (!token) return;
       const res = await fetch('http://localhost:8000/api/users/cart/', {
-        headers: { 'Authorization': `Token ${token}` }
+        headers: {
+          'Authorization': `Token ${token}`,
+          'Content-Type': 'application/json',
+      }
       });
       if (!res.ok) throw new Error('No autorizado');
       const { cart } = await res.json() as { cart: CartItemDTO[] };
@@ -50,7 +54,7 @@ export const useCartStore = defineStore('cart', {
         img: ci.card.img,
         price: ci.card.price,
         quantity: ci.quantity,
-        rarity: '',             // rellénalo si lo necesitas
+        rarity: ci.card.rarity,             // rellénalo si lo necesitas
         sellerNickname: ci.card.seller
       }));
     },
@@ -100,11 +104,25 @@ export const useCartStore = defineStore('cart', {
     },
 
     /** 4) Eliminar item */
-    async removeProduct(cartItemId: number) {
+    async removeProduct(product: Product) {
       const token = localStorage.getItem('token');
-      const res = await fetch(`http://localhost:8000/api/cart/${cartItemId}/`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Token ${token}` }
+      
+      console.log("🛒 Eliminando producto:", {
+        id: product.id,
+        nickname: product.sellerNickname
+      });
+      const res = await fetch(`http://localhost:8000/api/users/cart/delete/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Token ${token}`,
+          
+        },
+        body: JSON.stringify({
+          'card-id': product.id,
+          'nickname': product.sellerNickname,
+          // 'number-cards': product.quantity
+        })
       });
       if (!res.ok) console.error('Error eliminando del carrito');
       await this.fetchCartFromAPI();

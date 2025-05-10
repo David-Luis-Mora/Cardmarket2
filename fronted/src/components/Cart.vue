@@ -37,7 +37,7 @@
                 </div>
               </div>
 
-              <button @click="removeProduct(product.id)" class="remove-btn">✕</button>
+              <button @click="removeProduct(product)" class="remove-btn">✕</button>
             </li>
           </transition-group>
         </template>
@@ -86,7 +86,7 @@
 
 <script lang="ts">
 import { defineComponent, onMounted } from "vue";
-import { useCartStore } from "@/stores/cart";
+import { useCartStore, type Product } from "@/stores/cart";
 
 export default defineComponent({
   name: "Cart",
@@ -100,8 +100,8 @@ export default defineComponent({
       cartStore.updateQuantity(id, quantity);
     };
 
-    function removeProduct(id: number) {
-      cartStore.removeProduct(id);
+    function removeProduct(product: Product) {
+      cartStore.removeProduct(product);
     }
 
     return {
