@@ -106,7 +106,7 @@ export const useCartStore = defineStore('cart', {
     /** 4) Eliminar item */
     async removeProduct(product: Product) {
       const token = localStorage.getItem('token');
-      
+
       console.log("🛒 Eliminando producto:", {
         id: product.id,
         nickname: product.sellerNickname
@@ -127,5 +127,25 @@ export const useCartStore = defineStore('cart', {
       if (!res.ok) console.error('Error eliminando del carrito');
       await this.fetchCartFromAPI();
     },
+    // Eliminar todas las cartas del carrito
+    async clearCart() {
+      const token = localStorage.getItem('token');
+      const res = await fetch('http://localhost:8000/api/users/cart/delete/all/', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Token ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+    
+      if (!res.ok) {
+        console.error('❌ Error vaciando el carrito');
+      } else {
+        console.log('🧹 Carrito vaciado correctamente');
+        await this.fetchCartFromAPI(); // recarga el carrito vacío
+      }
+    }
   },
+  
+
 });

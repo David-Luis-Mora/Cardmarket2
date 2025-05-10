@@ -104,10 +104,15 @@ export default defineComponent({
       cartStore.removeProduct(product);
     }
 
+    function clearCart() {
+      cartStore.clearCart();
+    }
+
     return {
       cartStore,
       updateQuantity,
       removeProduct,
+      clearCart,
     };
   },
 });
