@@ -110,6 +110,7 @@ def user_signup(request):
         phone='', 
         bio='',
     )
+    profile.save()
 
 
     token = Token.objects.create(user=user)
@@ -281,20 +282,67 @@ def add_cart(request):
 
 
     
-    
-# Preguntale a Sanchez si hace falta esta view
-# Lo puede hacer a nivel Front nada mas
-
-def delete_cart(request):
-    pass
 
 
 
 
-@require_http_methods(["GET"])
+
+
+
+# @require_http_methods(["POST"])
+# @validate_json(required_fields=['card-id', 'nickname'])
+
+@csrf_exempt
+@validate_json(required_fields=['card-id', 'nickname',])
 @auth_required
+@require_http_methods(["POST"])
+def delete_cart(request):
+    print("🔍 request.body:", request.body)
+    print("🔍 request.headers:", request.headers)
+    # print("🏷 Received Authorization:", request.META.get('HTTP_AUTHORIZATION'))
+    # print("🏷 request.json_data:", request.json_data)
+
+    try:
+        card_id         = request.json_data['card-id']
+        seller_username = request.json_data['nickname']
+        # qty             = int(request.json_data['number-cards'])
+    except KeyError as e:
+        return JsonResponse({'error': f'Falta campo {e.args[0]}'}, status=400)
+    except ValueError:
+        return JsonResponse({'error': 'number-cards debe ser un entero'}, status=400)
+
+    # Buscar entidades necesarias
+    try:
+        card = Card.objects.get(id=card_id)
+        seller_profile = Profile.objects.get(user__username=seller_username)
+        card_for_sale = CardForSale.objects.get(card=card, seller=seller_profile)
+        cart_item = CartItem.objects.get(user=request.user.profile, card_for_sale=card_for_sale)
+    except Card.DoesNotExist:
+        return JsonResponse({'error': 'Carta no encontrada'}, status=404)
+    except Profile.DoesNotExist:
+        return JsonResponse({'error': 'Perfil de vendedor no encontrado'}, status=404)
+    except CardForSale.DoesNotExist:
+        return JsonResponse({'error': 'Venta no encontrada'}, status=404)
+    except CartItem.DoesNotExist:
+        return JsonResponse({'error': 'Item no encontrado en el carrito'}, status=404)
+
+    # Eliminar el CartItem
+    cart_item.delete()
+
+    return JsonResponse({'success': 'Item eliminado del carrito'}, status=200)
+
+
+
+
+@auth_required
+@require_http_methods(["GET"])
 def user_cart(request):
-    profile = request.user.profile
+    user = request.user
+    try:
+        profile = user.profile
+    except Profile.DoesNotExist:
+        return JsonResponse({'error': 'Perfil no encontrado'}, status=900)
+
     items = CartItem.objects.filter(user=profile).select_related("card_for_sale__card")
     data = []
     for ci in items:
@@ -312,6 +360,10 @@ def user_cart(request):
                 "name": card.name,
                 "img":  request.build_absolute_uri(img),
                 "price": float(sale.price),
+                "seller": sale.seller.nickname,  # 👈 este campo es necesario para el frontend
+                "rarity": card.rarity
+
+
             },
             "quantity": ci.quantity,
         })

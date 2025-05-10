@@ -131,3 +131,14 @@ CORS_ALLOW_ALL_ORIGINS = True
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",  # para desarrollo con Vite
 ]
+
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',  # <-- esto fuerza CSRF
+        'rest_framework.authentication.TokenAuthentication',
+    ]
+}
+
+CORS_ALLOW_CREDENTIALS = True

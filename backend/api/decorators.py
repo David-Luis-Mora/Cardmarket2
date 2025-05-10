@@ -34,6 +34,8 @@ def validate_json(required_fields=None):
                     data = json.loads(request.body) if request.body else {}
                 except json.JSONDecodeError:
                     return JsonResponse({'error': 'Invalid JSON body'}, status=400)
+                
+            print("✅ JSON recibido en decorador:", data)    
             if required_fields:
                 missing_fields = [field for field in required_fields if field not in data]
                 if missing_fields:
