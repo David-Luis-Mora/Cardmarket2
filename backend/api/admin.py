@@ -2,7 +2,7 @@ from django.contrib import admin
 
 # Register your models here.
 
-from .models import Card, CartItem, CardForSale, Profile
+from .models import Card, CartItem, CardForSale, Purchase, Profile
 from django.utils.html import format_html
 
 
@@ -29,6 +29,18 @@ class CardForSaleAdmin(admin.ModelAdmin):
     search_fields = ('card__name', 'seller__nickname')
     ordering = ('-listed_at',)
     
+
+@admin.register(Purchase)
+class PurchaseAdmin(admin.ModelAdmin):
+    list_display = [
+        'buyer',
+        'card',
+        'seller',
+        'quantity',
+        'price',
+        'purchased_at',
+    ]
+
 
 
 @admin.register(Profile)
