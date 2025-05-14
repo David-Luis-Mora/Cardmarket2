@@ -1,3 +1,3 @@
-npm install
-npm run dev
-python ./backend/manage.py runserver
+@echo off
+echo Iniciando el servidor de Node.js...
+npm install && npm run dev && python ./backend/manage.py runserver
