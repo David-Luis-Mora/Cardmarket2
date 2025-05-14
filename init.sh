@@ -4,7 +4,7 @@
 echo "Iniciando el frontend (Vue.js)"
 
 # Cambiar al directorio del frontend (ajustar el nombre si es necesario)
-cd ./frontend
+cd ./fronted
 
 # Instalar las dependencias de Vue.js
 npm install
