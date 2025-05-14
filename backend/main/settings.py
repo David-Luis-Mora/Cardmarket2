@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-%@h8(%707e_dojgx3k=62*+df^1d^q)j(ta=*nu#z$h#7=*t2(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS =  ['cardmarket2.onrender.com', 'localhost', '127.0.0.1']
 
 
 # Application definition
