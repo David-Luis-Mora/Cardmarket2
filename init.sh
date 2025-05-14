@@ -17,7 +17,7 @@ npm run build-only
 
 # Mover los archivos estáticos compilados de Vue.js a la carpeta static de Django
 echo "Moviendo archivos estáticos de Vue.js a la carpeta static de Django"
-cp -r dist/index.html ../backend/static/
+cp -r ./dist/index.html ../backend/static/
 
 # Regresar al directorio raíz
 cd ../
