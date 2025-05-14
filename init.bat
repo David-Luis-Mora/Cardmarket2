@@ -1,3 +1,3 @@
 npm install
 npm run dev
-python ./backend/api/manage.py runserver
+python ./backend/manage.py runserver
