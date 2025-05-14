@@ -5,7 +5,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.http import JsonResponse, Http404
 from .models import Token, Profile
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.views.decorators.csrf import csrf_exempt
 import json
 from .decorators import require_get,require_post,auth_required,validate_json
@@ -18,6 +18,11 @@ from django.contrib.auth import get_user_model
 import random
 
 # views.py
+
+def redirect_to_vue_dev(request):
+    return redirect('http://localhost:5173/')
+
+
 
 @require_get
 def random_cards(request):
