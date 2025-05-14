@@ -30,7 +30,7 @@ class Profile(models.Model):
     email = models.CharField(max_length=255)
     name = models.CharField(max_length=255)
     nickname = models.CharField(max_length=255)
-    balance = models.SmallIntegerField()
+    balance = models.IntegerField()
     address = models.TextField()
     phone = models.CharField(max_length=255)
     user = models.OneToOneField(

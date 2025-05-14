@@ -5,7 +5,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.http import JsonResponse, Http404
 from .models import Token, Profile
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 import json
 from .decorators import require_get,require_post,auth_required,validate_json
@@ -15,9 +15,65 @@ import json
 from .decorators import auth_required
 from django.db.models import Q
 from django.contrib.auth import get_user_model
-# Create your views here.
-import traceback
-from .validator import validate_card_data
+import random
+
+# views.py
+
+@require_get
+def random_cards(request):
+    # try:
+    #     count = int(request.GET.get('count', 4))
+    #     if count < 1:
+    #         raise ValueError()
+    # except (ValueError, TypeError):
+    #     return JsonResponse({'error': 'Parámetro inválido: count'}, status=400)
+    count = 4
+    # Sólo cartas que tienen al menos un CardForSale con stock > 0
+    qs = Card.objects.filter(cardforsale__quantity__gt=0).distinct()
+    total = qs.count()
+    if total == 0:
+        return JsonResponse({'cards': [], 'total': 0}, status=200)
+
+    # Seleccionar al azar
+    if total <= count:
+        selected = list(qs)
+    else:
+        ids = list(qs.values_list('id', flat=True))
+        chosen_ids = random.sample(ids, count)
+        selected = list(qs.filter(id__in=chosen_ids))
+
+    # Serializar
+    data = []
+    for card in selected:
+        # Imagen principal
+        img_url = ""
+        try:
+            uris = json.loads(card.image_uris or "[]")
+            if isinstance(uris, list) and uris:
+                img_url = request.build_absolute_uri(uris[0])
+        except (ValueError, TypeError):
+            pass
+
+        sale = (
+            CardForSale.objects
+            .filter(card=card, quantity__gt=0)
+            .order_by('price')
+            .first()
+        )
+        price = float(sale.price) if sale else 0.0
+
+        data.append({
+            'id':    card.id,
+            'name':  card.name,
+            'img':   card.image_uris,
+            'price': price,
+        })
+
+    return JsonResponse(
+        {'cards': data, 'total': total},
+        status=200,
+        json_dumps_params={'ensure_ascii': False}
+    )
 
 
 def validate_email_unique(email):
@@ -41,7 +97,7 @@ def logic_buyers(sale,buyer):
             buy.save()
             # Plantear cuando los compradores se le actualize el stock si llega a 0 se lo
             # quitamos del carrito o no?
-    
+
 
 
 
@@ -164,7 +220,7 @@ def edit_profile(request):
         user.save()
 
         profile.avatar_file = request.FILES.get("avatar_file")
-        profile.avatar_url = None  # Se usa imagen, se limpia la URL
+        profile.avatar_url = None  
         profile.nickname = request.POST.get("nickname", profile.nickname)
         profile.country = request.POST.get("country", profile.country)
         profile.address = request.POST.get("address", profile.address)
@@ -311,7 +367,7 @@ def delete_cart(request):
     # Buscar entidades necesarias
     try:
         card = Card.objects.get(id=card_id)
-        seller_profile = Profile.objects.get(user__username=seller_username)
+        seller_profile = Profile.objects.get(nickname=seller_username)
         card_for_sale = CardForSale.objects.get(card=card, seller=seller_profile)
         cart_item = CartItem.objects.get(user=request.user.profile, card_for_sale=card_for_sale)
     except Card.DoesNotExist:
@@ -345,7 +401,6 @@ def user_cart(request):
     for ci in items:
         sale = ci.card_for_sale
         card = sale.card
-        # extrae la primera URI si está en JSON
         try:
             img = json.loads(card.image_uris or "[]")[0]
         except (ValueError, IndexError):
@@ -355,7 +410,7 @@ def user_cart(request):
             "card": {
                 "id":   str(card.id),
                 "name": card.name,
-                "img":  request.build_absolute_uri(img),
+                "img":  request.build_absolute_uri(card.image_uris),
                 "price": float(sale.price),
                 "seller": sale.seller.nickname,  # 👈 este campo es necesario para el frontend
                 "rarity": card.rarity
@@ -437,41 +492,6 @@ def my_cards_for_sale(request):
 
     return JsonResponse({"cards_for_sale": cards})
 
-# @require_http_methods(["PATCH"])
-# @auth_required
-# def update_card_for_sale(request, card_id):
-#     try:
-#         data = json.loads(request.body)
-#         price = data.get("price")
-#         quantity = data.get("quantity")
-        
-#         card_for_sale = CardForSale.objects.get(card_id=card_id, seller=request.user.profile)
-
-#         if price is not None:
-#             card_for_sale.price = price
-#         if quantity is not None:
-#             card_for_sale.quantity = quantity
-
-#         card_for_sale.save()
-
-#         return JsonResponse({"message": "Carta actualizada correctamente."})
-#     except CardForSale.DoesNotExist:
-#         return JsonResponse({"error": "Carta no encontrada o no autorizada."}, status=404)
-#     except Exception as e:
-#         return JsonResponse({"error": str(e)}, status=400)
-
-
-# @require_http_methods(["DELETE"])
-# @auth_required
-# def delete_card_for_sale(request, card_id):
-#     try:
-#         card_for_sale = CardForSale.objects.get(card_id=card_id, seller=request.user.profile)
-#         card_for_sale.delete()
-#         return JsonResponse({"message": "Carta eliminada correctamente."})
-#     except CardForSale.DoesNotExist:
-#         return JsonResponse({"error": "Carta no encontrada o no autorizada."}, status=404)
-
-
 @require_get
 def all_cards(request):
     try:
@@ -533,10 +553,15 @@ def all_cards(request):
 
         data = []
         for card in cards_page:
-            sellers_qs = CardForSale.objects.filter(card=card).select_related('seller')
+            sellers_qs = (
+                CardForSale.objects
+                .filter(card=card, quantity__gt=0)
+                .select_related('seller')
+                .order_by('price')
+            )
             sellers = [
                 {
-                    'sellerNickname': seller.seller.nickname,
+                    'sellerNickname': seller.seller.user.username,
                     'price': float(seller.price),
                     'quantity': seller.quantity,
                 }
@@ -771,8 +796,7 @@ def seller_profile(request, username):
     return JsonResponse(context, json_dumps_params={'ensure_ascii': False})
 
 
-from django.contrib.auth import get_user_model
-from .models import Token  # tu modelo Token
+
 
 User = get_user_model()
 
@@ -893,45 +917,40 @@ def buy_for_card(request):
     user = request.user
 
     card_number = request.json_data['card-number']
-    exp_date = request.json_data['exp-date']
-    cvc = request.json_data['cvc']
+    exp_date    = request.json_data['exp-date']
+    cvc         = request.json_data['cvc']
 
+    # 1) Validar formato de la tarjeta
     card_validation_error = validate_card_data(card_number, exp_date, cvc)
     if card_validation_error:
         return JsonResponse(card_validation_error, status=400)
 
+    # 2) Obtener perfil
     try:
         profile = user.profile
     except Profile.DoesNotExist:
         return JsonResponse({'error': 'Perfil no encontrado'}, status=400)
 
-    # Obtener los ítems del carrito
+    # 3) Obtener carrito
     cart_items = CartItem.objects.filter(user=profile).select_related("card_for_sale__card")
-
     if not cart_items.exists():
         return JsonResponse({'error': 'El carrito está vacío'}, status=400)
 
-    # Calcula la cantidad total del carrito
+    # 4) Calcular total y verificar stock
     total_price = 0
     for item in cart_items:
         sale = item.card_for_sale
-        # Verificar stock (opcional)
-        if sale.quantity <= item.quantity:
-            return JsonResponse({
-                'error': f'Stock insuficiente para {sale.card.name}'
-            }, status=400)
-        # Descontar stock
-        # sale.quantity -= item.quantity
-        # sale.save()
-        # Calcular total
+        if sale.quantity < item.quantity:
+            return JsonResponse(
+                {'error': f'Stock insuficiente para {sale.card.name}'},
+                status=400
+            )
         total_price += item.quantity * sale.price
 
-    # Comprabar que tenga saldo en la cuenta
-    if  not profile.balance >= total_price:
-        return JsonResponse({
-                'error': f'Dinero insuficiente para {sale.card.name}'
-            }, status=400)
-    # Se le pone el dinero a los vendedores
+    # —> **No hacemos comprobación de profile.balance aquí**
+    # —> **No restamos nada de profile.balance al final**
+
+    # 5) Crear los registros de Purchase y pagar a los vendedores
     for item in cart_items:
         sale = item.card_for_sale
         Purchase.objects.create(
@@ -941,24 +960,24 @@ def buy_for_card(request):
             quantity=item.quantity,
             price=sale.price
         )
-        # Descontar stock
         sale.quantity -= item.quantity
-        sale.seller.balance += item.quantity * sale.price
-        sale.save()
-        logic_buyers(sale,profile)
-        # if sale.quantity == 0:
-        #     sale.adelete() \\ Testear si el vendedor se queda a 0 eliminar la venta
-        
+        sale.save()                    
 
-    profile.balance -= total_price
-    profile.save()
+        seller = sale.seller
+        seller.balance += item.quantity * sale.price
+        seller.save()                  
 
+        logic_buyers(sale, profile)
+
+    # 6) Borrar el carrito
+    count = cart_items.count()
     cart_items.delete()
 
+    # 7) Devolver respuesta
     return JsonResponse({
         'success': 'Compra realizada con éxito',
         'total_paid': float(total_price),
-        'items': len(cart_items)
+        'items': count
     }, status=200)
 
 
@@ -1017,6 +1036,8 @@ def all_cards_sold_by_user(request):
             "img": request.build_absolute_uri(img),
             "set_name": card.set_name,
             "buyer_nickname": sale.buyer.nickname,  # 👈 útil para mostrar a quién se lo vendiste
+            "buyer_nickname": sale.buyer.nickname,
+            "buyer_username": sale.buyer.user.username,
         })
 
     return JsonResponse({"cards": data}, status=200, json_dumps_params={"ensure_ascii": False})
@@ -1052,6 +1073,25 @@ def all_card_purchased_for_user(request):
             "img": request.build_absolute_uri(img),
             "set_name": card.set_name,
             "buyer_nickname": sale.buyer.nickname,  # 👈 útil para mostrar a quién se lo vendiste
+            "seller_nickname": sale.seller.nickname,
+            "seller_username": sale.seller.user.username,
         })
 
     return JsonResponse({"cards": data}, status=200, json_dumps_params={"ensure_ascii": False})
+
+@csrf_exempt
+@auth_required
+@require_http_methods(["GET"])
+def wallet_balance(request):
+    """
+    Devuelve el saldo actual del monedero del usuario logueado.
+    """
+    try:
+        profile = request.user.profile
+    except Profile.DoesNotExist:
+        return JsonResponse({'error': 'Perfil no encontrado'}, status=400)
+
+    # Profile.balance es un SmallIntegerField :contentReference[oaicite:0]{index=0}:contentReference[oaicite:1]{index=1}
+    return JsonResponse({
+        'balance': float(profile.balance)
+    }, status=200)

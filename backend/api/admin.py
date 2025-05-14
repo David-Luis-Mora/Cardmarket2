@@ -30,6 +30,7 @@ class CardForSaleAdmin(admin.ModelAdmin):
     ordering = ('-listed_at',)
     
 
+
 @admin.register(Purchase)
 class PurchaseAdmin(admin.ModelAdmin):
     list_display = [
@@ -69,3 +70,5 @@ class ProfileAdmin(admin.ModelAdmin):
             return format_html('<img src="{}" style="height:50px;" />', obj.avatar_file.url)
         return "-"
     avatar_preview.short_description = "Avatar"
+
+
