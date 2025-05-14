@@ -1,8 +1,8 @@
 #!/bin/bash
-
+cd fronted/
 npm install
-
 npm run dev &
+cd ../
 
 python ./backend/manage.py makemigrations
 
