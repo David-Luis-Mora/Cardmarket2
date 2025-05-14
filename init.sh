@@ -13,7 +13,7 @@ npm install
 npm install npm-run-all --save-dev
 
 # Compilar los archivos estáticos de Vue.js
-npm run build
+npm run build-only
 
 # Mover los archivos estáticos compilados de Vue.js a la carpeta static de Django
 echo "Moviendo archivos estáticos de Vue.js a la carpeta static de Django"
