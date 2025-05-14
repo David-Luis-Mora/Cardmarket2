@@ -1,36 +1,36 @@
 <template>
   <div class="login-form">
-    <h1>Iniciar Sesión</h1>
+    <h1>{{ $t("login.title") }}</h1>
     <form @submit.prevent="handleLogin">
       <div>
-        <label for="username">Nombre de usuario</label>
+        <label for="username">{{ $t("login.username") }}</label>
         <input
           id="username"
           v-model="username"
           type="text"
           maxlength="50"
-          placeholder="Ingresa tu nombre de usuario"
+          :placeholder="$t('login.usernamePlaceholder')"
           required
         />
         <span v-if="errors.username">{{ errors.username }}</span>
       </div>
 
       <div>
-        <label for="password">Contraseña</label>
+        <label for="password">{{ $t("login.password") }}</label>
         <input
           id="password"
           v-model="password"
           type="password"
-          placeholder="Ingresa tu contraseña"
+          :placeholder="$t('login.passwordPlaceholder')"
           required
         />
         <span v-if="errors.password">{{ errors.password }}</span>
       </div>
 
-      <button type="submit">Iniciar Sesión</button>
+      <button type="submit">{{ $t("login.submit") }}</button>
       <p>
-        ¿No tienes cuenta?
-        <router-link :to="`/${$i18n.locale}/register`">Regístrate aquí</router-link>
+        {{ $t("login.noAccount") }}
+        <router-link :to="`/${$i18n.locale}/register`">{{ $t("login.register") }}</router-link>
       </p>
     </form>
   </div>

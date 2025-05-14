@@ -3,13 +3,14 @@
     "language": "Idioma",
     "cart": "Carrito",
     "cards": "Cartas",
-    "profile": "Perfil",
+    "navprofile": "Perfil",
     "home": "Home",
+    "navlogin": "Iniciar Sesión",
+    "navlogout": "Cerrar Sesión",
     "welcome": "Bienvenido a CardShop",
     "mesaje1": "Nuestras cartas",
     "tendencies": "Tendencias",
-    "products": "Productos",
-    "login": "Iniciar Sesión",
+    "mainproducts": "Productos",
     "filterByExpansion": "Filtrar por Expansión",
     "allExpansions": "Todas las Expansiones",
     "Cimientos": "Cimientos",
@@ -40,24 +41,166 @@
     "emptyMessage": "Tu carrito está vacío.",
     "goShop": "Ir a la tienda"
   },
-    "aboutus": {
-      "text1": "Bienvenido a CardShop, el rincón donde los planeswalkers como tú se reúnen para comprar, vender e intercambiar cartas legendarias de Magic: The Gathering.",
-      "text2": "Si tienes cartas que ya no usas, puedes venderlas fácilmente. Solo necesitas iniciar sesión y empezar a compartir tu colección con otros fans.",
-      "text3": "¿Necesitas ayuda o estás buscando una carta específica? Nuestro sistema de chat con vendedores te conecta directamente con expertos que te pueden asesorar y ofrecerte justo lo que buscas.",
-      "text4": "¡Únete ahora!"
-    },
 
     "payment": {
-      "title": "Pago con tarjeta",
-      "cardHolderName": "Nombre del titular",
+    "title": "Método de Pago",
+    "useWallet": "Usar Wallet",
+    "useCard": "Usar Tarjeta",
+    "customerInfo": "Información del Cliente",
+    "cardHolderName": "Nombre del Titular",
+    "address": "Dirección",
+    "cardInfo": "Datos de la Tarjeta",
+    "cardNumber": "Número de Tarjeta",
+    "expiryDate": "Fecha de Expiración",
+    "cvv": "CVV",
+    "walletBalance": "Saldo de Wallet",
+    "loading": "Cargando",
+    "availableBalance": "Saldo Disponible",
+    "orderSummary": "Resumen del Pedido",
+    "total": "Total",
+    "payWithWallet": "Pagar con Wallet",
+    "payWithCard": "Pagar con Tarjeta",
+    "errorFillCustomer": "Por favor completa todos los campos de usuario.",
+    "errorFillCard": "Por favor completa todos los campos de la tarjeta.",
+    "errorInsufficientFunds": "Saldo insuficiente.",
+    "errorFetchWallet": "Error al obtener el saldo de Wallet.",
+    "errorGeneric": "Error en el proceso de pago.",
+    "successMessage": "¡Pago realizado con éxito!"
+  },
+  "login": {
+      "title": "Iniciar Sesión",
+      "username": "Nombre de usuario",
+      "usernamePlaceholder": "Ingresa tu nombre de usuario",
+      "password": "Contraseña",
+      "passwordPlaceholder": "Ingresa tu contraseña",
+      "submit": "Iniciar Sesión",
+      "noAccount": "¿No tienes cuenta?",
+      "register": "Regístrate aquí",
+      "errors": {
+        "usernameRequired": "El nombre de usuario es obligatorio.",
+        "passwordRequired": "La contraseña es obligatoria."
+      }
+    },
+    "register": {
+      "title": "Registro",
+      "firstName": "Nombre",
+      "firstNamePlaceholder": "Ingresa tu nombre",
+      "lastName": "Apellido",
+      "lastNamePlaceholder": "Ingresa tu apellido",
+      "email": "Correo Electrónico",
+      "emailPlaceholder": "Ingresa tu correo",
+      "username": "Nombre de usuario",
+      "usernamePlaceholder": "Ingresa tu nombre de usuario",
+      "password": "Contraseña",
+      "passwordPlaceholder": "Crea tu contraseña",
+      "submit": "Registrar",
+      "errors": {
+        "firstNameRequired": "El nombre es obligatorio.",
+        "lastNameRequired": "El apellido es obligatorio.",
+        "emailRequired": "El correo electrónico es obligatorio.",
+        "emailInvalid": "Por favor ingresa un correo electrónico válido.",
+        "usernameRequired": "El nombre de usuario es obligatorio.",
+        "passwordRequired": "La contraseña es obligatoria."
+      }
+    },
+     "aboutus": {
+      "title": "✨ Sobre Nosotros ✨",
+      "text1": "Bienvenido a <span class=\"highlight\">CardShop</span>, el rincón donde los planeswalkers como tú se reúnen para comprar, vender e intercambiar cartas legendarias de <em>Magic: The Gathering</em>.",
+      "text2_prefix": "Si tienes cartas que ya no usas, puedes <span class=\"highlight\">venderlas</span> fácilmente. Solo necesitas ",
+      "loginLink": "iniciar sesión",
+      "text2_suffix": " y empezar a compartir tu colección con otros fans.",
+      "text3": "¿Necesitas ayuda o estás buscando una carta específica? Nuestro <span class=\"highlight\">chat con vendedores</span> te conecta directamente con expertos que te pueden asesorar y ofrecerte justo lo que buscas.",
+      "button": "Regístrate Ahora"
+    },
+    "profile": {
+      "nickname": "Apodo",
+      "nicknamePlaceholder": "Ingresa tu apodo",
+      "firstName": "Nombre",
+      "firstNamePlaceholder": "Ingresa tu nombre",
+      "lastName": "Apellido",
+      "lastNamePlaceholder": "Ingresa tu apellido",
+      "email": "Correo Electrónico",
+      "emailPlaceholder": "Ingresa tu correo electrónico",
+      "avatarUrl": "URL del Avatar",
+      "avatarUrlPlaceholder": "Ingresa la URL del avatar",
+      "country": "País",
       "address": "Dirección",
-      "cardInfo": "Información de la tarjeta",
-      "cardNumber": "Número de tarjeta",
-      "expiryDate": "Fecha de expiración",
-      "cvv": "CVV",
-      "pay": "Pagar",
-      "customerInfo": "Información del cliente",
-      "orderSummary": "Resumen de la compra"
+      "addressPlaceholder": "Ingresa tu dirección",
+      "phone": "Teléfono",
+      "phonePlaceholder": "Ingresa tu número de teléfono",
+      "bio": "Biografía",
+      "bioPlaceholder": "Cuéntanos algo sobre ti",
+      "save": "Guardar",
+      "cancel": "Cancelar",
+      "editProfile": "Editar Perfil",
+      "forSaleTitle": "Mis cartas en venta",
+      "sellCards": "Vender cartas",
+      "noForSale": "No tienes cartas en venta.",
+      "name": "Nombre",
+      "price": "Precio",
+      "quantity": "Cantidad",
+      "soldTitle": "Mis cartas vendidas",
+      "noSold": "Aún no has vendido cartas.",
+      "purchasedTitle": "Mis cartas compradas",
+      "noPurchased": "Aún no has comprado cartas."
+    },
+    "productCard": {
+      "items": "artículos",
+      "noAvailable": "No hay cartas disponibles",
+      "seller": "Vendedor",
+      "price": "Precio",
+      "available": "Disponible",
+      "add": "Añadir"
+    },
+    "sellCards": {
+      "title": "Vender cartas",
+      "searchPlaceholder": "Buscar por nombre",
+      "allExpansions": "Todas las expansiones",
+      "loadingCards": "Cargando cartas...",
+      "cardImageAlt": "Imagen de {name}",
+      "rarityLabel": "Rareza",
+      "pricePlaceholder": "Precio $",
+      "quantityPlaceholder": "Cantidad",
+      "publish": "Publicar",
+      "firstPage": "Primera página",
+      "prevPage": "Página anterior",
+      "nextPage": "Página siguiente",
+      "lastPage": "Última página"
+    },
+    "productDetail": {
+      "typeLabel": "Tipo",
+      "rarityLabel": "Rareza",
+      "basePriceLabel": "Precio base",
+      "sellersTitle": "Vendedores ({total})",
+      "noSellers": "No hay vendedores disponibles",
+      "sellerLabel": "Vendedor",
+      "priceLabel": "Precio",
+      "quantityLabel": "Cantidad",
+      "add": "Añadir"
+    },
+    "productList": {
+      "searchPlaceholder": "Buscar por nombre",
+      "allExpansions": "Todas las expansiones",
+      "noResults": "No se encontraron cartas para esta búsqueda.",
+      "loadingCards": "Cargando cartas...",
+      "firstPage": "Primera página",
+      "prevPage": "Página anterior",
+      "nextPage": "Página siguiente",
+      "lastPage": "Última página"
+    },
+    "products": {
+    "foundations": {
+      "nombre": "Cimiento",
+      "descripcion": "Cimiento es un nuevo tipo de colección diseñada para mantenerse vigente a través de múltiples rotaciones de Estándar. Contiene diseños de cartas mecánicamente únicos, así como reimpresiones “menos complejas, limpias y elegantes”, funcionando de manera similar a un “set Básico perenne”. A diferencia de otras colecciones legales en Estándar, las cartas de Foundations permanecerán legales en Estándar al menos hasta 2029. Foundations está concebida para ser reimpresa y lanzada anualmente durante ese período."
+    },
+    "dominaria_united": {
+      "nombre": "Dominaria Unida",
+      "descripcion": "Registros de nombres de dominio en el dominio público relacionados con este nombre fueron presentados por un registrador subsidiario en enero de 2021. Un registro adicional con el dominio “.gg” fue realizado por Wizards of the Coast en mayo de 2021. Dominaria United contiene 281 cartas (101 comunes, 80 poco comunes, 60 raras, 20 rarísimas míticas y 20 tierras básicas), e incluye versiones premium de todas las cartas insertadas aleatoriamente. Los Set Boosters, Draft Boosters y Collector Boosters contienen una carta legendaria en cada paquete, mostrando un elenco de leyendas y personajes queridos que los aficionados de toda la vida reconocerán."
+    },
+    "brothers_war": {
+      "nombre": "Hermanos de la Guerra",
+      "descripcion": "Hermanos de la Guerra fue diseñado como un “set de evento”, lo que significa que su estructura mecánica se construyó alrededor de un acontecimiento en lugar de un mundo. En este caso, el set gira en torno a la historia de la Guerra de los Hermanos, un evento clave en la cronología de Magic que ya fue retratado en el set Antiquities y en diversas obras de ficción como la novela The Brothers' War de Jeff Grubb. El equipo de Diseño de Visión, en colaboración con el equipo Creativo, dividió la historia en tres actos: Infancia."
+    }
   }
-
-}
+  }
+  

@@ -1,12 +1,27 @@
 <template>
   <div class="payment-container">
     <h2>{{ $t("payment.title") }}</h2>
+
+    <!-- Selector de método de pago -->
+    <div class="payment-method-selector">
+      <label>
+        <input type="radio" v-model="method" value="wallet" />
+        {{ $t("payment.useWallet") }}
+      </label>
+      <label>
+        <input type="radio" v-model="method" value="card" />
+        {{ $t("payment.useCard") }}
+      </label>
+    </div>
+
     <div class="payment-grid">
       <!-- Columna izquierda -->
       <div class="left-column">
         <!-- Información del cliente -->
         <div class="card info-card">
-          <h3>{{ $t("payment.customerInfo") }}</h3>
+          <h3>
+            {{ $t("payment.customerInfo") }}
+          </h3>
           <div class="form-group">
             <label for="cardHolderName">{{ $t("payment.cardHolderName") }}</label>
             <input
@@ -30,50 +45,54 @@
         </div>
 
         <!-- Datos de la tarjeta -->
-        <div class="card card-data">
+        <div v-if="method === 'card'" class="card card-data">
           <h3>{{ $t("payment.cardInfo") }}</h3>
-          <form @submit.prevent="submitPayment" class="payment-form">
-            <div class="form-group">
-              <label for="cardNumber">{{ $t("payment.cardNumber") }}</label>
-              <input
-                v-model="cardNumber"
-                type="text"
-                id="cardNumber"
-                placeholder="1234 5678 9876 5432"
-                maxlength="19"
-                required
-              />
-            </div>
-
-            <div class="form-group">
-              <label for="expiryDate">{{ $t("payment.expiryDate") }}</label>
-              <input
-                v-model="expiryDate"
-                type="text"
-                id="expiryDate"
-                placeholder="MM/YY"
-                maxlength="5"
-                required
-              />
-            </div>
-
-            <div class="form-group">
-              <label for="cvv">{{ $t("payment.cvv") }}</label>
-              <input v-model="cvv" type="text" id="cvv" placeholder="123" maxlength="3" required />
-            </div>
-          </form>
+          <div class="form-group">
+            <label for="cardNumber">{{ $t("payment.cardNumber") }}</label>
+            <input
+              v-model="cardNumber"
+              type="text"
+              id="cardNumber"
+              placeholder="1234 5678 9876 5432"
+              maxlength="19"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="expiryDate">{{ $t("payment.expiryDate") }}</label>
+            <input
+              v-model="expiryDate"
+              type="text"
+              id="expiryDate"
+              placeholder="MM/YY"
+              maxlength="5"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="cvv">{{ $t("payment.cvv") }}</label>
+            <input v-model="cvv" type="text" id="cvv" placeholder="123" maxlength="3" required />
+          </div>
         </div>
       </div>
 
       <!-- Columna derecha -->
       <div class="right-column">
         <div class="card summary-card">
+          <div v-if="method === 'wallet'" class="card wallet-card">
+            <h3>{{ $t("payment.walletBalance") }}</h3>
+            <p v-if="walletLoading">{{ $t("payment.loading") }}...</p>
+            <p v-else-if="walletError" class="error">{{ walletError }}</p>
+            <p v-else class="balance">
+              {{ $t("payment.availableBalance") }}: ${{ walletBalance.toFixed(2) }}
+            </p>
+          </div>
           <h3>{{ $t("payment.orderSummary") }}</h3>
           <ul
             class="summary-list"
             :style="cartItems.length >= 10 ? { maxHeight: '200px', overflowY: 'auto' } : {}"
           >
-            <li v-for="(item, index) in cartItems" :key="index">
+            <li v-for="(item, i) in cartItems" :key="i">
               <strong>{{ item.name }}</strong> – {{ item.quantity }} × ${{
                 item.price.toFixed(2)
               }}
@@ -81,8 +100,20 @@
             </li>
           </ul>
 
-          <p class="total">Total: ${{ totalAmount.toFixed(2) }}</p>
-          <button @click="submitPayment" class="submit-btn">{{ $t("payment.pay") }}</button>
+          <p class="total">{{ $t("payment.total") }}: ${{ totalAmount.toFixed(2) }}</p>
+
+          <!-- Botón único que envía según method -->
+          <button
+            @click="submitPayment"
+            class="submit-btn"
+            :disabled="loading || (method === 'wallet' && walletBalance < totalAmount)"
+          >
+            {{
+              method === "wallet"
+                ? $t("payment.payWithWallet", { total: totalAmount.toFixed(2) })
+                : $t("payment.payWithCard", { total: totalAmount.toFixed(2) })
+            }}
+          </button>
 
           <div
             v-if="paymentStatus"
@@ -96,64 +127,222 @@
     </div>
   </div>
 </template>
+
 <script lang="ts">
-import { defineComponent, ref, computed } from "vue";
-import { useCartStore } from "@/stores/cart"; // importa el store del carrito
+import { defineComponent, ref, computed, watch, onMounted } from "vue";
+import { useCartStore } from "@/stores/cart";
+import { useRouter } from "vue-router";
+import { useI18n } from "vue-i18n";
 
 export default defineComponent({
   name: "CreditCardPayment",
   setup() {
-    const cartStore = useCartStore(); // accede al store del carrito
+    const cartStore = useCartStore();
+    const router = useRouter();
+    const { t, locale } = useI18n();
 
+    // Estado del formulario
+    const method = ref<"wallet" | "card">("wallet");
+    const cardHolderName = ref("");
+    const address = ref("");
     const cardNumber = ref("");
     const expiryDate = ref("");
     const cvv = ref("");
-    const cardHolderName = ref("");
-    const address = ref("");
+    const loading = ref(false);
     const paymentStatus = ref<{ success: boolean; message: string } | null>(null);
 
-    // Ya no usas un ref local, sino el store
-    const cartItems = computed(() => cartStore.products);
-    const totalAmount = computed(() => cartStore.total); // o calcula manualmente si prefieres
+    // Estado monedero
+    const walletBalance = ref(0);
+    const walletLoading = ref(false);
+    const walletError = ref("");
 
-    const submitPayment = () => {
-      if (
-        !cardNumber.value ||
-        !expiryDate.value ||
-        !cvv.value ||
-        !cardHolderName.value ||
-        !address.value
-      ) {
+    const cartItems = computed(() => cartStore.products);
+    const totalAmount = computed(() => cartStore.total);
+
+    function getAuthHeaders() {
+      const token = localStorage.getItem("token") || "";
+      return {
+        Authorization: `Token ${token}`,
+        "Content-Type": "application/json",
+      };
+    }
+
+    // Traer saldo al montar o cambiar a 'wallet'
+    async function fetchWalletBalance() {
+      walletLoading.value = true;
+      walletError.value = "";
+      try {
+        const res = await fetch("http://localhost:8000/api/users/wallet/", {
+          method: "GET",
+          headers: getAuthHeaders(),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Error al obtener saldo");
+        walletBalance.value = data.balance;
+      } catch (err: any) {
+        walletError.value = err.message;
+      } finally {
+        walletLoading.value = false;
+      }
+    }
+
+    onMounted(() => {
+      if (method.value === "wallet") fetchWalletBalance();
+    });
+    watch(method, (m) => {
+      if (m === "wallet") fetchWalletBalance();
+    });
+
+    async function submitPayment() {
+      // Validación básica
+      if (!cardHolderName.value || !address.value) {
         paymentStatus.value = {
           success: false,
-          message: "Please fill all fields correctly.",
+          message: (window as any).$t("payment.errorFillCustomer"),
+        };
+        return;
+      }
+      if (method.value === "card") {
+        if (!cardNumber.value || !expiryDate.value || !cvv.value) {
+          paymentStatus.value = {
+            success: false,
+            message: (window as any).$t("payment.errorFillCard"),
+          };
+          return;
+        }
+      }
+
+      // Si monedero y no hay suficiente saldo
+      if (method.value === "wallet" && walletBalance.value < totalAmount.value) {
+        paymentStatus.value = {
+          success: false,
+          message: (window as any).$t("payment.errorInsufficientFunds"),
         };
         return;
       }
 
-      paymentStatus.value = {
-        success: true,
-        message: "Payment successful! Thank you.",
-      };
+      loading.value = true;
+      paymentStatus.value = null;
 
-      // Limpia el carrito después de un pago exitoso
-      cartStore.clearCart();
-    };
+      try {
+        let res, data;
+        if (method.value === "wallet") {
+          res = await fetch("http://localhost:8000/api/users/cart/buy-for-wallet/", {
+            method: "POST",
+            headers: getAuthHeaders(),
+            body: null,
+          });
+        } else {
+          res = await fetch("http://localhost:8000/api/users/cart/buy-for-card/", {
+            method: "POST",
+            headers: getAuthHeaders(),
+            body: JSON.stringify({
+              "card-number": cardNumber.value,
+              "exp-date": expiryDate.value,
+              cvc: cvv.value,
+            }),
+          });
+        }
+        data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.error || (window as any).$t("payment.errorGeneric"));
+        }
+        paymentStatus.value = {
+          success: true,
+          message: data.message || (window as any).$t("payment.successMessage"),
+        };
+        cartStore.clearCart();
+        router.push("MyProfile");
+      } catch (err: any) {
+        paymentStatus.value = {
+          success: false,
+          message: err.message,
+        };
+      } finally {
+        loading.value = false;
+      }
+    }
 
     return {
+      method,
+      cardHolderName,
+      address,
       cardNumber,
       expiryDate,
       cvv,
-      cardHolderName,
-      address,
       cartItems,
       totalAmount,
+      loading,
       paymentStatus,
+      walletBalance,
+      walletLoading,
+      walletError,
       submitPayment,
     };
   },
 });
 </script>
+
+<style scoped>
+.payment-container {
+  padding: 1rem;
+}
+.payment-method-selector {
+  margin-bottom: 1rem;
+  display: flex;
+  gap: 1rem;
+}
+.payment-grid {
+  display: flex;
+  gap: 1rem;
+}
+.left-column,
+.right-column {
+  flex: 1;
+}
+.card {
+  background: #fff;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1rem;
+}
+.wallet-card p.balance {
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+.form-group {
+  margin-bottom: 0.75rem;
+}
+.summary-list {
+  list-style: none;
+  padding: 0;
+}
+.total {
+  font-weight: bold;
+  margin-top: 1rem;
+}
+.submit-btn {
+  width: 100%;
+  padding: 0.75rem;
+  margin-top: 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+.submit-btn[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.success {
+  color: green;
+  margin-top: 1rem;
+}
+.error {
+  color: red;
+  margin-top: 1rem;
+}
+</style>
 
 <style scoped>
 .payment-container {

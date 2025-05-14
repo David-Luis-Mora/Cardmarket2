@@ -7,7 +7,8 @@
         v-if="totalSellers > 5"
         class="btn btn-link p-0 view-button"
         :to="{ name: 'ProductDetail', params: { locale: $i18n.locale, productId: product.id } }"
-        >{{ totalSellers }} artículos ->
+      >
+        {{ totalSellers }} {{ $t("productCard.items") }} →
       </router-link>
     </div>
 
@@ -29,9 +30,9 @@
       <div class="col-md-10">
         <div class="card-body d-flex flex-column">
           <!-- No Sellers Message -->
-          <div v-if="totalSellers === 0" class="no-sellers mt-3">
+          <div v-if="totalSellers === 0" class="no-sellers mt-3 text-center text-muted">
             <i class="bi bi-emoji-frown-fill"></i>
-            <p>No hay cartas disponibles</p>
+            <p>{{ $t("productCard.noAvailable") }}</p>
           </div>
 
           <!-- Sellers List Sorted by Price Ascending -->
@@ -43,29 +44,32 @@
             >
               <div class="seller-info d-flex align-items-center">
                 <span class="me-4">
-                  <strong>Vendedor:</strong>
+                  <strong>{{ $t("productCard.seller") }}:</strong>
                   <router-link
                     :to="{
                       name: 'SellerProfile',
-                      params: { lang: currentLang, nickname: seller.sellerNickname },
+                      params: { locale: $i18n.locale, nickname: seller.sellerNickname },
                     }"
                     class="seller-link ms-1"
                   >
                     {{ seller.sellerNickname }}
                   </router-link>
                 </span>
-                <span class="me-4"
-                  ><strong>Precio: </strong>
-                  <span class="text-warning">${{ seller.price.toFixed(2) }}</span></span
-                >
-                <span><strong>Disponible:</strong> {{ seller.quantity }}</span>
+                <span class="me-4">
+                  <strong>{{ $t("productCard.price") }}:</strong>
+                  <span class="text-warning">${{ seller.price.toFixed(2) }}</span>
+                </span>
+                <span>
+                  <strong>{{ $t("productCard.available") }}:</strong>
+                  {{ seller.quantity }}
+                </span>
               </div>
               <div class="action-controls d-flex align-items-center">
                 <select v-model="selectedQuantities[index]" class="form-select form-select-sm me-2">
                   <option v-for="n in seller.quantity" :key="n" :value="n">{{ n }}</option>
                 </select>
                 <button class="btn btn-success btn-sm" @click="onAddToCart(seller, index)">
-                  Añadir
+                  {{ $t("productCard.add") }}
                 </button>
               </div>
             </div>

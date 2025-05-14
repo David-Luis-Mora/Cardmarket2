@@ -1,29 +1,30 @@
 <template>
   <section class="aboutus-section">
     <div class="aboutus-card">
-      <h1 class="aboutus-title">✨ Sobre Nosotros ✨</h1>
+      <h1 class="aboutus-title">{{ $t("aboutus.title") }}</h1>
+
+      <p class="aboutus-text" v-html="$t('aboutus.text1')"></p>
 
       <p class="aboutus-text">
-        Bienvenido a <span class="highlight">CardShop</span>, el rincón donde los planeswalkers como
-        tú se reúnen para comprar, vender e intercambiar cartas legendarias de
-        <em>Magic: The Gathering</em>.
+        <span v-html="$t('aboutus.text2_prefix')"></span>
+
+        <!-- Enlace al login -->
+        <router-link :to="{ name: 'Login', params: { lang: $i18n.locale } }" class="aboutus-link">
+          {{ $t("aboutus.loginLink") }}
+        </router-link>
+
+        <span v-html="$t('aboutus.text2_suffix')"></span>
       </p>
 
-      <p class="aboutus-text">
-        Si tienes cartas que ya no usas, puedes <span class="highlight">venderlas</span> fácilmente.
-        Solo necesitas <router-link to="/login" class="aboutus-link">iniciar sesión</router-link> y
-        empezar a compartir tu colección con otros fans.
-      </p>
-
-      <p class="aboutus-text">
-        ¿Necesitas ayuda o estás buscando una carta específica? Nuestro sistema de
-        <span class="highlight">chat con vendedores</span> te conecta directamente con expertos que
-        te pueden asesorar y ofrecerte justo lo que buscas.}
-      </p>
+      <p class="aboutus-text" v-html="$t('aboutus.text3')"></p>
 
       <div class="aboutus-button-container">
-        <router-link to="/register" class="aboutus-button">
-          ⚡ {{ $t("aboutus.text4") }}
+        <!-- Enlace al register -->
+        <router-link
+          :to="{ name: 'Register', params: { lang: $i18n.locale } }"
+          class="aboutus-button"
+        >
+          ⚡ {{ $t("aboutus.button") }}
         </router-link>
       </div>
     </div>
@@ -32,10 +33,7 @@
     <div class="magic-glow glow-bottom-right"></div>
   </section>
 </template>
-
-<script setup>
-// Sin lógica aún
-</script>
+<script setup></script>
 
 <style scoped>
 .aboutus-section {

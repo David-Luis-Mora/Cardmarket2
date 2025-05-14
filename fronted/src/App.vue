@@ -1,19 +1,21 @@
 <template>
   <div id="app">
     <NavBar></NavBar>
-    <router-view />
+    <main class="content">
+      <router-view />
+    </main>
     <Footer></Footer>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, provide, onMounted } from 'vue';
-import { useAuthStore } from './stores/authStore';
-import NavBar from './components/NavBar.vue';
-import Footer from './components/Footer.vue';
+import { defineComponent, ref, provide, onMounted } from "vue";
+import { useAuthStore } from "./stores/authStore";
+import NavBar from "./components/NavBar.vue";
+import Footer from "./components/Footer.vue";
 
 export default defineComponent({
-  name: 'App',
+  name: "App",
   components: {
     NavBar,
     Footer,
@@ -23,7 +25,7 @@ export default defineComponent({
     const logueado = ref(false);
 
     // Proveemos la variable logueado a los componentes hijos
-    provide('logueado', logueado);
+    provide("logueado", logueado);
 
     onMounted(() => {
       // Inicializamos la autenticación cuando la app se monta
@@ -38,7 +40,9 @@ export default defineComponent({
 </script>
 
 <style>
-html, body, #app {
+html,
+body,
+#app {
   height: 100%;
   margin: 0;
 }
@@ -51,6 +55,10 @@ html, body, #app {
 
 .content {
   flex: 1;
+  margin-top: 80px;
+}
+
+footer {
+  margin-top: auto;
 }
 </style>
-

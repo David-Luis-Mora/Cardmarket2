@@ -1,42 +1,54 @@
 <template>
   <div v-if="profile" class="container my-4">
     <div class="row">
-      <!-- Left column: user info / form -->
+      <!-- Columna izquierda: info de usuario -->
       <div class="col-md-4">
         <div class="card mb-4">
           <div class="card-body text-center">
             <img
               :src="avatarSrc"
               class="rounded-circle mb-3"
-              alt="Avatar"
+              :alt="$t('profile.avatarAlt')"
               style="width: 120px; height: 120px; object-fit: cover"
             />
             <h5 class="card-title">{{ profile.user.username }}</h5>
 
             <div class="profile-info">
-              <p><strong>Nickname:</strong> {{ profile.nickname }}</p>
-              <p><strong>Email:</strong> {{ profile.email }}</p>
-              <p><strong>País:</strong> {{ profile.country }}</p>
-              <p><strong>Dirección:</strong> {{ profile.address }}</p>
-              <p><strong>Teléfono:</strong> {{ profile.phone }}</p>
-              <p><strong>Bio:</strong> {{ profile.bio }}</p>
+              <p>
+                <strong>{{ $t("profile.nickname") }}:</strong> {{ profile.nickname }}
+              </p>
+              <p>
+                <strong>{{ $t("profile.email") }}:</strong> {{ profile.email }}
+              </p>
+              <p>
+                <strong>{{ $t("profile.country") }}:</strong> {{ profile.country }}
+              </p>
+              <p>
+                <strong>{{ $t("profile.address") }}:</strong> {{ profile.address }}
+              </p>
+              <p>
+                <strong>{{ $t("profile.phone") }}:</strong> {{ profile.phone }}
+              </p>
+              <p>
+                <strong>{{ $t("profile.bio") }}:</strong> {{ profile.bio }}
+              </p>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Right column: sales, sold, and purchases -->
+      <!-- Columna derecha: ventas -->
       <div class="col-md-8">
         <div class="row">
-          <!-- Sales box -->
-          <div class="col-12 mb-4">
+          <!-- Cartas en venta -->
+          <div class="col-12 mb-12">
             <div class="card">
               <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Mis cartas en venta</h5>
+                <h5 class="mb-0">{{ $t("profile.forSaleTitle") }}</h5>
               </div>
               <ul class="list-group list-group-flush">
                 <li v-if="cardsForSale.length === 0" class="list-group-item text-center text-muted">
-                  No hay cartas en venta.
+                  {{ $t("profile.noForSale") }}
                 </li>
                 <li
                   v-for="card in cardsForSale"
@@ -44,73 +56,12 @@
                   class="list-group-item d-flex align-items-center justify-content-between"
                 >
                   <div class="d-flex align-items-center">
-                    <span class="ms-3">Nombre: {{ card.name }}</span>
-                    <span class="ms-3">Precio: ${{ card.price }}</span>
-                    <span class="ms-3">Cantidad: {{ card.quantity }}</span>
+                    <span class="ms-3">{{ $t("profile.name") }}: {{ card.name }}</span>
+                    <span class="ms-3">{{ $t("profile.price") }}: ${{ card.price }}</span>
+                    <span class="ms-3">{{ $t("profile.quantity") }}: {{ card.quantity }}</span>
                   </div>
                 </li>
               </ul>
-            </div>
-          </div>
-          <div class="col-12 mb-4">
-            <div class="card">
-              <div class="card-header">
-                <h5 class="mb-0">Mis cartas vendidas</h5>
-              </div>
-              <!-- <ul class="list-group list-group-flush">
-                <li
-                  v-for="card in soldCards"
-                  :key="card.id"
-                  class="list-group-item d-flex align-items-center"
-                >
-                  <img
-                    :src="card.image"
-                    :alt="card.name"
-                    class="me-3 rounded"
-                    style="width: 60px; height: 60px; object-fit: cover"
-                  />
-                  <div>
-                    <h6 class="mb-1">{{ card.name }}</h6>
-                    <small>Precio: ${{ card.price }} &middot; Cantidad: {{ card.quantity }}</small>
-                  </div>
-                </li>
-                <li v-if="soldCards.length === 0" class="list-group-item text-center text-muted">
-                  No has vendido cartas todavía.
-                </li>
-              </ul> -->
-            </div>
-          </div>
-
-          <!-- Purchases box -->
-          <div class="col-12">
-            <div class="card">
-              <div class="card-header">
-                <h5 class="mb-0">Mis cartas compradas</h5>
-              </div>
-              <!-- <ul class="list-group list-group-flush">
-                <li
-                  v-for="card in purchasedCards"
-                  :key="card.id"
-                  class="list-group-item d-flex align-items-center"
-                >
-                  <img
-                    :src="card.image"
-                    :alt="card.name"
-                    class="me-3 rounded"
-                    style="width: 60px; height: 60px; object-fit: cover"
-                  />
-                  <div>
-                    <h6 class="mb-1">{{ card.name }}</h6>
-                    <small>Precio: ${{ card.price }} &middot; Cantidad: {{ card.quantity }}</small>
-                  </div>
-                </li>
-                <li
-                  v-if="purchasedCards.length === 0"
-                  class="list-group-item text-center text-muted"
-                >
-                  No has comprado cartas todavía.
-                </li>
-              </ul> -->
             </div>
           </div>
         </div>
@@ -166,20 +117,9 @@ async function fetchProfile() {
     console.error(err);
   }
 }
-// async function fetchCards() {
-//   try {
-//     const res = await fetch(`http://localhost:8000/api/seller/${sellerUsername}/cards-for-sale/`);
-//     if (!res.ok) throw new Error("Error cargando cartas");
-//     const data = await res.json();
-//     cardsForSale.value = data.cards;
-//   } catch (err) {
-//     console.error(err);
-//   }
-// }
 
 onMounted(() => {
   fetchProfile();
-  // fetchCards();
 });
 </script>
 

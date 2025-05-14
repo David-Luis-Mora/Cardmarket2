@@ -6,12 +6,12 @@
           v-model="searchTerm"
           @input="resetPage"
           class="form-control"
-          placeholder="Buscar por nombre"
+          :placeholder="$t('productList.searchPlaceholder')"
         />
       </div>
       <div class="col-md-6">
         <select v-model="selectedExpansion" @change="resetPage" class="form-select">
-          <option value="">Todas las expansiones</option>
+          <option value="">{{ $t("productList.allExpansions") }}</option>
           <option v-for="exp in expansions" :key="exp.set_code" :value="exp.set_name">
             {{ exp.set_name }}
           </option>
@@ -19,14 +19,17 @@
       </div>
     </div>
 
-    <div v-if="!loading && currentProducts.length === 0" class="no-results my-4">
+    <div
+      v-if="!loading && currentProducts.length === 0"
+      class="no-results my-4 text-center text-muted"
+    >
       <i class="bi bi-emoji-frown-fill"></i>
-      <p>No se encontraron cartas para esta búsqueda.</p>
+      <p>{{ $t("productList.noResults") }}</p>
     </div>
 
     <div v-if="loading" class="text-center my-4">
       <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Cargando cartas...</span>
+        <span class="visually-hidden">{{ $t("productList.loadingCards") }}</span>
       </div>
     </div>
 
@@ -40,28 +43,25 @@
     </div>
 
     <div
-      v-if="!loading && !error"
+      v-if="!loading && !error && totalPages > 1"
       class="d-flex justify-content-center align-items-center gap-2 mt-4 flex-wrap"
     >
-      <!-- Ir a la primera página -->
       <button
         class="btn btn-sm btn-outline-secondary"
         @click="goToPage(1)"
         :disabled="currentPage === 1"
       >
-        «
+        «<span class="visually-hidden">{{ $t("productList.firstPage") }}</span>
       </button>
 
-      <!-- Retroceder una página -->
       <button
         class="btn btn-sm btn-outline-secondary"
         @click="goToPage(currentPage - 1)"
         :disabled="currentPage === 1"
       >
-        ‹
+        ‹<span class="visually-hidden">{{ $t("productList.prevPage") }}</span>
       </button>
 
-      <!-- Mostrar hasta 5 páginas alrededor de la actual -->
       <button
         v-for="page in visiblePages"
         :key="page"
@@ -72,22 +72,20 @@
         {{ page }}
       </button>
 
-      <!-- Avanzar una página -->
       <button
         class="btn btn-sm btn-outline-secondary"
         @click="goToPage(currentPage + 1)"
         :disabled="currentPage === totalPages"
       >
-        ›
+        ›<span class="visually-hidden">{{ $t("productList.nextPage") }}</span>
       </button>
 
-      <!-- Ir a la última página -->
       <button
         class="btn btn-sm btn-outline-secondary"
         @click="goToPage(totalPages)"
         :disabled="currentPage === totalPages"
       >
-        »
+        »<span class="visually-hidden">{{ $t("productList.lastPage") }}</span>
       </button>
     </div>
 

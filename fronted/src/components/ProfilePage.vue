@@ -1,7 +1,7 @@
 <template>
   <div class="container my-4">
     <div class="row">
-      <!-- Left column: user info / form -->
+      <!-- Columna izquierda: información de usuario / formulario -->
       <div class="col-md-4">
         <div class="card mb-4">
           <div class="card-body text-center">
@@ -15,33 +15,57 @@
 
             <form @submit.prevent="save" v-if="editing">
               <div class="mb-3">
-                <label class="form-label">Nickname</label>
-                <input v-model="form.nickname" type="text" class="form-control" required />
+                <label class="form-label">{{ $t("profile.nickname") }}</label>
+                <input
+                  v-model="form.nickname"
+                  type="text"
+                  class="form-control"
+                  :placeholder="$t('profile.nicknamePlaceholder')"
+                  required
+                />
               </div>
               <div class="mb-3">
-                <label class="form-label">First Name</label>
-                <input v-model="form.first_name" type="text" class="form-control" required />
+                <label class="form-label">{{ $t("profile.firstName") }}</label>
+                <input
+                  v-model="form.first_name"
+                  type="text"
+                  class="form-control"
+                  :placeholder="$t('profile.firstNamePlaceholder')"
+                  required
+                />
               </div>
               <div class="mb-3">
-                <label class="form-label">Last Name</label>
-                <input v-model="form.last_name" type="text" class="form-control" required />
+                <label class="form-label">{{ $t("profile.lastName") }}</label>
+                <input
+                  v-model="form.last_name"
+                  type="text"
+                  class="form-control"
+                  :placeholder="$t('profile.lastNamePlaceholder')"
+                  required
+                />
               </div>
               <div class="mb-3">
-                <label class="form-label">Email</label>
-                <input v-model="form.email" type="email" class="form-control" required />
+                <label class="form-label">{{ $t("profile.email") }}</label>
+                <input
+                  v-model="form.email"
+                  type="email"
+                  class="form-control"
+                  :placeholder="$t('profile.emailPlaceholder')"
+                  required
+                />
               </div>
               <div class="mb-3">
-                <label class="form-label">Avatar URL</label>
+                <label class="form-label">{{ $t("profile.avatarUrl") }}</label>
                 <input
                   v-model="form.avatar_url"
                   type="url"
                   class="form-control"
-                  placeholder="Avatar por URL"
+                  :placeholder="$t('profile.avatarUrlPlaceholder')"
                 />
                 <input type="file" class="form-control mt-2" @change="onFileChange" />
               </div>
               <div class="mb-3">
-                <label class="form-label">País</label>
+                <label class="form-label">{{ $t("profile.country") }}</label>
                 <select v-model="form.country" class="form-select">
                   <option v-for="c in countries" :key="c.code" :value="c.name">
                     {{ c.name }}
@@ -49,199 +73,164 @@
                 </select>
               </div>
               <div class="mb-3">
-                <label class="form-label">Dirección</label>
+                <label class="form-label">{{ $t("profile.address") }}</label>
                 <input
                   v-model="form.address"
                   type="text"
                   class="form-control"
-                  placeholder="Tu dirección"
+                  :placeholder="$t('profile.addressPlaceholder')"
                 />
               </div>
               <div class="mb-3">
-                <label class="form-label">Teléfono</label>
-                <input v-model="form.phone" type="text" class="form-control" placeholder="+54..." />
+                <label class="form-label">{{ $t("profile.phone") }}</label>
+                <input
+                  v-model="form.phone"
+                  type="text"
+                  class="form-control"
+                  :placeholder="$t('profile.phonePlaceholder')"
+                />
               </div>
               <div class="mb-3">
-                <label class="form-label">Biografía</label>
+                <label class="form-label">{{ $t("profile.bio") }}</label>
                 <textarea
                   v-model="form.bio"
                   rows="3"
                   class="form-control"
-                  placeholder="Algo sobre ti..."
+                  :placeholder="$t('profile.bioPlaceholder')"
                 ></textarea>
               </div>
               <div class="d-flex justify-content-between">
-                <button type="submit" class="btn btn-primary">Guardar</button>
-                <button type="button" class="btn btn-secondary" @click="cancel">Cancelar</button>
+                <button type="submit" class="btn btn-primary">
+                  {{ $t("profile.save") }}
+                </button>
+                <button type="button" class="btn btn-secondary" @click="cancel">
+                  {{ $t("profile.cancel") }}
+                </button>
               </div>
             </form>
 
             <div v-else>
               <p>
-                <strong>{{ user?.nickname }}</strong>
+                <strong>{{ $t("profile.nickname") }}:</strong> {{ user?.nickname }}
               </p>
-              <p><strong>Nombre:</strong> {{ user?.first_name }}</p>
-              <p><strong>Apellidos:</strong> {{ user?.last_name }}</p>
-              <p><strong>Email:</strong> {{ user?.email }}</p>
-              <p><strong>País:</strong> {{ user?.country }}</p>
-              <p><strong>Dirección:</strong> {{ user?.address }}</p>
-              <p><strong>Teléfono:</strong> {{ user?.phone }}</p>
-              <p><strong>Bio:</strong> {{ user?.bio }}</p>
-              <button class="btn btn-outline-primary mt-2" @click="edit">Editar Perfil</button>
+              <p>
+                <strong>{{ $t("profile.firstName") }}:</strong> {{ user?.first_name }}
+              </p>
+              <p>
+                <strong>{{ $t("profile.lastName") }}:</strong> {{ user?.last_name }}
+              </p>
+              <p>
+                <strong>{{ $t("profile.email") }}:</strong> {{ user?.email }}
+              </p>
+              <p>
+                <strong>{{ $t("profile.country") }}:</strong> {{ user?.country }}
+              </p>
+              <p>
+                <strong>{{ $t("profile.address") }}:</strong> {{ user?.address }}
+              </p>
+              <p>
+                <strong>{{ $t("profile.phone") }}:</strong> {{ user?.phone }}
+              </p>
+              <p>
+                <strong>{{ $t("profile.bio") }}:</strong> {{ user?.bio }}
+              </p>
+              <button class="btn btn-outline-primary mt-2" @click="edit">
+                {{ $t("profile.editProfile") }}
+              </button>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Right column: sales, sold, and purchases -->
+      <!-- Columna derecha: ventas, vendidas y compradas -->
       <div class="col-md-8">
         <div class="row">
-          <!-- Sales box -->
+          <!-- Cartas en venta -->
           <div class="col-12 mb-4">
             <div class="card">
               <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Mis cartas en venta</h5>
+                <h5 class="mb-0">{{ $t("profile.forSaleTitle") }}</h5>
                 <router-link :to="`/${$i18n.locale}/sell-cards`" class="btn btn-danger btn-sm">
-                  Vender cartas
+                  {{ $t("profile.sellCards") }}
                 </router-link>
               </div>
               <ul class="list-group list-group-flush">
                 <li v-if="cardsForSale.length === 0" class="list-group-item text-center text-muted">
-                  No hay cartas en venta.
+                  {{ $t("profile.noForSale") }}
                 </li>
-                <li
-                  v-for="card in cardsForSale"
-                  :key="card.id"
-                  class="list-group-item d-flex align-items-center justify-content-between"
-                >
-                  <!-- Left: image, name, price, quantity -->
-                  <div class="d-flex align-items-center">
-                    <!-- <img
-                      :src="card.image"
-                      :alt="card.name"
-                      class="rounded"
-                      style="width: 60px; height: 60px; object-fit: cover"
-                    /> -->
-                    <span class="ms-3">Nombre: {{ card.name }}</span>
-                    <template v-if="editingCardId !== card.id">
-                      <span class="ms-3">Precio: ${{ card.price }}</span>
-                      <span class="ms-3">Cantidad: {{ card.quantity }}</span>
-                    </template>
-                    <template v-else>
-                      <span class="ms-3 d-flex align-items-center">
-                        Precio:
-                        <input
-                          v-model.number="tempEdits[card.id].price"
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          class="form-control form-control-sm ms-1"
-                          style="width: 100px; display: inline-block"
-                        />
-                      </span>
-                      <span class="ms-3 d-flex align-items-center">
-                        Cantidad:
-                        <input
-                          v-model.number="tempEdits[card.id].quantity"
-                          type="number"
-                          min="1"
-                          class="form-control form-control-sm ms-1"
-                          style="width: 80px; display: inline-block"
-                        />
-                      </span>
-                    </template>
-                  </div>
-                  <!-- Right: action buttons -->
-                  <div>
-                    <button
-                      v-if="editingCardId !== card.id"
-                      @click="startEdit(card)"
-                      class="btn btn-primary btn-sm me-2"
-                    >
-                      Editar
-                    </button>
-                    <button v-else @click="saveEdit(card)" class="btn btn-success btn-sm me-2">
-                      Guardar
-                    </button>
-                    <button
-                      v-if="editingCardId === card.id"
-                      @click="cancelEdit()"
-                      class="btn btn-secondary btn-sm me-2"
-                    >
-                      Cancelar
-                    </button>
-                    <button
-                      v-if="editingCardId !== card.id"
-                      @click="confirmDelete(card)"
-                      class="btn btn-secondary btn-sm"
-                    >
-                      Eliminar
-                    </button>
-                  </div>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <!-- Sold box -->
-          <div class="col-12 mb-4">
-            <div class="card">
-              <div class="card-header">
-                <h5 class="mb-0">Mis cartas vendidas</h5>
-              </div>
-              <ul class="list-group list-group-flush">
-                <li
-                  v-for="card in soldCards"
-                  :key="card.id"
-                  class="list-group-item d-flex align-items-center"
-                >
-                  <img
-                    :src="card.image"
-                    :alt="card.name"
-                    class="me-3 rounded"
-                    style="width: 60px; height: 60px; object-fit: cover"
-                  />
-                  <div>
-                    <h6 class="mb-1">{{ card.name }}</h6>
-                    <small>Precio: ${{ card.price }} &middot; Cantidad: {{ card.quantity }}</small>
-                  </div>
-                </li>
-                <li v-if="soldCards.length === 0" class="list-group-item text-center text-muted">
-                  No has vendido cartas todavía.
-                </li>
+                <div class="list-wrapper" style="max-height: calc(3 * 3.5rem); overflow-y: auto">
+                  <li
+                    v-for="card in cardsForSale"
+                    :key="card.id"
+                    class="list-group-item d-flex align-items-center justify-content-between"
+                  >
+                    <div class="d-flex align-items-center">
+                      <span class="ms-3">{{ $t("profile.name") }}: {{ card.name }}</span>
+                      <template v-if="editingCardId !== card.id">
+                        <span class="ms-3">{{ $t("profile.price") }}: ${{ card.price }}</span>
+                        <span class="ms-3">{{ $t("profile.quantity") }}: {{ card.quantity }}</span>
+                      </template>
+                    </div>
+                  </li>
+                </div>
               </ul>
             </div>
           </div>
 
-          <!-- Purchases box -->
+          <!-- Cartas vendidas -->
+          <div class="col-12 mb-4">
+            <div class="card">
+              <div class="card-header">
+                <h5 class="mb-0">{{ $t("profile.soldTitle") }}</h5>
+              </div>
+              <div class="list-wrapper" style="max-height: calc(3 * 3.5rem); overflow-y: auto">
+                <ul class="list-group list-group-flush">
+                  <li
+                    v-for="card in soldCards"
+                    :key="card.id"
+                    class="list-group-item d-flex align-items-center"
+                  >
+                    <div class="d-flex align-items-center">
+                      <span class="ms-3">{{ $t("profile.name") }}: {{ card.name }}</span>
+                      <template v-if="editingCardId !== card.id">
+                        <span class="ms-3">{{ $t("profile.price") }}: ${{ card.price }}</span>
+                        <span class="ms-3">{{ $t("profile.quantity") }}: {{ card.quantity }}</span>
+                      </template>
+                    </div>
+                  </li>
+                  <li v-if="soldCards.length === 0" class="list-group-item text-center text-muted">
+                    {{ $t("profile.noSold") }}
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cartas compradas -->
           <div class="col-12">
             <div class="card">
               <div class="card-header">
-                <h5 class="mb-0">Mis cartas compradas</h5>
+                <h5 class="mb-0">{{ $t("profile.purchasedTitle") }}</h5>
               </div>
-              <ul class="list-group list-group-flush">
-                <li
-                  v-for="card in purchasedCards"
-                  :key="card.id"
-                  class="list-group-item d-flex align-items-center"
-                >
-                  <img
-                    :src="card.image"
-                    :alt="card.name"
-                    class="me-3 rounded"
-                    style="width: 60px; height: 60px; object-fit: cover"
-                  />
-                  <div>
-                    <h6 class="mb-1">{{ card.name }}</h6>
-                    <small>Precio: ${{ card.price }} &middot; Cantidad: {{ card.quantity }}</small>
-                  </div>
-                </li>
-                <li
-                  v-if="purchasedCards.length === 0"
-                  class="list-group-item text-center text-muted"
-                >
-                  No has comprado cartas todavía.
-                </li>
-              </ul>
+              <div class="list-wrapper" style="max-height: calc(3 * 3.5rem); overflow-y: auto">
+                <ul class="list-group list-group-flush">
+                  <li v-for="card in purchasedCards" :key="card.id" class="list-group-item">
+                    <div class="d-flex align-items-center">
+                      <span class="ms-3">{{ $t("profile.name") }}: {{ card.name }}</span>
+                      <template v-if="editingCardId !== card.id">
+                        <span class="ms-3">{{ $t("profile.price") }}: ${{ card.price }}</span>
+                        <span class="ms-3">{{ $t("profile.quantity") }}: {{ card.quantity }}</span>
+                      </template>
+                    </div>
+                  </li>
+                  <li
+                    v-if="purchasedCards.length === 0"
+                    class="list-group-item text-center text-muted"
+                  >
+                    {{ $t("profile.noPurchased") }}
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
         </div>
@@ -493,28 +482,49 @@ async function confirmDelete(card: Card) {
 const soldCards = ref<Card[]>([]);
 async function fetchMySoldCards() {
   const token = localStorage.getItem("token");
-  const res = await fetch("http://localhost:8000/api/users/my-sold-cards/", {
-    headers: { Authorization: `Bearer ${token}` },
+  if (!token) throw new Error("No estás autenticado");
+
+  const res = await fetch("http://localhost:8000/api/users/all-cards-sold-by-user/", {
+    method: "POST",
+    headers: {
+      Authorization: `Token ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({}),
   });
-  const data = await res.json();
-  soldCards.value = data.cards_sold;
+
+  if (!res.ok) {
+    const err = await res.text(); // o .json() si tu 405 devolviera JSON de error
+    throw new Error(`HTTP ${res.status} — ${err}`);
+  }
+
+  const { cards } = await res.json();
+  soldCards.value = Array.isArray(cards) ? cards : [];
 }
 
 // Purchases
 const purchasedCards = ref<Card[]>([]);
 async function fetchMyPurchasedCards() {
   const token = localStorage.getItem("token");
-  const res = await fetch("http://localhost:8000/api/users/my-purchased-cards/", {
-    headers: { Authorization: `Bearer ${token}` },
+  const res = await fetch("http://localhost:8000/api/users/all-card-purchased-for-user/", {
+    method: "POST",
+    headers: {
+      Authorization: `Token ${token}`,
+      "Content-Type": "application/json",
+    },
+    // no necesitas body, pero algunos middlewares CSRF/CORS lo quieren
+    body: JSON.stringify({}),
   });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const data = await res.json();
-  purchasedCards.value = data.cards_purchased;
+  purchasedCards.value = data.cards;
 }
 
 // Inicialización
 onMounted(() => {
   fetchUserProfile();
   fetchMyCardsForSale();
+  fetchMySoldCards();
   fetchMyPurchasedCards();
 });
 </script>

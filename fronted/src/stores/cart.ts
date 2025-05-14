@@ -54,7 +54,7 @@ export const useCartStore = defineStore('cart', {
         img: ci.card.img,
         price: ci.card.price,
         quantity: ci.quantity,
-        rarity: ci.card.rarity,             // rellénalo si lo necesitas
+        rarity: ci.card.rarity,            
         sellerNickname: ci.card.seller
       }));
     },
@@ -68,7 +68,6 @@ export const useCartStore = defineStore('cart', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          // ¡OJO! tu vista espera "Token", no "Bearer"
           'Authorization': `Token ${token}`,
         },
         body: JSON.stringify({
@@ -106,46 +105,78 @@ export const useCartStore = defineStore('cart', {
     /** 4) Eliminar item */
     async removeProduct(product: Product) {
       const token = localStorage.getItem('token');
+      if (!token) throw new Error('No estás autenticado');
 
-      console.log("🛒 Eliminando producto:", {
-        id: product.id,
-        nickname: product.sellerNickname
-      });
-      const res = await fetch(`http://localhost:8000/api/users/cart/delete/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Token ${token}`,
-          
-        },
-        body: JSON.stringify({
-          'card-id': product.id,
-          'nickname': product.sellerNickname,
-          // 'number-cards': product.quantity
-        })
-      });
-      if (!res.ok) console.error('Error eliminando del carrito');
-      await this.fetchCartFromAPI();
+      const res = await fetch(
+  "http://localhost:8000/api/users/cart/delete/",
+  {
+    method: "POST",
+    headers: {
+      "Content-Type":  "application/json",
+      "Authorization": `Token ${token}`,
+    },
+    body: JSON.stringify({
+      "card-id":  product.id,
+      "nickname": product.sellerNickname,
+    }),
+  }
+);
+
+      if (!res.ok) {
+  const err = await res.json().catch(() => ({}));
+  throw new Error(err.error || `HTTP ${res.status}`);
+}
+await this.fetchCartFromAPI();
     },
     // Eliminar todas las cartas del carrito
-    async clearCart() {
-      const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:8000/api/users/cart/delete/all/', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Token ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-    
-      if (!res.ok) {
-        console.error('❌ Error vaciando el carrito');
-      } else {
-        console.log('🧹 Carrito vaciado correctamente');
-        await this.fetchCartFromAPI(); // recarga el carrito vacío
-      }
-    }
-  },
-  
+  async clearCart() {
+  const token = localStorage.getItem('token');
+  if (!token) throw new Error('No autenticado');
 
+  const res = await fetch('http://localhost:8000/api/users/cart/delete/all/', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Token ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({}),
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    console.error('Error vaciando carrito:', err);
+    // captura el mensaje de error en err.error
+    throw new Error(err.error || `HTTP ${res.status}`);
+  }
+
+  await this.fetchCartFromAPI();
+},
+  async payWithWallet() {
+      const token = localStorage.getItem('token');
+      if (!token) throw new Error('No estás autenticado.');
+
+      const res = await fetch(
+        'http://localhost:8000/api/users/cart/buy-wallet/',
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Token ${token}`,
+            'Content-Type':  'application/json'
+          }
+          // tu vista no necesita body
+        }
+      );
+
+      const payload = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        // ‘error’ viene de tu JsonResponse en Django
+        throw new Error(payload.error || `HTTP ${res.status}`);
+      }
+
+      // Recarga el carrito (ahora debería quedar vacío)
+      await this.fetchCartFromAPI();
+
+      return payload;
+    },
+  }
 });

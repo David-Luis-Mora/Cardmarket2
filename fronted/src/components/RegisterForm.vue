@@ -1,65 +1,71 @@
 <template>
   <div class="register-form">
-    <h1>Registro</h1>
+    <h1>{{ $t("register.title") }}</h1>
     <form @submit.prevent="handleRegister">
       <div>
-        <label for="firstName">Nombre</label>
+        <label for="firstName">{{ $t("register.firstName") }}</label>
         <input
           id="firstName"
           v-model="firstName"
           type="text"
           maxlength="50"
-          placeholder="Ingresa tu nombre"
+          :placeholder="$t('register.firstNamePlaceholder')"
           required
         />
         <span v-if="errors.firstName">{{ errors.firstName }}</span>
       </div>
 
       <div>
-        <label for="lastName">Apellido</label>
+        <label for="lastName">{{ $t("register.lastName") }}</label>
         <input
           id="lastName"
           v-model="lastName"
           type="text"
           maxlength="50"
-          placeholder="Ingresa tu apellido"
+          :placeholder="$t('register.lastNamePlaceholder')"
           required
         />
         <span v-if="errors.lastName">{{ errors.lastName }}</span>
       </div>
 
       <div>
-        <label for="email">Correo Electrónico</label>
-        <input id="email" v-model="email" type="email" placeholder="Ingresa tu correo" required />
+        <label for="email">{{ $t("register.email") }}</label>
+        <input
+          id="email"
+          v-model="email"
+          type="email"
+          :placeholder="$t('register.emailPlaceholder')"
+          required
+        />
         <span v-if="errors.email">{{ errors.email }}</span>
       </div>
 
       <div>
-        <label for="username">Nombre de usuario</label>
+        <label for="username">{{ $t("register.username") }}</label>
         <input
           id="username"
           v-model="username"
           type="text"
           maxlength="50"
-          placeholder="Ingresa tu nombre de usuario"
+          :placeholder="$t('register.usernamePlaceholder')"
           required
         />
         <span v-if="errors.username">{{ errors.username }}</span>
       </div>
 
       <div>
-        <label for="password">Contraseña</label>
+        <label for="password">{{ $t("register.password") }}</label>
         <input
           id="password"
           v-model="password"
           type="password"
-          placeholder="Crea tu contraseña"
+          :placeholder="$t('register.passwordPlaceholder')"
           required
         />
         <span v-if="errors.password">{{ errors.password }}</span>
       </div>
 
-      <button type="submit">Registrar</button>
+      <button type="submit">{{ $t("register.submit") }}</button>
     </form>
   </div>
 </template>
@@ -209,40 +215,27 @@ const handleRegister = async () => {
   max-width: 400px;
   margin: 0 auto;
   padding: 20px;
-  border: 1px solid #ddd;
+  border: 1px solid #ccc;
   border-radius: 8px;
-  background-color: #f9f9f9;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .register-form h1 {
   text-align: center;
   margin-bottom: 20px;
-  font-size: 1.8rem;
-  color: #333;
 }
 
 .register-form label {
   display: block;
-  margin-bottom: 8px;
+  margin-bottom: 5px;
   font-weight: bold;
-  color: #555;
 }
 
 .register-form input {
   width: 100%;
-  padding: 10px;
-  margin-bottom: 15px;
+  padding: 8px;
+  margin-bottom: 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
-  font-size: 1rem;
-  color: #333;
-  background-color: #fff;
-}
-
-.register-form input:focus {
-  border-color: #007bff;
-  outline: none;
 }
 
 .register-form span {
@@ -255,14 +248,12 @@ const handleRegister = async () => {
 
 .register-form button {
   width: 100%;
-  padding: 12px;
+  padding: 10px;
   background-color: #007bff;
-  color: white;
-  font-size: 1rem;
+  color: #fff;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
 }
 
 .register-form button:hover {

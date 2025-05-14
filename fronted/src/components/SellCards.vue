@@ -1,6 +1,6 @@
 <template>
   <div class="container my-4">
-    <h2 class="mb-4">Vender cartas</h2>
+    <h2 class="mb-4">{{ $t("sellCards.title") }}</h2>
 
     <!-- Buscador y filtro -->
     <div class="row mb-3">
@@ -9,12 +9,12 @@
           v-model="searchTerm"
           @input="resetPage"
           class="form-control"
-          placeholder="Buscar por nombre"
+          :placeholder="$t('sellCards.searchPlaceholder')"
         />
       </div>
       <div class="col-md-6">
         <select v-model="selectedExpansion" @change="resetPage" class="form-select">
-          <option value="">Todas las expansiones</option>
+          <option value="">{{ $t("sellCards.allExpansions") }}</option>
           <option v-for="exp in expansions" :key="exp.set_code" :value="exp.set_name">
             {{ exp.set_name }}
           </option>
@@ -25,7 +25,7 @@
     <!-- Lista de cartas -->
     <div v-if="loading" class="text-center my-4">
       <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Cargando cartas...</span>
+        <span class="visually-hidden">{{ $t("sellCards.loadingCards") }}</span>
       </div>
     </div>
     <div class="row" v-else>
@@ -33,27 +33,31 @@
         <div class="card p-3 d-flex flex-column flex-md-row align-items-start">
           <img
             :src="card.image"
-            :alt="card.name"
+            :alt="$t('sellCards.cardImageAlt', { name: card.name })"
             class="img-fluid me-3"
             style="max-height: 150px"
           />
           <div class="flex-grow-1">
             <h5>{{ card.name }}</h5>
-            <p>{{ card.rarity }}</p>
+            <p>
+              <strong>{{ $t("sellCards.rarityLabel") }}:</strong> {{ card.rarity }}
+            </p>
             <div class="d-flex align-items-center">
               <input
                 v-model.number="sellPrice[card.id]"
                 type="number"
-                placeholder="Precio $"
+                :placeholder="$t('sellCards.pricePlaceholder')"
                 class="form-control me-2"
               />
               <input
                 v-model.number="sellQuantity[card.id]"
                 type="number"
-                placeholder="Cantidad"
+                :placeholder="$t('sellCards.quantityPlaceholder')"
                 class="form-control me-2"
               />
-              <button class="btn btn-success" @click="publish(card)">Publicar</button>
+              <button class="btn btn-success" @click="publish(card)">
+                {{ $t("sellCards.publish") }}
+              </button>
             </div>
           </div>
         </div>
@@ -65,25 +69,22 @@
       v-if="!loading && totalPages > 1"
       class="d-flex justify-content-center align-items-center gap-2 mt-4 flex-wrap"
     >
-      <!-- Ir a la primera página -->
       <button
         class="btn btn-sm btn-outline-secondary"
         @click="goToPage(1)"
         :disabled="currentPage === 1"
       >
-        «
+        «<span class="visually-hidden">{{ $t("sellCards.firstPage") }}</span>
       </button>
 
-      <!-- Retroceder una página -->
       <button
         class="btn btn-sm btn-outline-secondary"
         @click="prevPage"
         :disabled="currentPage === 1"
       >
-        ‹
+        ‹<span class="visually-hidden">{{ $t("sellCards.prevPage") }}</span>
       </button>
 
-      <!-- Botones de páginas -->
       <button
         v-for="page in visiblePages"
         :key="page"
@@ -94,22 +95,20 @@
         {{ page }}
       </button>
 
-      <!-- Avanzar una página -->
       <button
         class="btn btn-sm btn-outline-secondary"
         @click="nextPage"
         :disabled="currentPage === totalPages"
       >
-        ›
+        ›<span class="visually-hidden">{{ $t("sellCards.nextPage") }}</span>
       </button>
 
-      <!-- Ir a la última página -->
       <button
         class="btn btn-sm btn-outline-secondary"
         @click="goToPage(totalPages)"
         :disabled="currentPage === totalPages"
       >
-        »
+        »<span class="visually-hidden">{{ $t("sellCards.lastPage") }}</span>
       </button>
     </div>
   </div>

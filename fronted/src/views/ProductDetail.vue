@@ -7,18 +7,29 @@
       </div>
       <div class="basic-info text-center">
         <h2 class="detail-title mb-2">{{ product?.name }}</h2>
-        <p class="mb-1"><strong>Tipo:</strong> {{ product?.type }}</p>
-        <p class="mb-1"><strong>Rareza:</strong> {{ product?.rarity }}</p>
-        <p class="mb-0"><strong>Precio base:</strong> ${{ cheapestPrice.toFixed(2) }}</p>
+        <p class="mb-1">
+          <strong>{{ $t("productDetail.typeLabel") }}:</strong>
+          {{ product?.type }}
+        </p>
+        <p class="mb-1">
+          <strong>{{ $t("productDetail.rarityLabel") }}:</strong>
+          {{ product?.rarity }}
+        </p>
+        <p class="mb-0">
+          <strong>{{ $t("productDetail.basePriceLabel") }}:</strong>
+          ${{ cheapestPrice.toFixed(2) }}
+        </p>
       </div>
     </div>
 
     <!-- Right: Sellers List -->
     <div class="sellers-box flex-grow-1 p-3 rounded">
-      <h4 class="section-title mb-3">Vendedores ({{ totalSellers }})</h4>
+      <h4 class="section-title mb-3">
+        {{ $t("productDetail.sellersTitle", { total: totalSellers }) }}
+      </h4>
       <div v-if="!sortedSellers.length" class="no-sellers">
         <i class="bi bi-emoji-frown-fill"></i>
-        <p>No hay vendedores disponibles</p>
+        <p>{{ $t("productDetail.noSellers") }}</p>
       </div>
       <div
         v-else
@@ -34,7 +45,7 @@
           class="seller-row d-flex justify-content-between align-items-center p-2 mb-2 rounded"
         >
           <div>
-            Vendedor:
+            {{ $t("productDetail.sellerLabel") }}:
             <router-link
               :to="{
                 name: 'SellerProfile',
@@ -44,14 +55,21 @@
             >
               {{ seller.username }}
             </router-link>
-            <span class="ms-3">Precio: ${{ seller.price.toFixed(2) }} </span>
-            <span class="ms-3">Cantidad: ${{ seller.quantity }} </span>
+            <span class="ms-3">
+              {{ $t("productDetail.priceLabel") }}: ${{ seller.price.toFixed(2) }}
+            </span>
+            <span class="ms-3">
+              {{ $t("productDetail.quantityLabel") }}:
+              {{ seller.quantity }}
+            </span>
           </div>
           <div class="action-controls d-flex align-items-center">
             <select v-model="selectedQuantities[idx]" class="form-select form-select-sm me-2">
               <option v-for="n in seller.quantity" :key="n" :value="n">{{ n }}</option>
             </select>
-            <button class="btn btn-success btn-sm" @click="addToCart(seller, idx)">Añadir</button>
+            <button class="btn btn-success btn-sm" @click="addToCart(seller, idx)">
+              {{ $t("productDetail.add") }}
+            </button>
           </div>
         </div>
       </div>

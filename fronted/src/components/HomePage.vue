@@ -19,7 +19,7 @@
         </div>
         <div class="carousel-item">
           <img
-            src="/img/phyrexia.png"
+            src="/img/ff.png"
             class="d-block w-100"
             alt="Imagen de cartas 2"
             style="height: 400px; object-fit: cover"
@@ -27,9 +27,33 @@
         </div>
         <div class="carousel-item">
           <img
-            src="/img/bosque.png"
+            src="/img/fo.png"
             class="d-block w-100"
             alt="Imagen de cartas 3"
+            style="height: 400px; object-fit: cover"
+          />
+        </div>
+        <div class="carousel-item">
+          <img
+            src="/img/ld.png"
+            class="d-block w-100"
+            alt="Imagen de cartas 4"
+            style="height: 400px; object-fit: cover"
+          />
+        </div>
+        <div class="carousel-item">
+          <img
+            src="/img/w4.png"
+            class="d-block w-100"
+            alt="Imagen de cartas 5"
+            style="height: 400px; object-fit: cover"
+          />
+        </div>
+        <div class="carousel-item">
+          <img
+            src="/img/phyrexia.png"
+            class="d-block w-100"
+            alt="Imagen de cartas 5"
             style="height: 400px; object-fit: cover"
           />
         </div>
@@ -57,8 +81,7 @@
     <div class="row mt-5">
       <h2 class="section-title">{{ $t("tendencies") }}</h2>
       <hr />
-      <!-- Iteramos sobre las 6 cartas aleatorias -->
-      <div class="col-md-3 mb-2" v-for="(card, index) in randomCards" :key="card.id">
+      <div class="col-md-3 mb-2" v-for="card in randomCards" :key="card.id">
         <div class="card">
           <img
             :src="card.img"
@@ -74,17 +97,24 @@
       </div>
     </div>
 
-    <!-- Productos -->
     <div class="row mt-5">
-      <h2>{{ $t("products") }}</h2>
+      <h2 class="section-title">{{ $t("mainproducts") }}</h2>
       <hr />
-      <div class="col-md-4 mb-3" v-for="producto in productos" :key="producto.id">
-        <button class="card-button" @click="seleccionarProducto(producto.expansions)">
+      <div class="col-md-4 mb-3" v-for="producto in productos" :key="producto.key">
+        <button class="card-button">
           <div class="card">
-            <img :src="producto.imagen" class="card-img-top" :alt="producto.nombre" />
+            <img
+              :src="producto.imagen"
+              class="card-img-top"
+              :alt="$t(`products.${producto.key}.nombre`)"
+            />
             <div class="card-body">
-              <h5 class="card-title">{{ producto.nombre }}</h5>
-              <p class="card-text">{{ producto.descripcion }}</p>
+              <h5 class="card-title">
+                {{ $t(`products.${producto.key}.nombre`) }}
+              </h5>
+              <p class="card-text">
+                {{ $t(`products.${producto.key}.descripcion`) }}
+              </p>
             </div>
           </div>
         </button>
@@ -98,97 +128,57 @@ import { ref, onMounted } from "vue";
 import { useCartStore } from "@/stores/cart";
 import { useRouter } from "vue-router";
 
+// Estado reactivo
 const randomCards = ref([]);
 const productStore = useCartStore();
-const selectedCard = ref(null);
-const selectedQuantity = ref(1);
-const availableQuantities = ref([]);
+const router = useRouter();
 
-const router = useRouter(); // Inicializar router
-
+// Datos estáticos de productos
 const productos = [
   {
-    nombre: "Cimiento",
+    key: "foundations",
     imagen: "/img/cimientos.jpg",
-    expansions: "Cimiento",
-    descripcion:
-      "Foundations is a new type of set designed to carry through multiple Standard rotations. It contains mechanically unique card designs as well as 'less-complex, clean and elegant' reprints, functioning similarly to an 'evergreen Core set'Unlike other Standard-legal sets, cards in Foundations will remain legal in Standard until 2029, at least. Foundations is intended to be reprinted and released annually over that period.",
+    expansions: "Foundations",
   },
   {
-    nombre: "Dominaria United",
+    key: "dominaria_united",
     imagen: "/img/dominaria_united.jpg",
     expansions: "Dominaria United",
-    descripcion:
-      "Public domain name registries connected to this name were filed by a subsidiary registrar in January 2021. A further registration with the gg domain was filed by Wizards of the Coast itself in May 2021. Dominaria United contains 281 cards (101 commons, 80 uncommons, 60 rares, 20 mythic rares, 20 basic lands), and includes randomly inserted premium versions of all cards. Set, Draft and Collector Boosters contain a legendary card in each booster, showing off a cast of beloved legends and characters that longtime fans will recognize.",
   },
   {
-    nombre: "The Brothers' War",
+    key: "brothers_war",
     imagen: "/img/the_brothers_war.jpeg",
     expansions: "The Brothers' War",
-    descripcion:
-      "The Brothers' War was designed as an 'event set', meaning that its mechanical structure was built around an event rather than a world. In this case, the set revolves around the story of the Brothers' War, a major event in Magic's timeline that was previously portrayed in the set Antiquities and various works of fiction such as the novel The Brothers' War by Jeff Grubb. The Vision Design team, working in conjunction with the Creative team, divided the story into three acts: Childhood.",
   },
 ];
 
-// Función para obtener una carta aleatoria
-const selectAndCopyCards = () => {
-  // Limpiar cartas previas
-  randomCards.value = [];
+const fetchRandomCards = async (count = 6) => {
+  try {
+    const response = await fetch(`http://localhost:8000/api/cards/random/?count=${count}`, {
+      headers: { Accept: "application/json" },
+    });
+    if (!response.ok) {
+      console.error("Error al cargar cartas:", response.statusText);
+      return;
+    }
 
-  const cartProductIds = productStore.products.map((product) => product.id);
-  const usedIds = new Set();
+    const data = await response.json();
+    console.log("Respuesta completa de random-cards:", data);
+    data.cards.forEach((c) => console.log("card.img ->", c.img));
 
-  // Filtrar productos válidos
-  const validProducts = productStore.storeProducts.filter(
-    (product) => !cartProductIds.includes(product.id)
-  );
-
-  // Barajar aleatoriamente
-  const shuffled = validProducts.sort(() => Math.random() - 0.5);
-
-  const selected = shuffled.slice(0, 4);
-
-  randomCards.value = selected.map((card, index) => ({
-    ...card,
-    id: `${card.id}-${Date.now()}-${index}`,
-  }));
-};
-
-// Función para mostrar el modal con la carta seleccionada
-const showModal = (card) => {
-  selectedCard.value = card;
-  availableQuantities.value = Array.from({ length: card.stock }, (_, i) => i + 1);
-  const modal = new bootstrap.Modal(document.getElementById("addToCartModal"));
-  modal.show();
-};
-
-// Función para añadir la carta al carrito
-const addToCart = () => {
-  if (selectedCard.value) {
-    const productToAdd = {
-      ...selectedCard.value,
-      quantity: selectedQuantity.value,
-    };
-    productStore.addProduct(productToAdd);
+    randomCards.value = data.cards;
+  } catch (error) {
+    console.error("Falló la petición de cartas aleatorias:", error);
   }
-  // Cerrar el modal
-  const modal = bootstrap.Modal.getInstance(document.getElementById("addToCartModal"));
-  modal.hide();
+};
+
+const seleccionarProducto = (expansion) => {
+  router.push({ name: "product-list", params: { expansion } });
 };
 
 onMounted(async () => {
-  await productStore.fetchProducts();
-  selectAndCopyCards();
+  await fetchRandomCards(6);
 });
-
-const seleccionarProducto = (expansion) => {
-  // Redirige a la ruta de ProductList, pasando el parámetro de expansión
-  router.push({ name: "product-list", params: { expansion } });
-  return {
-    seleccionarProducto,
-    // otros métodos y propiedades
-  };
-};
 </script>
 
 <style scoped>
@@ -207,24 +197,24 @@ const seleccionarProducto = (expansion) => {
 }
 
 .custom-card {
-  border: 1px solid #7c3aed; /* Morado oscuro */
+  border: 1px solid #7c3aed;
   border-radius: 10px;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .card-body {
-  background-color: #1e1b4b; /* Fondo oscuro */
-  color: #e9d8fd; /* Color suave de texto */
+  background-color: #1e1b4b;
+  color: #e9d8fd;
   border-bottom-right-radius: 10px;
   border-bottom-left-radius: 10px;
 }
 
 .title {
-  color: #facc15; /* Amarillo brillante */
+  color: #facc15;
 }
 
 .card-title {
-  color: #facc15; /* Amarillo brillante */
+  color: #facc15;
   font-size: 1.1rem;
   font-weight: bold;
   text-transform: uppercase;
@@ -232,7 +222,7 @@ const seleccionarProducto = (expansion) => {
 }
 
 .card-text {
-  color: #e9d8fd; /* Color suave de texto */
+  color: #e9d8fd;
   font-size: 0.9rem;
 }
 
@@ -256,7 +246,7 @@ const seleccionarProducto = (expansion) => {
 .section-title {
   font-size: 1.5rem;
   font-weight: bold;
-  color: #facc15; /* Amarillo brillante */
+  color: #facc15;
   text-transform: uppercase;
   letter-spacing: 1px;
   text-align: center;
@@ -281,95 +271,3 @@ const seleccionarProducto = (expansion) => {
   }
 }
 </style>
-
-<!-- <style scoped>
-.carousel-item img {
-    height: 400px;
-    object-fit: cover;
-}
-
-.container {
-    max-width: 1200px;
-}
-
-.card-img-top {
-    height: 200px;
-    object-fit: cover;
-}
-
-.custom-card {
-    border: 1px solid #f39c12;
-    border-radius: 10px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.card-body {
-    background-color: #3e2723;
-    color: #f1e0c6;
-    border-bottom-right-radius: 10px;
-    border-bottom-left-radius: 10px;
-
-}
-
-.title {
-    color: #f39c12;
-}
-
-.card-title {
-    color: #f39c12;
-    font-size: 1.1rem;
-    font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-.card-text {
-    color: #f1e0c6;
-    font-size: 0.9rem;
-}
-
-.card-button {
-    background: none;
-    border: none;
-    width: 100%;
-    padding: 0;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.card-button:hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-}
-
-.card-button:focus {
-    outline: none;
-}
-
-.section-title {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #f39c12;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    text-align: center;
-}
-
-.section-divider {
-    border-color: rgba(255, 255, 255, 0.2);
-    margin: 20px 0;
-}
-
-@media (max-width: 768px) {
-    .section-title {
-        font-size: 1.3rem;
-    }
-
-    .card-title {
-        font-size: 1rem;
-    }
-
-    .card-text {
-        font-size: 0.85rem;
-    }
-}
-</style> -->

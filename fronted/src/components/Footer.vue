@@ -3,17 +3,29 @@
     <div class="container">
       <div class="row">
         <div class="col-md-4">
-          <h5 class="footer-title">{{ $t('quickLinks') }}</h5>
+          <h5 class="footer-title">{{ $t("quickLinks") }}</h5>
           <ul class="list-unstyled">
-            <li><RouterLink :to="`/${$i18n.locale}/`" class="footer-link">{{ $t('home') }}</RouterLink></li>
-            <li><RouterLink :to="`/${$i18n.locale}/cards`" class="footer-link">{{ $t('products') }}</RouterLink></li>
-            <li><RouterLink :to="`/${$i18n.locale}/aboutus`" class="footer-link">{{ $t('aboutUs') }}</RouterLink></li>
-            <li><RouterLink :to="`/${$i18n.locale}/contact`" class="footer-link">{{ $t('contact') }}</RouterLink></li>
+            <li>
+              <RouterLink :to="`/${$i18n.locale}/`" class="footer-link">{{
+                $t("home")
+              }}</RouterLink>
+            </li>
+            <li>
+              <RouterLink :to="`/${$i18n.locale}/cards`" class="footer-link">{{
+                $t("mainproducts")
+              }}</RouterLink>
+            </li>
+            <li>
+              <RouterLink :to="`/${$i18n.locale}/aboutus`" class="footer-link">{{
+                $t("aboutUs")
+              }}</RouterLink>
+            </li>
+            <!-- <li><RouterLink :to="`/${$i18n.locale}/contact`" class="footer-link">{{ $t('contact') }}</RouterLink></li> -->
           </ul>
         </div>
 
         <div class="col-md-4">
-          <h5 class="footer-title">{{ $t('followUs') }}</h5>
+          <h5 class="footer-title">{{ $t("followUs") }}</h5>
           <div class="social-icons">
             <a href="https://facebook.com" target="_blank" class="social-link">
               <i class="bi bi-facebook"></i>
@@ -31,44 +43,46 @@
         </div>
 
         <div class="col-md-4">
-          <h5 class="footer-title">{{ $t('contact') }}</h5>
+          <h5 class="footer-title">{{ $t("contact") }}</h5>
           <p><i class="fas fa-envelope"></i> cardshop@gmail.com</p>
           <p><i class="fas fa-map-marker-alt"></i> Calle Magic, 123, Planeswalker City</p>
         </div>
       </div>
 
-      <hr class="footer-divider">
+      <hr class="footer-divider" />
 
       <div class="text-center">
-        <p class="footer-text">© {{ new Date().getFullYear() }} CardShop - {{ $t('allRightsReserved') }}</p>
+        <p class="footer-text">
+          © {{ new Date().getFullYear() }} CardShop - {{ $t("allRightsReserved") }}
+        </p>
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
-import { useI18n } from 'vue-i18n';
+import { defineComponent } from "vue";
+import { useI18n } from "vue-i18n";
 
 export default defineComponent({
-    setup() {
-        const { t, locale } = useI18n();
+  setup() {
+    const { t, locale } = useI18n();
 
-        return {
-            t
-        };
-    }
+    return {
+      t,
+    };
+  },
 });
 </script>
 
 <style scoped>
 .footer {
   background-color: #1e1b4b; /* Fondo oscuro */
-  color: #e9d8fd;  /* Color suave de texto */
+  color: #e9d8fd; /* Color suave de texto */
   padding: 50px 0;
   border-top: 5px solid #facc15; /* Amarillo brillante */
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
-  font-family: 'Garamond', serif;
+  font-family: "Garamond", serif;
 }
 
 .footer-title {
@@ -139,7 +153,6 @@ export default defineComponent({
   }
 }
 </style>
-
 
 <!-- <style scoped>
 .footer {
