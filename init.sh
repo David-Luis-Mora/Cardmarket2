@@ -3,36 +3,33 @@
 # Iniciar el frontend (Vue.js)
 echo "Iniciando el frontend (Vue.js)"
 
-# Cambiar al directorio del frontend (ajustar el nombre si es necesario)
+# Cambiar al directorio del frontend
 cd ./fronted
 
-# Instalar las dependencias de Vue.js
+# Instalar dependencias
 npm install
 
-# Si realmente necesitas npm-run-all, descomenta la siguiente línea
-npm install npm-run-all --save-dev
-
-# Compilar los archivos estáticos de Vue.js
+# Compilar solo el frontend sin type-check
 npm run build-only
 
-# Mover los archivos estáticos compilados de Vue.js a la carpeta static de Django
-echo "Moviendo archivos estáticos de Vue.js a la carpeta static de Django"
-cp -r ./dist/index.html ../backend/static/
+# Mover archivos del build de Vue al backend de Django
+echo "Moviendo archivos estáticos de Vue.js a Django"
+mkdir -p ../backend/static/
+cp -r ./dist/assets ../backend/static/
 
-# Regresar al directorio raíz
+mkdir -p ../backend/templates/
+cp ./dist/index.html ../backend/templates/index.html
+
+# Volver al directorio raíz
 cd ../
 
-# Ejecutar comandos para Django
+# Iniciar el backend
 echo "Iniciando el backend (Django)"
-
-# Realizar las migraciones de la base de datos
 python ./backend/manage.py makemigrations
 python ./backend/manage.py migrate
 
-# Ejecutar cualquier script adicional de Django (si lo tienes)
-# python ./backend/script_final.py
-
-# Iniciar el servidor de Django
+# Iniciar el servidor de Django (puerto por variable de entorno o 8000 por defecto)
+PORT=${PORT:-8000}
 echo "Iniciando el servidor de Django en el puerto $PORT"
 python ./backend/manage.py runserver 0.0.0.0:$PORT
 
