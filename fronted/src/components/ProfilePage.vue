@@ -425,7 +425,7 @@ async function fetchMyCardsForSale() {
     headers: { Authorization: `Bearer ${token}` },
   });
   const data = await res.json();
-  cardsForSale.value = data.cards_for_sale;
+  cardsForSale.value = data.cards_for_sale.filter((c: Card) => c.quantity > 0);
   // Inicializar tempEdits
   data.cards_for_sale.forEach((c: Card) => {
     tempEdits[c.id] = { quantity: c.quantity, price: c.price };
@@ -450,7 +450,7 @@ function cancelEdit() {
 
 async function saveEdit(card: Card) {
   const token = localStorage.getItem("token");
-  await fetch(`http://localhost:8000/api/users/my-cards-for-sale/${card.id}/`, {
+  const res = await fetch(`http://localhost:8000/api/users/my-cards-for-sale/${card.id}/`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
@@ -461,9 +461,24 @@ async function saveEdit(card: Card) {
       price: tempEdits[card.id].price,
     }),
   });
-  // Aplicar cambios localmente
-  card.quantity = tempEdits[card.id].quantity;
-  card.price = tempEdits[card.id].price;
+
+  if (res.status === 204) {
+    // El backend borró el registro porque qty <= 0
+    cardsForSale.value = cardsForSale.value.filter((c) => c.id !== card.id);
+    editingCardId.value = null;
+    return;
+  }
+
+  if (!res.ok) {
+    const err = await res.text();
+    alert("Error al actualizar la venta: " + err);
+    return;
+  }
+
+  // status 200: recibimos datos actualizados
+  const updated = await res.json();
+  card.quantity = updated.quantity;
+  card.price = updated.price;
   editingCardId.value = null;
 }
 

@@ -5,7 +5,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.http import JsonResponse, Http404
 from .models import Token, Profile
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 import json
 from .decorators import require_get,require_post,auth_required,validate_json
@@ -18,11 +18,6 @@ from django.contrib.auth import get_user_model
 import random
 
 # views.py
-
-def redirect_to_vue_dev(request):
-    return redirect('http://localhost:5173/')
-
-
 
 @require_get
 def random_cards(request):
@@ -525,7 +520,11 @@ def all_cards(request):
 
 
 
-@require_get
+from django.views.decorators.http import require_GET
+from django.http import JsonResponse
+from django.db.models import Q
+
+@require_GET
 def all_cards(request):
     try:
         number_start = int(request.GET.get('number-start', 1))
@@ -558,15 +557,15 @@ def all_cards(request):
 
         data = []
         for card in cards_page:
+            # Sólo vendedores con stock > 0
             sellers_qs = (
                 CardForSale.objects
                 .filter(card=card, quantity__gt=0)
                 .select_related('seller')
-                .order_by('price')
             )
             sellers = [
                 {
-                    'sellerNickname': seller.seller.user.username,
+                    'sellerNickname': seller.seller.nickname,
                     'price': float(seller.price),
                     'quantity': seller.quantity,
                 }
@@ -587,14 +586,14 @@ def all_cards(request):
         return JsonResponse({'error': f'Error interno del servidor: {str(e)}'}, status=500)
 
 
-@require_get
+@require_GET
 def cards_by_expansion(request, code):
     try:
         number_start = int(request.GET.get('number-start', 1))
         if number_start < 1:
-            raise ValueError
-    except ValueError:
-        return JsonResponse({'error': 'Invalid number-start'}, status=400)
+            raise ValueError("El número de página debe ser mayor que 0")
+    except (ValueError, TypeError):
+        return JsonResponse({'error': 'Parámetro inválido: number-start'}, status=400)
 
     search_term = request.GET.get('search', '').strip()
     sort_by = request.GET.get('sort', 'name')
@@ -605,22 +604,33 @@ def cards_by_expansion(request, code):
         cards = cards.filter(name__icontains=search_term)
 
     total_count = cards.count()
-    cards = cards.order_by('name') if sort_by == 'name' else cards.order_by('-price' if sort_by == 'price_desc' else 'price')
+
+    if sort_by == 'name':
+        cards = cards.order_by('name')
+    elif sort_by == 'price':
+        cards = cards.order_by('price')
+    elif sort_by == 'price_desc':
+        cards = cards.order_by('-price')
 
     start = (number_start - 1) * 20
     end = start + 20
     cards_page = cards[start:end]
 
     data = []
-    
     for card in cards_page:
+        # Al igual que en all_cards: sólo vendedores con quantity > 0
+        sellers_qs = (
+            CardForSale.objects
+            .filter(card=card, quantity__gt=0)
+            .select_related('seller__user')
+        )
         sellers = [
             {
                 'sellerNickname': sale.seller.user.username,
                 'price': float(sale.price),
                 'quantity': sale.quantity,
             }
-            for sale in CardForSale.objects.filter(card=card).select_related('seller')
+            for sale in sellers_qs
         ]
 
         data.append({
@@ -632,7 +642,6 @@ def cards_by_expansion(request, code):
         })
 
     return JsonResponse({'cards': data, 'total': total_count}, status=200)
-
 
     
 @require_get

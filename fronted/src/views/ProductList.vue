@@ -21,7 +21,7 @@
 
     <div
       v-if="!loading && currentProducts.length === 0"
-      class="no-results my-4 text-center text-muted"
+      class="no-results my-4 text-center text-warning"
     >
       <i class="bi bi-emoji-frown-fill"></i>
       <p>{{ $t("productList.noResults") }}</p>

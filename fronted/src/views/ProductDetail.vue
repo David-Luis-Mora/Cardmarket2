@@ -105,7 +105,6 @@ const cartStore = useCartStore();
 const product = ref<Product | null>(null);
 const selectedQuantities = ref<number[]>([]);
 
-/** Aseguramos que fetchProduct devuelva un Product */
 async function fetchProduct(): Promise<void> {
   const res = await fetch(`http://localhost:8000/api/cards/${productId}/`);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -113,28 +112,32 @@ async function fetchProduct(): Promise<void> {
   product.value = data;
 }
 
-watch(product, (p) => {
-  if (p) selectedQuantities.value = p.sellers.map(() => 1);
-});
-
-/** Ahora TS sabe que sortedSellers es Seller[] */
+// 1) Filtrar solo sellers con quantity > 0 y luego ordenar
 const sortedSellers = computed<Seller[]>((): Seller[] => {
   if (!product.value) return [];
   return product.value.sellers
-    .slice()
-    .sort(
-      (a: Seller, b: Seller): number => a.price - b.price || a.username.localeCompare(b.username)
-    );
+    .filter((seller) => seller.quantity > 0)
+    .sort((a, b) => a.price - b.price || a.username.localeCompare(b.username));
 });
 
-const totalSellers = computed((): number => product.value?.sellers.length ?? 0);
+// 2) Ajustar selectedQuantities al número de sellers filtrados
+watch(
+  sortedSellers,
+  (sellers) => {
+    selectedQuantities.value = sellers.map(() => 1);
+  },
+  { immediate: true }
+);
 
+// 3) totalSellers cuenta solo los filtrados
+const totalSellers = computed((): number => sortedSellers.value.length);
+
+// cheapestPrice toma el mínimo de los filtrados
 const cheapestPrice = computed((): number => {
   const sellers = sortedSellers.value;
   return sellers.length ? sellers[0].price : product.value?.basePrice ?? 0;
 });
 
-/** addToCart ya estaba tipado */
 function addToCart(seller: Seller, idx: number) {
   const qty = selectedQuantities.value[idx] || 1;
   cartStore
@@ -149,6 +152,7 @@ function addToCart(seller: Seller, idx: number) {
     })
     .catch((e) => alert("Error al añadir: " + e.message));
 }
+
 onMounted(fetchProduct);
 </script>
 

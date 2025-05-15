@@ -198,7 +198,7 @@ export default defineComponent({
       if (!cardHolderName.value || !address.value) {
         paymentStatus.value = {
           success: false,
-          message: (window as any).$t("payment.errorFillCustomer"),
+          message: t("payment.errorFillCustomer"),
         };
         return;
       }
@@ -206,7 +206,7 @@ export default defineComponent({
         if (!cardNumber.value || !expiryDate.value || !cvv.value) {
           paymentStatus.value = {
             success: false,
-            message: (window as any).$t("payment.errorFillCard"),
+            message: t("payment.errorFillCard"),
           };
           return;
         }
@@ -216,7 +216,7 @@ export default defineComponent({
       if (method.value === "wallet" && walletBalance.value < totalAmount.value) {
         paymentStatus.value = {
           success: false,
-          message: (window as any).$t("payment.errorInsufficientFunds"),
+          message: t("payment.errorInsufficientFunds"),
         };
         return;
       }
@@ -245,14 +245,17 @@ export default defineComponent({
         }
         data = await res.json();
         if (!res.ok) {
-          throw new Error(data.error || (window as any).$t("payment.errorGeneric"));
+          throw new Error(data.error || t("payment.errorGeneric"));
         }
         paymentStatus.value = {
           success: true,
-          message: data.message || (window as any).$t("payment.successMessage"),
+          message: data.message || t("payment.successMessage"),
         };
         cartStore.clearCart();
-        router.push("MyProfile");
+        router.push({
+          name: "MyProfile",
+          params: { lang: locale.value },
+        });
       } catch (err: any) {
         paymentStatus.value = {
           success: false,
