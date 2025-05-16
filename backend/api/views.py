@@ -937,10 +937,10 @@ def buy_for_wallet(request):
     for item in cart_items:
         sale = item.card_for_sale
         # Verificar stock (opcional)
-        if sale.quantity <= item.quantity:
-            return JsonResponse({
-                'error': f'Stock insuficiente para {sale.card.name}'
-            }, status=400)
+        # if sale.quantity <= item.quantity:
+        #     return JsonResponse({
+        #         'error': f'Stock insuficiente para {sale.card.name}'
+        #     }, status=400)
         # Descontar stock
         # sale.quantity -= item.quantity
         # sale.save()
@@ -1012,11 +1012,11 @@ def buy_for_card(request):
     total_price = 0
     for item in cart_items:
         sale = item.card_for_sale
-        if sale.quantity < item.quantity:
-            return JsonResponse(
-                {'error': f'Stock insuficiente para {sale.card.name}'},
-                status=400
-            )
+        # if sale.quantity < item.quantity:
+        #     return JsonResponse(
+        #         {'error': f'Stock insuficiente para {sale.card.name}'},
+        #         status=400
+        #     )
         total_price += item.quantity * sale.price
 
     # —> **No hacemos comprobación de profile.balance aquí**
