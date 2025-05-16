@@ -297,8 +297,8 @@ def add_cart(request):
         return JsonResponse({'error': 'Stock insuficiente'}, status=400)
 
     # -- 5) (Opcional) descontar stock si quieres persistirlo aquí
-    # sale.quantity -= qty
-    # sale.save()
+    sale.quantity -= qty
+    sale.save()
 
     # -- 6) Crear o actualizar CartItem --
     # Si el usuario ya tenía ese ítem, aumentamos cantidad
@@ -378,6 +378,10 @@ def delete_cart(request):
         return JsonResponse({'error': 'Venta no encontrada'}, status=404)
     except CartItem.DoesNotExist:
         return JsonResponse({'error': 'Item no encontrado en el carrito'}, status=404)
+    
+    # Devolver el stock al vendedor porque se eliminó del carrito sin comprar
+    card_for_sale.quantity += cart_item.quantity
+    card_for_sale.save()
 
     # Eliminar el CartItem
     cart_item.delete()
@@ -850,10 +854,64 @@ def delete_all_cart_items(request):
     except Profile.DoesNotExist:
         return JsonResponse({'error': 'Perfil no encontrado'}, status=400)
 
-    # Elimina todos los ítems del carrito de ese usuario
-    deleted, _ = CartItem.objects.filter(user=profile).delete()
+    # Obtener todos los ítems del carrito del usuario
+    cart_items = CartItem.objects.filter(user=profile).select_related("card_for_sale")
 
-    return JsonResponse({'success': f'{deleted} productos eliminados del carrito'}, status=200)
+    if not cart_items.exists():
+        return JsonResponse({'info': 'El carrito ya estaba vacío'}, status=200)
+
+    restored = 0
+    for item in cart_items:
+        sale = item.card_for_sale
+        # Devolver stock al vendedor
+        sale.quantity += item.quantity
+        sale.save()
+        restored += 1
+        item.delete()
+
+    return JsonResponse({
+        'success': f'{restored} productos eliminados y stock restaurado'
+    }, status=200)
+
+
+@csrf_exempt
+@validate_json(required_fields=['card-id', 'nickname',])
+@auth_required
+@require_http_methods(["POST"])
+def delete_cart_sold(request):
+    print("🔍 request.body:", request.body)
+    print("🔍 request.headers:", request.headers)
+    # print("🏷 Received Authorization:", request.META.get('HTTP_AUTHORIZATION'))
+    # print("🏷 request.json_data:", request.json_data)
+
+    try:
+        card_id         = request.json_data['card-id']
+        seller_username = request.json_data['nickname']
+        # qty             = int(request.json_data['number-cards'])
+    except KeyError as e:
+        return JsonResponse({'error': f'Falta campo {e.args[0]}'}, status=400)
+    except ValueError:
+        return JsonResponse({'error': 'number-cards debe ser un entero'}, status=400)
+
+    # Buscar entidades necesarias
+    try:
+        card = Card.objects.get(id=card_id)
+        seller_profile = Profile.objects.get(nickname=seller_username)
+        card_for_sale = CardForSale.objects.get(card=card, seller=seller_profile)
+    except Card.DoesNotExist:
+        return JsonResponse({'error': 'Carta no encontrada'}, status=404)
+    except Profile.DoesNotExist:
+        return JsonResponse({'error': 'Perfil de vendedor no encontrado'}, status=404)
+    except CardForSale.DoesNotExist:
+        return JsonResponse({'error': 'Venta no encontrada'}, status=404)
+
+    card_for_sale.delete()
+
+    return JsonResponse({'success': 'Carta retirada de la venta'}, status=200)
+
+
+
+
 
 
 
@@ -905,10 +963,10 @@ def buy_for_wallet(request):
             price=sale.price
         )
         # Descontar stock
-        sale.quantity -= item.quantity
+        # sale.quantity -= item.quantity
         sale.seller.balance += item.quantity * sale.price
         sale.save()
-        logic_buyers(sale,profile)
+        # logic_buyers(sale,profile)
 
 
     profile.balance -= total_price
@@ -974,14 +1032,14 @@ def buy_for_card(request):
             quantity=item.quantity,
             price=sale.price
         )
-        sale.quantity -= item.quantity
-        sale.save()                    
+        # sale.quantity -= item.quantity
+        # sale.save()                    
 
         seller = sale.seller
         seller.balance += item.quantity * sale.price
         seller.save()                  
 
-        logic_buyers(sale, profile)
+        # logic_buyers(sale, profile)
 
     # 6) Borrar el carrito
     count = cart_items.count()

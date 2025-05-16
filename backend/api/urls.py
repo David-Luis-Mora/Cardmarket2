@@ -18,9 +18,13 @@ urlpatterns = [
     path('users/all-cards-sold-by-user/', views.all_cards_sold_by_user, name='all-cards-sold-by-user'),
     path('users/all-card-purchased-for-user/', views.all_card_purchased_for_user, name='all-card-purchased-for-user'),
     # path('users/profile/', views.edit_profile, name='edit-profile'),
+    
     path('users/cart/add/', views.add_cart, name='add-cart'),
     path('users/cart/delete/', views.delete_cart, name='delete-cart'),
     path('users/cart/delete/all/', views.delete_all_cart_items, name='delete-all-cart-items'),
+    path('users/cart/delete/delete_cart_sold/', views.delete_cart_sold, name='delete-cart-sold'),
+
+
     path("users/sell/", views.sell_card, name="sell-card"),
     path('users/wallet/',views.wallet_balance,name='wallet-balance'),
     path('users/cart/buy-for-wallet/', views.buy_for_wallet, name='buy-for-wallet'),
