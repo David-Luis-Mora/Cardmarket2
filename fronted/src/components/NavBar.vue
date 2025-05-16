@@ -9,7 +9,7 @@
     <div class="nav-links">
       <div class="box">
         <router-link class="nav-link js-scroll-trigger" :to="`/${locale}/cards`">
-          <i class="bi bi-suit-spade"></i> {{ t("cards") }}
+          <i class="bi bi-droplet"></i> {{ t("cards") }}
         </router-link>
       </div>
       <div class="box">
