@@ -74,49 +74,46 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, inject, type Ref } from "vue";
+import { ref, inject, type Ref } from "vue";
 import { useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
-
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
+import { auth, db } from "../firebaseConfig";
+import ChildComponent from "./ProductItem.vue";
 const { locale } = useI18n();
 const login = inject("login") as (userData: any) => void;
-const logueado = inject("logueado") as Ref<boolean>;
-const router = useRouter();
 
 const username = ref("");
 const password = ref("");
-const showPassword = ref(false);
-const loading = ref(false);
-const errors = ref<{ username: string; password: string }>({
+const errors = ref({
   username: "",
   password: "",
 });
-
-const hasErrors = computed(() => {
-  return (
-    Boolean(errors.value.username || errors.value.password) ||
-    !username.value.trim() ||
-    !password.value.trim()
-  );
-});
-
+const logueado = inject("logueado") as Ref<boolean>;
+const router = useRouter();
 const handleLogin = async () => {
-  errors.value = { username: "", password: "" };
+  errors.value = {
+    username: "",
+    password: "",
+  };
 
   if (!username.value.trim()) {
     errors.value.username = "El correo es obligatorio.";
     return;
   }
+
   if (!password.value.trim()) {
     errors.value.password = "La contraseña es obligatoria.";
     return;
   }
 
-  loading.value = true;
   try {
     const response = await fetch("http://localhost:8000/api/users/login/", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({
         username: username.value,
         password: password.value,
@@ -124,26 +121,30 @@ const handleLogin = async () => {
     });
 
     const data = await response.json();
+    console.log("Login response data:", data);
+
     if (response.ok) {
-      localStorage.setItem("token", data.token);
+      const token = data.token;
+
+      localStorage.setItem("token", token);
+      window.location.href = `/${locale.value}/`;
       if (data.user) {
         localStorage.setItem("user", JSON.stringify(data.user));
       }
+
       alert("Inicio de sesión exitoso");
-      logueado.value = true;
+
       router.push("/");
     } else {
       if (data.error === "Invalid credentials") {
         errors.value.password = "Correo o contraseña incorrectos.";
       } else {
-        alert("Error inesperado: " + (data.error || response.status));
+        alert("Error inesperado");
       }
     }
-  } catch (err) {
-    console.error(err);
+  } catch (error) {
+    console.error("Error al hacer login:", error);
     alert("Error de red o servidor.");
-  } finally {
-    loading.value = false;
   }
 };
 </script>

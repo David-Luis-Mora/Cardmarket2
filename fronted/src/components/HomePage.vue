@@ -277,14 +277,13 @@ onMounted(async () => {
     font-size: 0.85rem;
   }
 
-  .row.mt-5 .col-md-3,
-  .row.mt-5 .col-md-4 {
-    flex: 0 0 33.3333% !important;
-    max-width: 33.3333% !important;
+  .row.mt-5 .col-md-3 {
+    flex: 0 0 50% !important;
+    max-width: 50% !important;
   }
 
   .card-img-top {
-    height: 100px !important;
+    height: 250px !important;
   }
 
   .card-body h5,

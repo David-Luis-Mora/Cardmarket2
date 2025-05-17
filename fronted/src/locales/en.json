@@ -75,6 +75,7 @@
       "submit": "Login",
       "noAccount": "Don't have an account?",
       "register": "Register here",
+      "loading": "Loading",
       "errors": {
         "usernameRequired": "Username is required.",
         "passwordRequired": "Password is required."
@@ -93,6 +94,7 @@
       "password": "Password",
       "passwordPlaceholder": "Create a password",
       "submit": "Register",
+      "loading": "Loading",
       "errors": {
         "firstNameRequired": "First name is required.",
         "lastNameRequired": "Last name is required.",

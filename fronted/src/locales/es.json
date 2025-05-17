@@ -76,6 +76,7 @@
       "submit": "Iniciar Sesión",
       "noAccount": "¿No tienes cuenta?",
       "register": "Regístrate aquí",
+      "loading": "Cargando",
       "errors": {
         "usernameRequired": "El nombre de usuario es obligatorio.",
         "passwordRequired": "La contraseña es obligatoria."
@@ -94,6 +95,7 @@
       "password": "Contraseña",
       "passwordPlaceholder": "Crea tu contraseña",
       "submit": "Registrar",
+      "loading": "Cargando",
       "errors": {
         "firstNameRequired": "El nombre es obligatorio.",
         "lastNameRequired": "El apellido es obligatorio.",
