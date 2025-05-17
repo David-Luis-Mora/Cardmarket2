@@ -1,6 +1,6 @@
 body {
     background: linear-gradient(135deg, #1e1b4b, #3b0764, #000000);
-    background-attachment: fixed; /* Para que no se mueva al hacer scroll */
+    background-attachment: fixed; 
     background-repeat: no-repeat;
     background-size: cover;
     /* background-color: rgb(63, 58, 131);  */

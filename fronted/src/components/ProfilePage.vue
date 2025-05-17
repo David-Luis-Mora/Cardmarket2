@@ -1,7 +1,6 @@
 <template>
   <div class="container my-4">
     <div class="row">
-      <!-- Columna izquierda: información de usuario / formulario -->
       <div class="col-md-4">
         <div class="card mb-4">
           <div class="card-body text-center">
@@ -142,10 +141,8 @@
         </div>
       </div>
 
-      <!-- Columna derecha: ventas, vendidas y compradas -->
       <div class="col-md-8">
         <div class="row">
-          <!-- Cartas en venta -->
           <div class="col-12 mb-4">
             <div class="card">
               <div class="card-header d-flex justify-content-between align-items-center">
@@ -171,13 +168,17 @@
                         <span class="ms-3">{{ $t("profile.quantity") }}: {{ card.quantity }}</span>
                       </template>
                     </div>
+                    <div class="d-flex">
+                      <button class="btn btn-sm btn-outline-danger" @click="confirmDelete(card)">
+                        {{ $t("profile.delete") }}
+                      </button>
+                    </div>
                   </li>
                 </div>
               </ul>
             </div>
           </div>
 
-          <!-- Cartas vendidas -->
           <div class="col-12 mb-4">
             <div class="card">
               <div class="card-header">
@@ -206,7 +207,6 @@
             </div>
           </div>
 
-          <!-- Cartas compradas -->
           <div class="col-12">
             <div class="card">
               <div class="card-header">
@@ -255,7 +255,7 @@ const countries = ref([
   { code: "IT", name: "Italia" },
   { code: "JP", name: "Japón" },
 ]);
-// Definir el tipo para una carta
+
 interface Card {
   id: number;
   name: string;
@@ -264,7 +264,7 @@ interface Card {
   image: string;
 }
 const fetchUserProfile = async () => {
-  const token = localStorage.getItem("token"); // Asegúrate de que este es el nombre correcto
+  const token = localStorage.getItem("token");
   try {
     const res = await fetch("http://localhost:8000/api/users/edit/", {
       method: "GET",
@@ -280,14 +280,14 @@ const fetchUserProfile = async () => {
     let data;
     try {
       data = JSON.parse(raw);
-      userStore.setUser(data); // ✅ data.avatar debe estar ahí
+      userStore.setUser(data);
     } catch {
       throw new Error("Respuesta no válida: " + raw);
     }
 
     if (!res.ok) throw new Error(data.error || "Error al cargar perfil");
 
-    userStore.setUser(data); // Asumiendo que esto guarda en Pinia
+    userStore.setUser(data);
   } catch (error) {
     console.error("❌ Error al cargar perfil:", error);
     alert("No se pudo cargar el perfil del usuario.");
@@ -318,7 +318,7 @@ const onFileChange = (e: Event) => {
   const file = (e.target as HTMLInputElement).files?.[0];
   if (file) {
     form.value.avatar_file = file;
-    form.value.avatar_url = ""; // Limpiar URL si sube imagen
+    form.value.avatar_url = "";
   }
 };
 
@@ -414,7 +414,6 @@ function cancel() {
   form.value.avatar_file = null;
 }
 
-// Sales listings
 const cardsForSale = ref<Card[]>([]);
 const editingCardId = ref<number | null>(null);
 const tempEdits = reactive<Record<number, { quantity: number; price: number }>>({});
@@ -426,7 +425,6 @@ async function fetchMyCardsForSale() {
   });
   const data = await res.json();
   cardsForSale.value = data.cards_for_sale.filter((c: Card) => c.quantity > 0);
-  // Inicializar tempEdits
   data.cards_for_sale.forEach((c: Card) => {
     tempEdits[c.id] = { quantity: c.quantity, price: c.price };
   });
@@ -463,7 +461,6 @@ async function saveEdit(card: Card) {
   });
 
   if (res.status === 204) {
-    // El backend borró el registro porque qty <= 0
     cardsForSale.value = cardsForSale.value.filter((c) => c.id !== card.id);
     editingCardId.value = null;
     return;
@@ -475,7 +472,6 @@ async function saveEdit(card: Card) {
     return;
   }
 
-  // status 200: recibimos datos actualizados
   const updated = await res.json();
   card.quantity = updated.quantity;
   card.price = updated.price;
@@ -509,7 +505,7 @@ async function fetchMySoldCards() {
   });
 
   if (!res.ok) {
-    const err = await res.text(); // o .json() si tu 405 devolviera JSON de error
+    const err = await res.text();
     throw new Error(`HTTP ${res.status} — ${err}`);
   }
 
@@ -527,7 +523,6 @@ async function fetchMyPurchasedCards() {
       Authorization: `Token ${token}`,
       "Content-Type": "application/json",
     },
-    // no necesitas body, pero algunos middlewares CSRF/CORS lo quieren
     body: JSON.stringify({}),
   });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -589,7 +584,7 @@ onMounted(() => {
   max-width: 600px;
   margin: 2rem auto;
   padding: 2rem;
-  background-color: #0f172a; /* fondo oscuro */
+  background-color: #0f172a;
   border-radius: 1rem;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
   font-family: "Segoe UI", sans-serif;

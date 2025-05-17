@@ -33,7 +33,7 @@
       </div>
     </div>
 
-    <div class="d-flex flex-column gap-3">
+    <div class="product-list-grid">
       <ProductItem
         v-for="product in currentProducts"
         :key="product.id"
@@ -122,7 +122,7 @@ import { defineComponent, ref, computed, onMounted, watch } from "vue";
 import ProductItem from "../components/ProductItem.vue";
 import { useAuthStore } from "../stores/authStore";
 export default defineComponent({
-  name: "ProductList", // ✅ nombre correcto
+  name: "ProductList",
   components: { ProductItem },
   setup() {
     const searchTerm = ref("");
@@ -136,7 +136,7 @@ export default defineComponent({
     const cart = ref<any[]>([]);
     const products = ref<any[]>([]);
 
-    const totalCardCount = ref(0); // ahora es reactivo, no computed
+    const totalCardCount = ref(0);
     const expansions = ref<{ set_name: string; set_code: string }[]>([]);
     const pageWindowSize = 6;
 
@@ -167,7 +167,6 @@ export default defineComponent({
         const res = await fetch("http://localhost:8000/api/cards/expansions/");
         const text = await res.text();
 
-        // Intenta parsear como JSON
         let data;
         try {
           data = JSON.parse(text);
@@ -272,7 +271,7 @@ export default defineComponent({
 
     const init = async () => {
       authStore.initAuth();
-      await fetchExpansions(); // 👈 debe ir primero
+      await fetchExpansions();
       await fetchProducts();
     };
 
@@ -347,26 +346,20 @@ export default defineComponent({
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.7);
-  /* Asegúrate de que la pantalla esté más oscura */
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1050;
-  /* Asegura que esté por encima del contenido */
 }
 
-/* Modal Dialog */
 .modal-dialog {
   max-width: 800px;
   width: 100%;
-  /* Asegura que ocupe un buen porcentaje del ancho */
   background: white;
   border-radius: 8px;
-  /* Mejora el diseño del modal */
   padding: 20px;
 }
 
-/* Modal Content */
 .modal-content {
   display: flex;
   flex-direction: column;
@@ -376,10 +369,31 @@ export default defineComponent({
   display: flex;
   flex-direction: column;
   align-items: center;
-  color: #facc15; /* color de acento */
+  color: #facc15;
 }
 .no-results i {
-  font-size: 3rem; /* emoji más grande */
+  font-size: 3rem;
   margin-bottom: 0.5rem;
+}
+.product-list-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+.product-list-grid .card-img-top {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+@media (max-width: 768px) {
+  .product-list-grid {
+    grid-template-columns: repeat(1, 1fr);
+    gap: 0.5rem;
+  }
+  .product-list-grid .card-img-top {
+    height: 100px;
+  }
 }
 </style>

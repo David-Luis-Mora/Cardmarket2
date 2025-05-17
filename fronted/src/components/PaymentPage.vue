@@ -1,8 +1,6 @@
 <template>
   <div class="payment-container">
     <h2>{{ $t("payment.title") }}</h2>
-
-    <!-- Selector de método de pago -->
     <div class="payment-method-selector">
       <label>
         <input type="radio" v-model="method" value="wallet" />
@@ -15,9 +13,7 @@
     </div>
 
     <div class="payment-grid">
-      <!-- Columna izquierda -->
       <div class="left-column">
-        <!-- Información del cliente -->
         <div class="card info-card">
           <h3>
             {{ $t("payment.customerInfo") }}
@@ -44,7 +40,6 @@
           </div>
         </div>
 
-        <!-- Datos de la tarjeta -->
         <div v-if="method === 'card'" class="card card-data">
           <h3>{{ $t("payment.cardInfo") }}</h3>
           <div class="form-group">
@@ -76,7 +71,6 @@
         </div>
       </div>
 
-      <!-- Columna derecha -->
       <div class="right-column">
         <div class="card summary-card">
           <div v-if="method === 'wallet'" class="card wallet-card">
@@ -102,7 +96,6 @@
 
           <p class="total">{{ $t("payment.total") }}: ${{ totalAmount.toFixed(2) }}</p>
 
-          <!-- Botón único que envía según method -->
           <button
             @click="submitPayment"
             class="submit-btn"
@@ -141,7 +134,6 @@ export default defineComponent({
     const router = useRouter();
     const { t, locale } = useI18n();
 
-    // Estado del formulario
     const method = ref<"wallet" | "card">("wallet");
     const cardHolderName = ref("");
     const address = ref("");
@@ -151,7 +143,6 @@ export default defineComponent({
     const loading = ref(false);
     const paymentStatus = ref<{ success: boolean; message: string } | null>(null);
 
-    // Estado monedero
     const walletBalance = ref(0);
     const walletLoading = ref(false);
     const walletError = ref("");
@@ -167,7 +158,6 @@ export default defineComponent({
       };
     }
 
-    // Traer saldo al montar o cambiar a 'wallet'
     async function fetchWalletBalance() {
       walletLoading.value = true;
       walletError.value = "";
@@ -194,7 +184,6 @@ export default defineComponent({
     });
 
     async function submitPayment() {
-      // Validación básica
       if (!cardHolderName.value || !address.value) {
         paymentStatus.value = {
           success: false,
@@ -212,7 +201,6 @@ export default defineComponent({
         }
       }
 
-      // Si monedero y no hay suficiente saldo
       if (method.value === "wallet" && walletBalance.value < totalAmount.value) {
         paymentStatus.value = {
           success: false,
@@ -345,9 +333,7 @@ export default defineComponent({
   color: red;
   margin-top: 1rem;
 }
-</style>
 
-<style scoped>
 .payment-container {
   max-width: 1100px;
   margin: 40px auto;

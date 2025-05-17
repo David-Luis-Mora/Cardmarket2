@@ -24,11 +24,9 @@ export default defineComponent({
     const authStore = useAuthStore();
     const logueado = ref(false);
 
-    // Proveemos la variable logueado a los componentes hijos
     provide("logueado", logueado);
 
     onMounted(() => {
-      // Inicializamos la autenticación cuando la app se monta
       authStore.initAuth();
     });
 

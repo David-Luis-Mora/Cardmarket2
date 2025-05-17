@@ -111,10 +111,10 @@ nav {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: #1e1b4b; /* Fondo oscuro */
-  color: #e9d8fd; /* Texto suave */
+  background-color: #1e1b4b;
+  color: #e9d8fd;
   border-radius: 15px;
-  border: 3px solid #facc15; /* Amarillo brillante */
+  border: 3px solid #facc15;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
   transition: all 0.3s ease-in-out;
   z-index: 1000;
@@ -156,14 +156,14 @@ nav {
 
 nav a {
   text-decoration: none;
-  color: #e9d8fd; /* Texto suave */
+  color: #e9d8fd;
   font-weight: 500;
   transition: color 0.3s ease-in-out;
 }
 
 nav a.router-link-active {
   font-weight: bold;
-  color: #facc15; /* Amarillo brillante para enlace activo */
+  color: #facc15;
 }
 
 .box {
@@ -173,7 +173,7 @@ nav a.router-link-active {
 }
 
 .box:hover {
-  background-color: rgba(250, 204, 21, 0.1); /* Fondo dorado sutil */
+  background-color: rgba(250, 204, 21, 0.1);
   transform: scale(1.1);
 }
 
@@ -183,7 +183,7 @@ nav a.router-link-active {
   left: -250px;
   width: 250px;
   height: 100vh;
-  background: #1e1b4b; /* Fondo oscuro */
+  background: #1e1b4b;
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
   padding: 20px;
   transition: left 0.3s ease-in-out;
@@ -199,19 +199,19 @@ nav a.router-link-active {
   border: none;
   font-size: 28px;
   cursor: pointer;
-  color: #e9d8fd; /* Texto suave */
+  color: #e9d8fd;
   position: absolute;
   right: 10px;
   top: 10px;
 }
 
 .close-btn:hover {
-  color: #facc15; /* Amarillo brillante al pasar el ratón */
+  color: #facc15;
 }
 
 .sidebar h3 {
   margin-bottom: 10px;
-  color: #facc15; /* Amarillo brillante para el título */
+  color: #facc15;
 }
 
 .sidebar ul {
@@ -225,13 +225,13 @@ nav a.router-link-active {
 
 .sidebar ul li a {
   text-decoration: none;
-  color: #facc15; /* Amarillo brillante para enlaces */
+  color: #facc15;
   font-weight: 500;
   transition: color 0.3s ease-in-out;
 }
 
 .sidebar ul li a:hover {
-  color: #e9d8fd; /* Texto suave al pasar el ratón */
+  color: #e9d8fd;
 }
 
 .overlay {
@@ -243,28 +243,25 @@ nav a.router-link-active {
   background: rgba(0, 0, 0, 0.5);
   z-index: 999;
 }
-/* ===========================
-   Responsive
-   =========================== */
 
-/* MÓVIL: ocultar nav-links y ajustar nav */
+.dropdown-item {
+  cursor: pointer;
+  color: black;
+}
+
+/* MÓVIL */
 @media (max-width: 768px) {
-  nav {
-    width: 100%;
-    padding: 10px 15px;
+  nav .nav-link,
+  nav .box {
+    font-size: 0.85rem;
   }
-  /* .nav-links {
-    display: none;
-  }
-  .menu-btn {
-    display: block;
-  } */
-  .logo {
-    width: 40px;
+
+  nav .box {
+    padding: 6px 10px;
   }
 }
 
-/* ESCRITORIO: ocultar sidebar y botón, mostrar nav-links */
+/* ESCRITORIO */
 @media (max-width: 1250px) {
   nav {
     width: 100%;

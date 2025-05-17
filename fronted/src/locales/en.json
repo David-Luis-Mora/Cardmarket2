@@ -112,6 +112,7 @@
       "button": "Sign Up Now"
     },
     "profile": {
+      "delete": "Delete",
       "nickname": "Nickname",
       "nicknamePlaceholder": "Enter your nickname",
       "firstName": "First Name",

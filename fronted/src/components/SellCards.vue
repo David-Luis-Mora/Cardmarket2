@@ -2,7 +2,6 @@
   <div class="container my-4">
     <h2 class="mb-4">{{ $t("sellCards.title") }}</h2>
 
-    <!-- Buscador y filtro -->
     <div class="row mb-3">
       <div class="col-md-6 mb-2">
         <input
@@ -22,7 +21,6 @@
       </div>
     </div>
 
-    <!-- Lista de cartas -->
     <div v-if="loading" class="text-center my-4">
       <div class="spinner-border text-primary" role="status">
         <span class="visually-hidden">{{ $t("sellCards.loadingCards") }}</span>
@@ -64,7 +62,6 @@
       </div>
     </div>
 
-    <!-- Paginación -->
     <div
       v-if="!loading && totalPages > 1"
       class="d-flex justify-content-center align-items-center gap-2 mt-4 flex-wrap"

@@ -1,8 +1,8 @@
 <template>
-  <div class="register-form">
+  <main class="register-form" role="main">
     <h1>{{ $t("register.title") }}</h1>
-    <form @submit.prevent="handleRegister">
-      <div>
+    <form @submit.prevent="handleRegister" novalidate>
+      <div class="form-group">
         <label for="firstName">{{ $t("register.firstName") }}</label>
         <input
           id="firstName"
@@ -10,12 +10,24 @@
           type="text"
           maxlength="50"
           :placeholder="$t('register.firstNamePlaceholder')"
+          autocomplete="given-name"
           required
+          autofocus
+          :aria-invalid="errors.firstName ? 'true' : 'false'"
+          aria-describedby="err-firstName"
         />
-        <span v-if="errors.firstName">{{ errors.firstName }}</span>
+        <div
+          v-if="errors.firstName"
+          id="err-firstName"
+          class="error"
+          role="alert"
+          aria-live="assertive"
+        >
+          {{ errors.firstName }}
+        </div>
       </div>
 
-      <div>
+      <div class="form-group">
         <label for="lastName">{{ $t("register.lastName") }}</label>
         <input
           id="lastName"
@@ -23,24 +35,40 @@
           type="text"
           maxlength="50"
           :placeholder="$t('register.lastNamePlaceholder')"
+          autocomplete="family-name"
           required
+          :aria-invalid="errors.lastName ? 'true' : 'false'"
+          aria-describedby="err-lastName"
         />
-        <span v-if="errors.lastName">{{ errors.lastName }}</span>
+        <div
+          v-if="errors.lastName"
+          id="err-lastName"
+          class="error"
+          role="alert"
+          aria-live="assertive"
+        >
+          {{ errors.lastName }}
+        </div>
       </div>
 
-      <div>
+      <div class="form-group">
         <label for="email">{{ $t("register.email") }}</label>
         <input
           id="email"
           v-model="email"
           type="email"
           :placeholder="$t('register.emailPlaceholder')"
+          autocomplete="email"
           required
+          :aria-invalid="errors.email ? 'true' : 'false'"
+          aria-describedby="err-email"
         />
-        <span v-if="errors.email">{{ errors.email }}</span>
+        <div v-if="errors.email" id="err-email" class="error" role="alert" aria-live="assertive">
+          {{ errors.email }}
+        </div>
       </div>
 
-      <div>
+      <div class="form-group">
         <label for="username">{{ $t("register.username") }}</label>
         <input
           id="username"
@@ -48,43 +76,87 @@
           type="text"
           maxlength="50"
           :placeholder="$t('register.usernamePlaceholder')"
+          autocomplete="username"
           required
+          :aria-invalid="errors.username ? 'true' : 'false'"
+          aria-describedby="err-username"
         />
-        <span v-if="errors.username">{{ errors.username }}</span>
+        <div
+          v-if="errors.username"
+          id="err-username"
+          class="error"
+          role="alert"
+          aria-live="assertive"
+        >
+          {{ errors.username }}
+        </div>
       </div>
 
-      <div>
+      <div class="form-group password-group">
         <label for="password">{{ $t("register.password") }}</label>
-        <input
-          id="password"
-          v-model="password"
-          type="password"
-          :placeholder="$t('register.passwordPlaceholder')"
-          required
-        />
-        <span v-if="errors.password">{{ errors.password }}</span>
+        <div class="password-wrapper">
+          <input
+            id="password"
+            v-model="password"
+            :type="showPassword ? 'text' : 'password'"
+            :placeholder="$t('register.passwordPlaceholder')"
+            autocomplete="new-password"
+            required
+            :aria-invalid="errors.password ? 'true' : 'false'"
+            aria-describedby="err-password"
+          />
+          <button
+            type="button"
+            class="toggle-pw"
+            @click="showPassword = !showPassword"
+            :aria-label="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+          >
+            {{ showPassword ? "🙈" : "👁️" }}
+          </button>
+        </div>
+        <div
+          v-if="errors.password"
+          id="err-password"
+          class="error"
+          role="alert"
+          aria-live="assertive"
+        >
+          {{ errors.password }}
+        </div>
       </div>
 
-      <button type="submit">{{ $t("register.submit") }}</button>
+      <button type="submit" class="submit-btn" :disabled="loading || hasErrors">
+        <span v-if="loading">{{ $t("register.loading") }}</span>
+        <span v-else>{{ $t("register.submit") }}</span>
+      </button>
     </form>
-  </div>
+  </main>
 </template>
 
 <script setup lang="ts">
-import { ref, inject, type Ref } from "vue";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc, getDoc } from "firebase/firestore";
-import { auth, db } from "../firebaseConfig";
+import { ref, computed, inject, type Ref } from "vue";
 import { useRouter } from "vue-router";
+import { useI18n } from "vue-i18n";
 
-const register = inject("register") as (userData: any) => void;
+const { locale } = useI18n();
+const logueado = inject("logueado") as Ref<boolean>;
+const router = useRouter();
 
 const firstName = ref("");
 const lastName = ref("");
 const email = ref("");
-const password = ref("");
 const username = ref("");
-const errors = ref({
+const password = ref("");
+
+const showPassword = ref(false);
+const loading = ref(false);
+const errors = ref<{
+  firstName: string;
+  lastName: string;
+  email: string;
+  username: string;
+  password: string;
+}>({
   firstName: "",
   lastName: "",
   email: "",
@@ -92,51 +164,20 @@ const errors = ref({
   password: "",
 });
 
-const router = useRouter();
+const validateEmail = (e: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
 
-const validateEmail = (email: string): boolean => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
-};
+const validatePassword = (p: string) => /^(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&+=!]).{8,}$/.test(p);
 
-const validatePassword = (password: string): boolean => {
-  const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&+=!]).{8,}$/;
-  return passwordRegex.test(password);
-};
+const hasErrors = computed(() => {
+  return [
+    !firstName.value.trim(),
+    !lastName.value.trim(),
+    !validateEmail(email.value),
+    !username.value.trim(),
+    !validatePassword(password.value),
+  ].some(Boolean);
+});
 
-const checkUsers = async (email: string) => {
-  const docRef = doc(db, "Users", email);
-  const docSnap = await getDoc(docRef);
-
-  return docSnap.exists();
-};
-
-const addUser = async () => {
-  try {
-    const data = {
-      firstName: firstName.value,
-      lastName: lastName.value,
-      username: username.value,
-      email: email.value,
-      password: password.value,
-    };
-
-    await setDoc(doc(db, "Users", email.value), data);
-    alert("Registro exitoso!");
-    firstName.value = "";
-    lastName.value = "";
-    username.value = "";
-    email.value = "";
-    password.value = "";
-  } catch (error: any) {
-    console.error("Error al registrar:", error.message);
-    if (error.code === "auth/email-already-in-use") {
-      errors.value.email = "El correo ya está en uso.";
-    } else {
-      alert("Ocurrió un error inesperado.");
-    }
-  }
-};
 const handleRegister = async () => {
   errors.value = {
     firstName: "",
@@ -146,37 +187,21 @@ const handleRegister = async () => {
     password: "",
   };
 
-  let isValid = true;
-
-  if (firstName.value.trim() === "") {
-    errors.value.firstName = "El nombre es obligatorio.";
-    isValid = false;
-  }
-
-  if (lastName.value.trim() === "") {
-    errors.value.lastName = "El apellido es obligatorio.";
-    isValid = false;
-  }
-
-  if (!validateEmail(email.value)) {
-    errors.value.email = "El formato del correo es inválido.";
-    isValid = false;
-  }
-
-  if (!validatePassword(password.value)) {
+  if (!firstName.value.trim()) errors.value.firstName = "El nombre es obligatorio.";
+  if (!lastName.value.trim()) errors.value.lastName = "El apellido es obligatorio.";
+  if (!validateEmail(email.value)) errors.value.email = "El formato del correo es inválido.";
+  if (!username.value.trim()) errors.value.username = "El usuario es obligatorio.";
+  if (!validatePassword(password.value))
     errors.value.password =
       "La contraseña debe tener al menos 8 caracteres, una letra mayúscula, un número y un carácter especial.";
-    isValid = false;
-  }
 
-  if (!isValid) return;
+  if (Object.values(errors.value).some((e) => e)) return;
 
+  loading.value = true;
   try {
-    const response = await fetch("http://localhost:8000/api/users/signup/", {
+    const resp = await fetch("http://localhost:8000/api/users/signup/", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         username: username.value,
         firstname: firstName.value,
@@ -185,97 +210,96 @@ const handleRegister = async () => {
         password: password.value,
       }),
     });
+    const result = await resp.json();
 
-    const result = await response.json();
-
-    if (!response.ok) {
-      if (result.error?.includes("email")) {
-        errors.value.email = result.error;
-      } else if (result.error?.includes("username")) {
-        errors.value.username = result.error;
-      } else {
-        alert(result.error || "Error desconocido");
-      }
+    if (!resp.ok) {
+      if (result.error?.includes("email")) errors.value.email = result.error;
+      else if (result.error?.includes("username")) errors.value.username = result.error;
+      else alert(result.error || "Error desconocido");
     } else {
       alert("Registro exitoso");
       localStorage.setItem("token", result.token);
-      const logueado = inject("logueado") as Ref<boolean>;
       if (logueado) logueado.value = true;
-      router.push("/");
+      router.push(`/${locale}/`);
     }
-  } catch (error) {
-    console.error("Error al registrar:", error);
-    alert("Hubo un error al conectar con el servidor.");
+  } catch (err) {
+    console.error(err);
+    alert("Error de red o servidor.");
+  } finally {
+    loading.value = false;
   }
 };
 </script>
 
 <style scoped>
 .register-form {
-  max-width: 400px;
-  margin: 0 auto;
-  padding: 20px;
+  max-width: 24rem;
+  margin: 2rem auto;
+  padding: 1.5rem;
   border: 1px solid #ccc;
-  border-radius: 8px;
+  border-radius: 0.5rem;
+  box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+}
+@media (max-width: 480px) {
+  .register-form {
+    margin: 1rem;
+    padding: 1rem;
+  }
 }
 
 .register-form h1 {
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 1.5rem;
 }
-
+.form-group {
+  margin-bottom: 1rem;
+}
 .register-form label {
   display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
+  margin-bottom: 0.25rem;
+  font-weight: 600;
 }
-
 .register-form input {
   width: 100%;
-  padding: 8px;
-  margin-bottom: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 1px solid #bbb;
+  border-radius: 0.25rem;
 }
-
-.register-form span {
-  color: red;
+.password-group .password-wrapper {
+  position: relative;
+}
+.toggle-pw {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+}
+.error {
+  color: #b00;
   font-size: 0.875rem;
-  display: block;
-  margin-top: -8px;
-  margin-bottom: 10px;
+  margin-top: 0.25rem;
 }
-
-.register-form button {
+.submit-btn {
   width: 100%;
-  padding: 10px;
+  padding: 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
   background-color: #007bff;
   color: #fff;
   border: none;
-  border-radius: 4px;
+  border-radius: 0.25rem;
   cursor: pointer;
 }
-
-.register-form button:hover {
-  background-color: #0056b3;
-}
-
-.register-form button:disabled {
-  background-color: #cccccc;
+.submit-btn[disabled] {
+  opacity: 0.6;
   cursor: not-allowed;
 }
-
-.register-form .form-group {
-  margin-bottom: 20px;
-}
-
-@media (max-width: 600px) {
-  .register-form {
-    padding: 15px;
-  }
-
-  .register-form h1 {
-    font-size: 1.5rem;
-  }
+.submit-btn:not([disabled]):hover {
+  background-color: #0056b3;
 }
 </style>

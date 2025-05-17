@@ -6,21 +6,21 @@ import { auth } from '../firebaseConfig';
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: null,
-    isAuthenticated: false, // Variable para indicar si el usuario está autenticado
+    isAuthenticated: false, 
   }),
   actions: {
     setUser(user: any) {
       this.user = user;
-      this.isAuthenticated = !!user; // Si hay un usuario, se autentica
+      this.isAuthenticated = !!user; 
     },
     initAuth() {
       onAuthStateChanged(auth, (user) => {
-        this.setUser(user); // Actualiza el estado de autenticación al cambiar el estado del auth
+        this.setUser(user); 
       });
     },
     logout() {
       this.user = null;
-      this.isAuthenticated = false; // El usuario ya no está autenticado
+      this.isAuthenticated = false;
     },
   },
 });

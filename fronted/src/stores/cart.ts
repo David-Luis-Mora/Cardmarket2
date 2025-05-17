@@ -82,7 +82,6 @@ export const useCartStore = defineStore('cart', {
         throw new Error(err.error || `HTTP ${res.status}`);
       }
 
-      // recargamos el carrito tras añadir
       await this.fetchCartFromAPI();
     },
 
@@ -145,7 +144,6 @@ await this.fetchCartFromAPI();
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     console.error('Error vaciando carrito:', err);
-    // captura el mensaje de error en err.error
     throw new Error(err.error || `HTTP ${res.status}`);
   }
 
@@ -163,17 +161,14 @@ await this.fetchCartFromAPI();
             'Authorization': `Token ${token}`,
             'Content-Type':  'application/json'
           }
-          // tu vista no necesita body
         }
       );
 
       const payload = await res.json().catch(() => ({}));
       if (!res.ok) {
-        // ‘error’ viene de tu JsonResponse en Django
         throw new Error(payload.error || `HTTP ${res.status}`);
       }
 
-      // Recarga el carrito (ahora debería quedar vacío)
       await this.fetchCartFromAPI();
 
       return payload;

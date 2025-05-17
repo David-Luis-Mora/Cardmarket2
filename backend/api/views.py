@@ -912,9 +912,6 @@ def delete_cart_sold(request):
 
 
 
-
-
-
 @csrf_exempt
 @auth_required
 @require_http_methods(["POST"])

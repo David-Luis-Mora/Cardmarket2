@@ -101,7 +101,7 @@
       <h2 class="section-title">{{ $t("mainproducts") }}</h2>
       <hr />
       <div class="col-md-4 mb-3" v-for="producto in productos" :key="producto.key">
-        <button class="card-button">
+        <button type="button" class="card-button" @click="goToCards">
           <div class="card">
             <img
               :src="producto.imagen"
@@ -126,14 +126,14 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { useCartStore } from "@/stores/cart";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
+import { useI18n } from "vue-i18n";
 
-// Estado reactivo
 const randomCards = ref([]);
 const productStore = useCartStore();
 const router = useRouter();
-
-// Datos estáticos de productos
+const route = useRoute();
+const { locale } = useI18n();
 const productos = [
   {
     key: "foundations",
@@ -152,6 +152,13 @@ const productos = [
   },
 ];
 
+function goToCards() {
+  console.log("🔵 goToCards fired!", { locale: locale.value, routeLang: route.params.lang });
+  router.push({
+    name: "Cards",
+    params: { lang: route.params.lang || locale.value },
+  });
+}
 const fetchRandomCards = async (count = 6) => {
   try {
     const response = await fetch(`http://localhost:8000/api/cards/random/?count=${count}`, {
@@ -268,6 +275,25 @@ onMounted(async () => {
 
   .card-text {
     font-size: 0.85rem;
+  }
+
+  .row.mt-5 .col-md-3,
+  .row.mt-5 .col-md-4 {
+    flex: 0 0 33.3333% !important;
+    max-width: 33.3333% !important;
+  }
+
+  .card-img-top {
+    height: 100px !important;
+  }
+
+  .card-body h5,
+  .card-body .card-title {
+    font-size: 0.85rem;
+  }
+  .card-body p,
+  .card-text {
+    font-size: 0.75rem;
   }
 }
 </style>

@@ -1,6 +1,5 @@
 <template>
   <div class="product-detail d-flex flex-column flex-md-row p-4">
-    <!-- Left: Image and Basic Info -->
     <div class="info-box p-3 mb-4 mb-md-0 me-md-4 rounded">
       <div class="image-box mb-3">
         <img :src="product?.image" :alt="product?.name" class="detail-img rounded" />
@@ -22,7 +21,6 @@
       </div>
     </div>
 
-    <!-- Right: Sellers List -->
     <div class="sellers-box flex-grow-1 p-3 rounded">
       <h4 class="section-title mb-3">
         {{ $t("productDetail.sellersTitle", { total: totalSellers }) }}
@@ -112,7 +110,6 @@ async function fetchProduct(): Promise<void> {
   product.value = data;
 }
 
-// 1) Filtrar solo sellers con quantity > 0 y luego ordenar
 const sortedSellers = computed<Seller[]>((): Seller[] => {
   if (!product.value) return [];
   return product.value.sellers
@@ -120,7 +117,6 @@ const sortedSellers = computed<Seller[]>((): Seller[] => {
     .sort((a, b) => a.price - b.price || a.username.localeCompare(b.username));
 });
 
-// 2) Ajustar selectedQuantities al número de sellers filtrados
 watch(
   sortedSellers,
   (sellers) => {
@@ -129,10 +125,8 @@ watch(
   { immediate: true }
 );
 
-// 3) totalSellers cuenta solo los filtrados
 const totalSellers = computed((): number => sortedSellers.value.length);
 
-// cheapestPrice toma el mínimo de los filtrados
 const cheapestPrice = computed((): number => {
   const sellers = sortedSellers.value;
   return sellers.length ? sellers[0].price : product.value?.basePrice ?? 0;

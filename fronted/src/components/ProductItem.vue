@@ -1,6 +1,5 @@
 <template>
   <div class="product-card card shadow-sm">
-    <!-- Title and View Button Above Image -->
     <div class="d-flex justify-content-between align-items-center mb-3 title-row p-3">
       <h5 class="card-title text-primary mb-0">{{ product.name }}</h5>
       <router-link
@@ -13,7 +12,6 @@
     </div>
 
     <div class="row g-0 align-items-stretch">
-      <!-- Image Column -->
       <div class="col-md-2 p-0">
         <router-link
           class="btn btn-link p-0 view-button"
@@ -26,16 +24,13 @@
           />
         </router-link>
       </div>
-      <!-- Content Column -->
       <div class="col-md-10">
         <div class="card-body d-flex flex-column">
-          <!-- No Sellers Message -->
           <div v-if="totalSellers === 0" class="no-sellers mt-3 text-center text-muted">
             <i class="bi bi-emoji-frown-fill"></i>
             <p>{{ $t("productCard.noAvailable") }}</p>
           </div>
 
-          <!-- Sellers List Sorted by Price Ascending -->
           <div v-else>
             <div
               v-for="(seller, index) in displayedSellers"

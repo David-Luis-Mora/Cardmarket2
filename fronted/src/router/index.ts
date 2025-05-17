@@ -62,14 +62,13 @@ const routes = [
 
 
   {
-    path: '/products/:expansion',  // Ruta con parámetro 'expansion'
+    path: '/products/:expansion',  
     component: ProductList,
     name: 'product-list',
-    props: true  // Esto permite pasar el parámetro 'expansion' como prop al componente
+    props: true  
   },
 ];
 
-// Función para validar el idioma
 function validateLang(to: any, from: any, next: any) {
   const lang = to.params.lang;
   const supportedLanguages = ["en", "es"];
