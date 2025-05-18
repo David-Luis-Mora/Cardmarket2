@@ -3,6 +3,7 @@ import uuid
 from django.conf import settings
 from django.db import models
 
+
 class Card(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     name = models.CharField(max_length=255)
@@ -26,6 +27,13 @@ class Card(models.Model):
 
 
 class Profile(models.Model):
+    class Role(models.IntegerChoices):
+        USER = 1, 'Usuario'
+        MODERATOR = 2, 'Moderador'
+        ADMIN = 3, 'Administrador'
+
+    role = models.PositiveSmallIntegerField(choices=Role.choices, default=Role.USER)
+
     country = models.CharField(max_length=255)
     email = models.CharField(max_length=255)
     name = models.CharField(max_length=255)
@@ -37,16 +45,9 @@ class Profile(models.Model):
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile'
     )
     bio = models.TextField(blank=True)
-    avatar_url = models.URLField(
-        blank=True,
-        null=True,
-        help_text="URL de un avatar remoto"
-    )
+    avatar_url = models.URLField(blank=True, null=True, help_text='URL de un avatar remoto')
     avatar_file = models.ImageField(
-        upload_to='avatars/',
-        blank=True,
-        null=True,
-        help_text="Imagen subida por el usuario"
+        upload_to='avatars/', blank=True, null=True, help_text='Imagen subida por el usuario'
     )
 
     # Cartas Comprada [Imagen de la carta, precio,vendedor, fecha,cantidad]
@@ -59,28 +60,32 @@ class Profile(models.Model):
 
 # Cuando el usuario vende las cartas
 class CardForSale(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     seller = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='cards_for_sale')
     card = models.ForeignKey(Card, on_delete=models.CASCADE)
     price = models.DecimalField(max_digits=6, decimal_places=2)
     quantity = models.PositiveIntegerField(default=1)
     listed_at = models.DateTimeField(auto_now_add=True)
-    
+
+
 # Cuando el usuario añade al carrito
 class CartItem(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='cart_items')
-    card_for_sale  = models.ForeignKey(CardForSale, on_delete=models.CASCADE)
+    card_for_sale = models.ForeignKey(CardForSale, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
     added_at = models.DateTimeField(auto_now_add=True)
 
+
 # Cuando el usuario compra las cartas [Que se mostrara en el perfil]
 class Purchase(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     buyer = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='purchases')
     card = models.ForeignKey(Card, on_delete=models.CASCADE)
     seller = models.ForeignKey(Profile, on_delete=models.SET_NULL, null=True, related_name='sales')
     quantity = models.PositiveIntegerField()
     price = models.DecimalField(max_digits=6, decimal_places=2)
     purchased_at = models.DateTimeField(auto_now_add=True)
-
 
 
 class Chat(models.Model):
@@ -122,8 +127,6 @@ class CardListing(models.Model):
 
     def __str__(self):
         return f'{self.seller.username} vende {self.quantity}x {self.card.name}'
-
-
 
 
 class Token(models.Model):
