@@ -127,24 +127,24 @@ def card_list(request):
     return serializer.json_response()
 
 
-@require_get
-@validate_json(required_fields=[])
-def card_detail(request, slug):
-    try:
-        card = Card.objects.get(id=slug)
-        serializer = CardSerializer(card, request=request)
-        return serializer.json_response()
-    except Card.DoesNotExist:
-        return JsonResponse({'error': 'Game not found'}, status=404)
+# @require_get
+# @validate_json(required_fields=[])
+# def card_detail(request, slug):
+#     try:
+#         card = Card.objects.get(id=slug)
+#         serializer = CardSerializer(card, request=request)
+#         return serializer.json_response()
+#     except Card.DoesNotExist:
+#         return JsonResponse({'error': 'Game not found'}, status=404)
 
 
-def check_token(request):
-    token_key = request.headers.get('Authorization', '').replace('Token ', '')
-    try:
-        token = Token.objects.get(key=token_key)
-        return JsonResponse({'valid': True})
-    except Token.DoesNotExist:
-        return JsonResponse({'valid': False}, status=401)
+# def check_token(request):
+#     token_key = request.headers.get('Authorization', '').replace('Token ', '')
+#     try:
+#         token = Token.objects.get(key=token_key)
+#         return JsonResponse({'valid': True})
+#     except Token.DoesNotExist:
+#         return JsonResponse({'valid': False}, status=401)
 
 
 @csrf_exempt
@@ -294,7 +294,7 @@ def add_cart(request):
 
     # -- 2) Extraer y validar campos obligatorios --
     try:
-        card_id = request.json_data['card-id']
+        id_sale_card = request.json_data['card-id']
         seller_username = request.json_data['nickname']
         qty = int(request.json_data['number-cards'])
     except KeyError as e:
@@ -303,9 +303,24 @@ def add_cart(request):
         return JsonResponse({'error': 'number-cards debe ser un entero'}, status=400)
 
     # -- 3) Buscar Card, Profile del vendedor y CardForSale --
-    card = get_object_or_404(Card, id=card_id)
-    seller_profile = get_object_or_404(Profile, user__username=seller_username)
-    sale = get_object_or_404(CardForSale, seller=seller_profile, card=card)
+
+    # try:
+    #     card = Card.objects.get(id=card_id)
+    # except Card.DoesNotExist:
+    #     return JsonResponse({'error': 'Perfil no encontrado'}, status=900)
+
+    # try:
+    #     seller_profile = Profile.objects.get(user__username=seller_username)
+    # except Profile.DoesNotExist:
+    #     return JsonResponse({'error': 'Perfil no encontrado'}, status=900)
+
+    try:
+        sale = CardForSale.objects.get(id=id_sale_card)
+    except CardForSale.DoesNotExist:
+        return JsonResponse({'error': 'Venta no encontrada'}, status=404)
+
+    card = sale.card
+    seller_profile = sale.seller
 
     # -- 4) Comprobar stock --
     if sale.quantity < qty:
@@ -363,43 +378,37 @@ def add_cart(request):
         'nickname',
     ]
 )
-@auth_required
+@csrf_exempt
 @require_http_methods(['POST'])
+# @validate_json(required_fields=['cart'])  # ✅ solo este campo
+@auth_required
 def delete_cart(request):
-    print('🔍 request.body:', request.body)
-    print('🔍 request.headers:', request.headers)
-    # print("🏷 Received Authorization:", request.META.get('HTTP_AUTHORIZATION'))
-    # print("🏷 request.json_data:", request.json_data)
+    print('🏷 Received Authorization:', request.META.get('HTTP_AUTHORIZATION'))
+    print('🏷 request.json_data:', request.json_data)
+    print('Eliminar carta')
 
     try:
-        card_id = request.json_data['card-id']
-        seller_username = request.json_data['nickname']
-        # qty             = int(request.json_data['number-cards'])
+        cart_item_id = request.json_data['cart-item-id']
+        body_unicode = request.body.decode('utf-8')
+        data = json.loads(body_unicode)
+        print('📦 JSON recibido:', data)
+
+        cart_item_id = data.get('cart')
+        # cart_item_id = request.json_data['cart']
     except KeyError as e:
         return JsonResponse({'error': f'Falta campo {e.args[0]}'}, status=400)
-    except ValueError:
-        return JsonResponse({'error': 'number-cards debe ser un entero'}, status=400)
 
-    # Buscar entidades necesarias
     try:
-        card = Card.objects.get(id=card_id)
-        seller_profile = Profile.objects.get(nickname=seller_username)
-        card_for_sale = CardForSale.objects.get(card=card, seller=seller_profile)
-        cart_item = CartItem.objects.get(user=request.user.profile, card_for_sale=card_for_sale)
-    except Card.DoesNotExist:
-        return JsonResponse({'error': 'Carta no encontrada'}, status=404)
-    except Profile.DoesNotExist:
-        return JsonResponse({'error': 'Perfil de vendedor no encontrado'}, status=404)
-    except CardForSale.DoesNotExist:
-        return JsonResponse({'error': 'Venta no encontrada'}, status=404)
+        cart_item = CartItem.objects.select_related('card_for_sale').get(
+            id=cart_item_id, user=request.user.profile
+        )
     except CartItem.DoesNotExist:
         return JsonResponse({'error': 'Item no encontrado en el carrito'}, status=404)
 
-    # Devolver el stock al vendedor porque se eliminó del carrito sin comprar
+    card_for_sale = cart_item.card_for_sale
     card_for_sale.quantity += cart_item.quantity
     card_for_sale.save()
 
-    # Eliminar el CartItem
     cart_item.delete()
 
     return JsonResponse({'success': 'Item eliminado del carrito'}, status=200)
@@ -425,7 +434,8 @@ def user_cart(request):
             img = ''
         data.append(
             {
-                'id': ci.id,
+                'id': str(ci.id),
+                'id_letter_sale': str(sale.id),  # 👈 AÑADE ESTA LÍNEA
                 'card': {
                     'id': str(card.id),
                     'name': card.name,
@@ -495,12 +505,14 @@ def my_cards_for_sale(request):
     listings = CardForSale.objects.filter(seller=profile).select_related('card')
 
     cards = []
+    # print(listings)
     for l in listings:
         try:
             uris = json.loads(l.card.image_uris or '[]')
             img = uris[0] if uris else ''
         except json.JSONDecodeError:
             img = l.card.image_uris or ''
+
         cards.append(
             {
                 'id': l.id,
@@ -515,37 +527,37 @@ def my_cards_for_sale(request):
     return JsonResponse({'cards_for_sale': cards})
 
 
+# @require_get
+# def all_cards(request):
+#     try:
+#         number_start = int(request.GET.get('number-start', 1))
+#         if number_start < 1:
+#             raise ValueError
+#     except ValueError:
+#         return JsonResponse({'error': 'Invalid number-start'}, status=400)
+
+#     search_term = request.GET.get('search', '').strip()
+#     sort_by = request.GET.get('sort', 'name')
+
+#     cards = Card.objects.all()
+
+#     if search_term:
+#         cards = cards.filter(name__isnull=False).filter(Q(name__icontains=search_term))
+
+#     total_count = cards.count()
+
+#     if sort_by == 'name':
+#         cards = cards.order_by('name')
+#     elif sort_by == 'price':
+#         cards = cards.order_by('price')
+#     elif sort_by == 'price_desc':
+#         cards = cards.order_by('-price')
+
+
+# from django.views.decorators.http import require_GET
+
+
 @require_get
-def all_cards(request):
-    try:
-        number_start = int(request.GET.get('number-start', 1))
-        if number_start < 1:
-            raise ValueError
-    except ValueError:
-        return JsonResponse({'error': 'Invalid number-start'}, status=400)
-
-    search_term = request.GET.get('search', '').strip()
-    sort_by = request.GET.get('sort', 'name')
-
-    cards = Card.objects.all()
-
-    if search_term:
-        cards = cards.filter(name__isnull=False).filter(Q(name__icontains=search_term))
-
-    total_count = cards.count()
-
-    if sort_by == 'name':
-        cards = cards.order_by('name')
-    elif sort_by == 'price':
-        cards = cards.order_by('price')
-    elif sort_by == 'price_desc':
-        cards = cards.order_by('-price')
-
-
-from django.views.decorators.http import require_GET
-
-
-@require_GET
 def all_cards(request):
     try:
         number_start = int(request.GET.get('number-start', 1))
@@ -607,7 +619,7 @@ def all_cards(request):
         return JsonResponse({'error': f'Error interno del servidor: {str(e)}'}, status=500)
 
 
-@require_GET
+@require_get
 def cards_by_expansion(request, code):
     try:
         number_start = int(request.GET.get('number-start', 1))
@@ -648,6 +660,7 @@ def cards_by_expansion(request, code):
                 'sellerNickname': sale.seller.user.username,
                 'price': float(sale.price),
                 'quantity': sale.quantity,
+                'id_letter_sale': sale.id,
             }
             for sale in sellers_qs
         ]
