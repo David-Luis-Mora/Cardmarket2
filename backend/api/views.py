@@ -4,7 +4,6 @@ import os
 import random
 import smtplib
 from email.mime.text import MIMEText
-
 from django.contrib.auth import authenticate, get_user_model
 from django.contrib.auth.models import User
 from django.db.models import Q
@@ -13,14 +12,12 @@ from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from dotenv import load_dotenv
-
 from .card_serializers import CardSerializer
 from .decorators import auth_required, require_get, require_post, validate_json, method_required
 from .models import Card, CardForSale, CartItem, Profile, Purchase, Token
 from .validator import validate_card_data
 
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '.env'))
-
 EMAIL = os.environ.get('EMAIL_USER')
 APP_PASSWORD = os.environ.get('EMAIL_APP_PASS')
 
@@ -284,7 +281,7 @@ def edit_profile(request):
 
 
 @csrf_exempt
-@validate_json(required_fields=['card-id', 'nickname'])
+@validate_json(required_fields=['card-id', 'nickname','number-cards'])
 @auth_required
 @require_post
 # @require_http_methods(['POST'])
@@ -511,8 +508,7 @@ def sell_card(request):
         return JsonResponse({'error': 'Carta no encontrada'}, status=404)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
-
-
+    
 @csrf_exempt
 @auth_required
 @require_http_methods(['GET'])
@@ -541,8 +537,6 @@ def my_cards_for_sale(request):
         )
 
     return JsonResponse({'cards_for_sale': cards})
-
-
 # @require_get
 # def all_cards(request):
 #     try:
@@ -571,8 +565,6 @@ def my_cards_for_sale(request):
 
 
 # from django.views.decorators.http import require_GET
-
-
 @require_get
 def all_cards(request):
     try:
@@ -633,8 +625,7 @@ def all_cards(request):
 
     except Exception as e:
         return JsonResponse({'error': f'Error interno del servidor: {str(e)}'}, status=500)
-
-
+    
 @require_get
 def cards_by_expansion(request, code):
     try:
@@ -693,7 +684,6 @@ def cards_by_expansion(request, code):
 
     return JsonResponse({'cards': data, 'total': total_count}, status=200)
 
-
 @require_get
 def list_expansions(request):
     expansions = (
@@ -705,7 +695,6 @@ def list_expansions(request):
     )
     return JsonResponse({'expansions': list(expansions)}, status=200)
 
-
 @csrf_exempt
 def debug_token(request):
     return JsonResponse(
@@ -715,7 +704,6 @@ def debug_token(request):
             'body': request.body.decode('utf-8'),
         }
     )
-
 
 @csrf_exempt
 @auth_required
@@ -749,7 +737,6 @@ def my_sold_cards(request):
 
     return JsonResponse({'cards_sold': cards_sold})
 
-
 @csrf_exempt
 @auth_required
 # @require_http_methods(['PATCH', 'DELETE'])
@@ -778,11 +765,7 @@ def card_for_sale_detail(request, pk):
     # DELETE
     listing.delete()
     return JsonResponse({'deleted': True}, status=204)
-
-
 # views.py
-
-
 def card_detail(request, card_id):
     # 1) Busca la carta
     card = get_object_or_404(Card, id=card_id)
@@ -825,11 +808,7 @@ def card_detail(request, card_id):
     }
 
     return JsonResponse(card_data, json_dumps_params={'ensure_ascii': False})
-
-
 # User = get_user_model()
-
-
 def seller_profile(request, username):
     # 1) Busca el User y su Profile
     user = get_object_or_404(User, username=username)
@@ -865,11 +844,7 @@ def seller_profile(request, username):
     }
 
     return JsonResponse(context, json_dumps_params={'ensure_ascii': False})
-
-
 # User = get_user_model()
-
-
 def check_token(request):
     auth_header = request.META.get('HTTP_AUTHORIZATION', '')
     if auth_header.startswith('Bearer ') or auth_header.startswith('Token '):
@@ -893,7 +868,6 @@ def check_token(request):
             'body': request.body.decode('utf-8'),
         }
     )
-
 
 @csrf_exempt
 @auth_required
@@ -923,7 +897,6 @@ def delete_all_cart_items(request):
     return JsonResponse(
         {'success': f'{restored} productos eliminados y stock restaurado'}, status=200
     )
-
 
 @csrf_exempt
 @validate_json(
@@ -964,7 +937,6 @@ def delete_cart_sold(request):
     card_for_sale.delete()
 
     return JsonResponse({'success': 'Carta retirada de la venta'}, status=200)
-
 
 @csrf_exempt
 @auth_required
@@ -1030,7 +1002,6 @@ def buy_for_wallet(request):
         },
         status=200,
     )
-
 
 @csrf_exempt
 @auth_required
@@ -1102,7 +1073,6 @@ def buy_for_card(request):
         status=200,
     )
 
-
 @csrf_exempt
 @auth_required
 @require_post
@@ -1131,7 +1101,6 @@ def all_card_sale_for_user(request):
             }
         )
     return JsonResponse({'cards': data}, status=200, json_dumps_params={'ensure_ascii': False})
-
 
 @csrf_exempt
 @auth_required
@@ -1166,7 +1135,6 @@ def all_cards_sold_by_user(request):
         )
 
     return JsonResponse({'cards': data}, status=200, json_dumps_params={'ensure_ascii': False})
-
 
 @csrf_exempt
 @auth_required
@@ -1205,7 +1173,7 @@ def all_card_purchased_for_user(request):
 
 @csrf_exempt
 @auth_required
-@require_post
+@require_get
 def wallet_balance(request):
     """
     Devuelve el saldo actual del monedero del usuario logueado.
