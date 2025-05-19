@@ -9,8 +9,12 @@ export interface Product {
   quantity: number;
   rarity: string;
   sellerNickname: string;
+  id_letter_sale : string;
+  cartItemId: string; 
 }
 interface CartItemDTO {
+  id: string; // 👈 ID del CartItem
+  id_letter_sale: string;
   card_id: number;
   number_cards: number;
   card: {
@@ -55,7 +59,9 @@ export const useCartStore = defineStore('cart', {
         price: ci.card.price,
         quantity: ci.quantity,
         rarity: ci.card.rarity,            
-        sellerNickname: ci.card.seller
+        sellerNickname: ci.card.seller,
+        id_letter_sale : ci.id_letter_sale,
+        cartItemId: ci.id 
       }));
     },
 
@@ -64,6 +70,8 @@ export const useCartStore = defineStore('cart', {
       const token = localStorage.getItem('token');
       if (!token) throw new Error('No autenticado');
 
+      console.log('Identificacion del objecto: s',product.id)
+
       const res = await fetch('http://localhost:8000/api/users/cart/add/', {
         method: 'POST',
         headers: {
@@ -71,8 +79,8 @@ export const useCartStore = defineStore('cart', {
           'Authorization': `Token ${token}`,
         },
         body: JSON.stringify({
-          'card-id': product.id,
-          nickname: product.sellerNickname,
+          'card-id': product.id_letter_sale,
+          'nickname': product.sellerNickname,
           'number-cards': product.quantity
         })
       });
@@ -106,6 +114,11 @@ export const useCartStore = defineStore('cart', {
       const token = localStorage.getItem('token');
       if (!token) throw new Error('No estás autenticado');
 
+      console.log("🧾 Eliminando producto:", product);
+      console.log("📦 ID del cart item:", product.cartItemId);
+      console.log("👤 Nickname del vendedor:", product.sellerNickname);
+    
+
       const res = await fetch(
   "http://localhost:8000/api/users/cart/delete/",
   {
@@ -115,8 +128,8 @@ export const useCartStore = defineStore('cart', {
       "Authorization": `Token ${token}`,
     },
     body: JSON.stringify({
-      "card-id":  product.id,
-      "nickname": product.sellerNickname,
+      'cart': product.cartItemId,
+      // "nickname": product.sellerNickname,
     }),
   }
 );
