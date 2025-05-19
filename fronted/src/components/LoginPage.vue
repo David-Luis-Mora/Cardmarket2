@@ -104,7 +104,8 @@ const handleLogin = async () => {
   }
 
   if (!password.value.trim()) {
-    errors.value.password = "La contraseña es obligatoria.";
+    // errors.value.password = "La contraseña es obligatoria.";
+    return true;
     return;
   }
 

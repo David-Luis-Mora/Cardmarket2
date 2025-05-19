@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.utils.html import format_html
 
 # Register your models here.
-from .models import Card, CardForSale, CartItem, Profile, Purchase
+from .models import Card, CardForSale, CartItem, Profile, Purchase,Token
 
 
 @admin.register(Card)
@@ -91,3 +91,12 @@ class ProfileAdmin(admin.ModelAdmin):
         return '-'
 
     avatar_preview.short_description = 'Avatar'
+
+
+@admin.register(Token)
+class TokenAdmin(admin.ModelAdmin):
+    list_display = [
+        'user',
+        'key',
+        'created_at',
+    ]

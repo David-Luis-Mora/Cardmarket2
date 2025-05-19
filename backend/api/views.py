@@ -15,7 +15,7 @@ from django.views.decorators.http import require_http_methods
 from dotenv import load_dotenv
 
 from .card_serializers import CardSerializer
-from .decorators import auth_required, require_get, require_post, validate_json
+from .decorators import auth_required, require_get, require_post, validate_json, method_required
 from .models import Card, CardForSale, CartItem, Profile, Purchase, Token
 from .validator import validate_card_data
 
@@ -286,7 +286,9 @@ def edit_profile(request):
 @csrf_exempt
 @validate_json(required_fields=['card-id', 'nickname'])
 @auth_required
-@require_http_methods(['POST'])
+@require_post
+# @require_http_methods(['POST'])
+# @method_required("POST")
 def add_cart(request):
     # -- 1) Depuración inicial --
     print('🏷 Received Authorization:', request.META.get('HTTP_AUTHORIZATION'))
@@ -332,9 +334,20 @@ def add_cart(request):
 
     # -- 6) Crear o actualizar CartItem --
     # Si el usuario ya tenía ese ítem, aumentamos cantidad
+
+    # try:
+    #     cart = CardForSale.objects.get(id=id_sale_card)
+    # except CardForSale.DoesNotExist:
+    #     return JsonResponse({'error': 'Venta no encontrada'}, status=404)
+    
+    # CartItem.objects.create(
+    #     user=request.user.profile,
+    #     card_for_sale=sale,
+    #     quantity = qty
+    # )
     cart_item, created = CartItem.objects.get_or_create(
-        user=request.user.profile, card_for_sale=sale, defaults={'quantity': qty}
-    )
+        user=request.user.profile, card_for_sale=sale, quantity= qty)
+    
     if not created:
         cart_item.quantity += qty
         cart_item.save()
@@ -371,32 +384,35 @@ def add_cart(request):
     return JsonResponse(response_data, status=200, json_dumps_params={'ensure_ascii': False})
 
 
+# @csrf_exempt
+# @validate_json(
+#     required_fields=[
+#         'card-id',
+#         'nickname',
+#     ]
+# )
+
+
 @csrf_exempt
-@validate_json(
-    required_fields=[
-        'card-id',
-        'nickname',
-    ]
-)
-@csrf_exempt
-@require_http_methods(['POST'])
-# @validate_json(required_fields=['cart'])  # ✅ solo este campo
+@validate_json(required_fields=['cart'])
 @auth_required
+@require_post
+# @require_http_methods(['POST'])
 def delete_cart(request):
     print('🏷 Received Authorization:', request.META.get('HTTP_AUTHORIZATION'))
     print('🏷 request.json_data:', request.json_data)
     print('Eliminar carta')
 
     try:
-        cart_item_id = request.json_data['cart-item-id']
-        body_unicode = request.body.decode('utf-8')
-        data = json.loads(body_unicode)
-        print('📦 JSON recibido:', data)
-
-        cart_item_id = data.get('cart')
         # cart_item_id = request.json_data['cart']
+        # body_unicode = request.body.decode('utf-8')
+        # data = json.loads(body_unicode)
+        # print('📦 JSON recibido:', data)
+
+        # cart_item_id = data.get('cart')
+        cart_item_id = request.json_data['cart']
     except KeyError as e:
-        return JsonResponse({'error': f'Falta campo {e.args[0]}'}, status=400)
+        return JsonResponse({'error': f'Falta campo {e.args[0]}'}, status=300)
 
     try:
         cart_item = CartItem.objects.select_related('card_for_sale').get(
@@ -447,7 +463,7 @@ def user_cart(request):
                 'quantity': ci.quantity,
             }
         )
-    return JsonResponse({'cart': data}, json_dumps_params={'ensure_ascii': False})
+    return JsonResponse({'cart': data}, json_dumps_params={'ensure_ascii': False},status=200)
 
 
 @auth_required
@@ -703,7 +719,7 @@ def debug_token(request):
 
 @csrf_exempt
 @auth_required
-@require_http_methods(['GET'])
+@require_get
 def my_sold_cards(request):
     """
     Devuelve las cartas que el usuario ha vendido,
@@ -736,7 +752,7 @@ def my_sold_cards(request):
 
 @csrf_exempt
 @auth_required
-@require_http_methods(['PATCH', 'DELETE'])
+# @require_http_methods(['PATCH', 'DELETE'])
 def card_for_sale_detail(request, pk):
     profile = request.user.profile
     try:
@@ -811,7 +827,7 @@ def card_detail(request, card_id):
     return JsonResponse(card_data, json_dumps_params={'ensure_ascii': False})
 
 
-User = get_user_model()
+# User = get_user_model()
 
 
 def seller_profile(request, username):
@@ -851,7 +867,7 @@ def seller_profile(request, username):
     return JsonResponse(context, json_dumps_params={'ensure_ascii': False})
 
 
-User = get_user_model()
+# User = get_user_model()
 
 
 def check_token(request):
@@ -917,7 +933,7 @@ def delete_all_cart_items(request):
     ]
 )
 @auth_required
-@require_http_methods(['POST'])
+# @require_http_methods(['POST'])
 def delete_cart_sold(request):
     print('🔍 request.body:', request.body)
     print('🔍 request.headers:', request.headers)
@@ -952,7 +968,7 @@ def delete_cart_sold(request):
 
 @csrf_exempt
 @auth_required
-@require_http_methods(['POST'])
+@require_post
 def buy_for_wallet(request):
     user = request.user
 
@@ -1018,7 +1034,7 @@ def buy_for_wallet(request):
 
 @csrf_exempt
 @auth_required
-@require_http_methods(['POST'])
+@require_post
 @validate_json(required_fields=['card-number', 'exp-date', 'cvc'])
 def buy_for_card(request):
     user = request.user
@@ -1089,7 +1105,7 @@ def buy_for_card(request):
 
 @csrf_exempt
 @auth_required
-@require_http_methods(['POST'])
+@require_post
 def all_card_sale_for_user(request):
     profile = Profile.objects.get(user=request.user)
     all_card_sale = CardForSale.objects.filter(seller=profile)
@@ -1119,7 +1135,7 @@ def all_card_sale_for_user(request):
 
 @csrf_exempt
 @auth_required
-@require_http_methods(['POST'])
+@require_post
 def all_cards_sold_by_user(request):
     profile = Profile.objects.get(user=request.user)
 
@@ -1154,7 +1170,7 @@ def all_cards_sold_by_user(request):
 
 @csrf_exempt
 @auth_required
-@require_http_methods(['POST'])
+@require_post
 def all_card_purchased_for_user(request):
     profile = Profile.objects.get(user=request.user)
 
@@ -1189,7 +1205,7 @@ def all_card_purchased_for_user(request):
 
 @csrf_exempt
 @auth_required
-@require_http_methods(['GET'])
+@require_post
 def wallet_balance(request):
     """
     Devuelve el saldo actual del monedero del usuario logueado.
@@ -1205,7 +1221,7 @@ def wallet_balance(request):
 
 @csrf_exempt
 @auth_required
-@require_http_methods(['POST'])
+@require_post
 def delete_account(request):
     try:
         user = request.user
@@ -1249,7 +1265,7 @@ def edit_card(request):
 @csrf_exempt
 @auth_required
 @validate_json(required_fields=['card-id'])
-@require_http_methods(['POST'])
+@require_post
 def delete_card(request):
     profile = request.user.profile
 

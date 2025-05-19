@@ -125,7 +125,7 @@
         </div>
       </div>
 
-      <button type="submit" class="submit-btn" :disabled="loading || hasErrors">
+      <button type="submit" class="submit-btn">
         <span v-if="loading">{{ $t("register.loading") }}</span>
         <span v-else>{{ $t("register.submit") }}</span>
       </button>
@@ -187,13 +187,13 @@ const handleRegister = async () => {
     password: "",
   };
 
-  if (!firstName.value.trim()) errors.value.firstName = "El nombre es obligatorio.";
-  if (!lastName.value.trim()) errors.value.lastName = "El apellido es obligatorio.";
-  if (!validateEmail(email.value)) errors.value.email = "El formato del correo es inválido.";
-  if (!username.value.trim()) errors.value.username = "El usuario es obligatorio.";
-  if (!validatePassword(password.value))
-    errors.value.password =
-      "La contraseña debe tener al menos 8 caracteres, una letra mayúscula, un número y un carácter especial.";
+  // if (!firstName.value.trim()) errors.value.firstName = "El nombre es obligatorio.";
+  // if (!lastName.value.trim()) errors.value.lastName = "El apellido es obligatorio.";
+  // if (!validateEmail(email.value)) errors.value.email = "El formato del correo es inválido.";
+  // if (!username.value.trim()) errors.value.username = "El usuario es obligatorio.";
+  // if (!validatePassword(password.value))
+  //   errors.value.password =
+  //     "La contraseña debe tener al menos 8 caracteres, una letra mayúscula, un número y un carácter especial.";
 
   if (Object.values(errors.value).some((e) => e)) return;
 
