@@ -145,7 +145,7 @@ async function onAddToCart(seller: Seller, idx: number) {
     quantity: qty,
     sellerNickname: seller.sellerNickname,
     img: props.product.image,
-    id_letter_sale: seller.id_letter_sale,
+    id_letter_sale: seller.id,
   };
   console.log(cartItem);
   try {

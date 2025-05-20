@@ -483,7 +483,10 @@ async function confirmDelete(card: Card) {
     const token = localStorage.getItem("token");
     await fetch(`http://localhost:8000/api/users/my-cards-for-sale/${card.id}/`, {
       method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` },
+      headers: {
+        Authorization: `Token ${token}`, // ✅ sin espacio extra
+        "Content-Type": "application/json", // ✅ comillas añadidas
+      },
     });
     cardsForSale.value = cardsForSale.value.filter((c) => c.id !== card.id);
   }
