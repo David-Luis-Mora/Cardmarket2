@@ -70,7 +70,7 @@ export const useCartStore = defineStore('cart', {
       const token = localStorage.getItem('token');
       if (!token) throw new Error('No autenticado');
 
-      console.log('Identificacion del objecto: s',product.id)
+      console.log('Identificacion del objecto: ',product.id_letter_sale, product.sellerNickname, product.quantity)
 
       const res = await fetch('http://localhost:8000/api/users/cart/add/', {
         method: 'POST',

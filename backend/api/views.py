@@ -53,13 +53,11 @@ def random_cards(request):
     # except (ValueError, TypeError):
     #     return JsonResponse({'error': 'Parámetro inválido: count'}, status=400)
     count = 4
-    # Sólo cartas que tienen al menos un CardForSale con stock > 0
     qs = Card.objects.filter(cardforsale__quantity__gt=0).distinct()
     total = qs.count()
     if total == 0:
         return JsonResponse({'cards': [], 'total': 0}, status=200)
 
-    # Seleccionar al azar
     if total <= count:
         selected = list(qs)
     else:
@@ -67,10 +65,8 @@ def random_cards(request):
         chosen_ids = random.sample(ids, count)
         selected = list(qs.filter(id__in=chosen_ids))
 
-    # Serializar
     data = []
     for card in selected:
-        # Imagen principal
         img_url = ''
         try:
             uris = json.loads(card.image_uris or '[]')

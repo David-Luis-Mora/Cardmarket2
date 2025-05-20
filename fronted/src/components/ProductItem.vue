@@ -97,6 +97,7 @@ interface CartProduct {
   quantity: number;
   sellerNickname: string;
   img: string;
+  id_letter_sale: string;
 }
 
 interface Product {
@@ -145,7 +146,7 @@ async function onAddToCart(seller: Seller, idx: number) {
     quantity: qty,
     sellerNickname: seller.sellerNickname,
     img: props.product.image,
-    id_letter_sale: seller.id,
+    id_letter_sale: seller.id_letter_sale,
   };
   console.log(cartItem);
   try {
