@@ -4,7 +4,8 @@ import os
 import random
 import smtplib
 from email.mime.text import MIMEText
-from django.contrib.auth import authenticate, get_user_model
+
+from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.http import Http404, JsonResponse
@@ -12,8 +13,9 @@ from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from dotenv import load_dotenv
+
 from .card_serializers import CardSerializer
-from .decorators import auth_required, require_get, require_post, validate_json, method_required
+from .decorators import auth_required, require_get, require_post, validate_json
 from .models import Card, CardForSale, CartItem, Profile, Purchase, Token
 from .validator import validate_card_data
 
@@ -281,10 +283,10 @@ def edit_profile(request):
 
 
 @csrf_exempt
-@validate_json(required_fields=['card-id', 'nickname','number-cards'])
+@validate_json(required_fields=['card-id', 'nickname', 'number-cards'])
 @auth_required
-@require_post
-# @require_http_methods(['POST'])
+@require_http_methods(['POST'])
+# @require_post
 # @method_required("POST")
 def add_cart(request):
     # -- 1) Depuración inicial --
@@ -336,15 +338,16 @@ def add_cart(request):
     #     cart = CardForSale.objects.get(id=id_sale_card)
     # except CardForSale.DoesNotExist:
     #     return JsonResponse({'error': 'Venta no encontrada'}, status=404)
-    
+
     # CartItem.objects.create(
     #     user=request.user.profile,
     #     card_for_sale=sale,
     #     quantity = qty
     # )
     cart_item, created = CartItem.objects.get_or_create(
-        user=request.user.profile, card_for_sale=sale, quantity= qty)
-    
+        user=request.user.profile, card_for_sale=sale, quantity=qty
+    )
+
     if not created:
         cart_item.quantity += qty
         cart_item.save()
@@ -460,7 +463,7 @@ def user_cart(request):
                 'quantity': ci.quantity,
             }
         )
-    return JsonResponse({'cart': data}, json_dumps_params={'ensure_ascii': False},status=200)
+    return JsonResponse({'cart': data}, json_dumps_params={'ensure_ascii': False}, status=200)
 
 
 @auth_required
@@ -508,35 +511,60 @@ def sell_card(request):
         return JsonResponse({'error': 'Carta no encontrada'}, status=404)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
-    
+
+
 @csrf_exempt
 @auth_required
-@require_http_methods(['GET'])
+@require_http_methods(['GET', 'POST'])
 def my_cards_for_sale(request):
     profile = request.user.profile
-    listings = CardForSale.objects.filter(seller=profile).select_related('card')
 
-    cards = []
-    # print(listings)
-    for l in listings:
+    if request.method == 'POST':
+        # ✅ Procesar eliminación de carta
         try:
-            uris = json.loads(l.card.image_uris or '[]')
-            img = uris[0] if uris else ''
-        except json.JSONDecodeError:
-            img = l.card.image_uris or ''
+            body = json.loads(request.body.decode('utf-8'))
+            card_id = body.get('id')  # se espera que envíes el ID de la carta en venta
+            if not card_id:
+                return JsonResponse({'error': 'ID no proporcionado'}, status=400)
 
-        cards.append(
-            {
-                'id': l.id,
-                'name': l.card.name,
-                'quantity': l.quantity,
-                'price': float(l.price),
-                'image': request.build_absolute_uri(img),
-                'listed_at': l.listed_at.isoformat(),
-            }
-        )
+            # Buscar la carta en venta
+            card_for_sale = CardForSale.objects.get(id=card_id, seller=profile)
 
-    return JsonResponse({'cards_for_sale': cards})
+            # Restaurar el stock (opcional)
+            card_for_sale.delete()
+
+            return JsonResponse({'success': 'Carta eliminada correctamente'}, status=200)
+
+        except CardForSale.DoesNotExist:
+            return JsonResponse({'error': 'Carta no encontrada o no es tuya'}, status=404)
+        except Exception as e:
+            return JsonResponse({'error': f'Error al eliminar: {str(e)}'}, status=500)
+
+    else:
+        # ✅ Método GET: devolver las cartas en venta
+        listings = CardForSale.objects.filter(seller=profile).select_related('card')
+        cards = []
+        for l in listings:
+            try:
+                uris = json.loads(l.card.image_uris or '[]')
+                img = uris[0] if uris else ''
+            except json.JSONDecodeError:
+                img = l.card.image_uris or ''
+
+            cards.append(
+                {
+                    'id': str(l.id),
+                    'name': l.card.name,
+                    'quantity': l.quantity,
+                    'price': float(l.price),
+                    'image': request.build_absolute_uri(img),
+                    'listed_at': l.listed_at.isoformat(),
+                }
+            )
+
+        return JsonResponse({'cards_for_sale': cards})
+
+
 # @require_get
 # def all_cards(request):
 #     try:
@@ -604,6 +632,7 @@ def all_cards(request):
             )
             sellers = [
                 {
+                    'id': str(seller.id),
                     'sellerNickname': seller.seller.user.username,
                     'price': float(seller.price),
                     'quantity': seller.quantity,
@@ -625,7 +654,8 @@ def all_cards(request):
 
     except Exception as e:
         return JsonResponse({'error': f'Error interno del servidor: {str(e)}'}, status=500)
-    
+
+
 @require_get
 def cards_by_expansion(request, code):
     try:
@@ -684,6 +714,7 @@ def cards_by_expansion(request, code):
 
     return JsonResponse({'cards': data, 'total': total_count}, status=200)
 
+
 @require_get
 def list_expansions(request):
     expansions = (
@@ -695,6 +726,7 @@ def list_expansions(request):
     )
     return JsonResponse({'expansions': list(expansions)}, status=200)
 
+
 @csrf_exempt
 def debug_token(request):
     return JsonResponse(
@@ -704,6 +736,7 @@ def debug_token(request):
             'body': request.body.decode('utf-8'),
         }
     )
+
 
 @csrf_exempt
 @auth_required
@@ -737,6 +770,7 @@ def my_sold_cards(request):
 
     return JsonResponse({'cards_sold': cards_sold})
 
+
 @csrf_exempt
 @auth_required
 # @require_http_methods(['PATCH', 'DELETE'])
@@ -765,6 +799,8 @@ def card_for_sale_detail(request, pk):
     # DELETE
     listing.delete()
     return JsonResponse({'deleted': True}, status=204)
+
+
 # views.py
 def card_detail(request, card_id):
     # 1) Busca la carta
@@ -808,6 +844,8 @@ def card_detail(request, card_id):
     }
 
     return JsonResponse(card_data, json_dumps_params={'ensure_ascii': False})
+
+
 # User = get_user_model()
 def seller_profile(request, username):
     # 1) Busca el User y su Profile
@@ -844,6 +882,8 @@ def seller_profile(request, username):
     }
 
     return JsonResponse(context, json_dumps_params={'ensure_ascii': False})
+
+
 # User = get_user_model()
 def check_token(request):
     auth_header = request.META.get('HTTP_AUTHORIZATION', '')
@@ -868,6 +908,7 @@ def check_token(request):
             'body': request.body.decode('utf-8'),
         }
     )
+
 
 @csrf_exempt
 @auth_required
@@ -897,6 +938,7 @@ def delete_all_cart_items(request):
     return JsonResponse(
         {'success': f'{restored} productos eliminados y stock restaurado'}, status=200
     )
+
 
 @csrf_exempt
 @validate_json(
@@ -937,6 +979,7 @@ def delete_cart_sold(request):
     card_for_sale.delete()
 
     return JsonResponse({'success': 'Carta retirada de la venta'}, status=200)
+
 
 @csrf_exempt
 @auth_required
@@ -1002,6 +1045,7 @@ def buy_for_wallet(request):
         },
         status=200,
     )
+
 
 @csrf_exempt
 @auth_required
@@ -1073,6 +1117,7 @@ def buy_for_card(request):
         status=200,
     )
 
+
 @csrf_exempt
 @auth_required
 @require_post
@@ -1101,6 +1146,7 @@ def all_card_sale_for_user(request):
             }
         )
     return JsonResponse({'cards': data}, status=200, json_dumps_params={'ensure_ascii': False})
+
 
 @csrf_exempt
 @auth_required
@@ -1135,6 +1181,7 @@ def all_cards_sold_by_user(request):
         )
 
     return JsonResponse({'cards': data}, status=200, json_dumps_params={'ensure_ascii': False})
+
 
 @csrf_exempt
 @auth_required
@@ -1250,3 +1297,17 @@ def delete_card(request):
     card.delete()
 
     return JsonResponse({'success': 'Carta eliminada correctamente'}, status=200)
+
+
+# views.py
+@csrf_exempt
+@auth_required
+@require_http_methods(['DELETE'])
+def delete_card_for_sale(request, sale_id):
+    try:
+        profile = request.user.profile
+        sale = CardForSale.objects.get(id=sale_id, seller=profile)
+        sale.delete()
+        return JsonResponse({'success': 'Carta eliminada de las ventas'}, status=200)
+    except CardForSale.DoesNotExist:
+        return JsonResponse({'error': 'Carta no encontrada o no te pertenece'}, status=404)

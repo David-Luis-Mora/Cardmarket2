@@ -51,4 +51,10 @@ urlpatterns = [
     path('users/delete/', views.delete_account, name='delete-account'),
     path('cards/edit/', views.edit_card, name='edit-card'),
     path('cards/delete/', views.delete_card, name='delete-card'),
+    # urls.py
+    path(
+        'users/my-cards-for-sale/<uuid:sale_id>/',
+        views.delete_card_for_sale,
+        name='delete-card-for-sale',
+    ),
 ]
