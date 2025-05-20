@@ -26,7 +26,7 @@
                       @change="updateQuantity(product.id, product.quantity)"
                       class="quantity-input"
                     >
-                      <option v-for="n in Math.min(product.quantity + 10, 30)" :key="n" :value="n">
+                      <option v-for="n in product.quantity" :key="n" :value="n">
                         {{ n }}
                       </option>
                     </select>
@@ -101,6 +101,13 @@ export default defineComponent({
     };
 
     function removeProduct(product: Product) {
+      console.log(
+        "Has agregado al carrito:",
+        cartStore.quantityOf(product.id),
+        // cartStore.getQuantityById(product.id),
+        "unidades de",
+        product.name
+      );
       cartStore.removeProduct(product);
     }
 

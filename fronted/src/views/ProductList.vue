@@ -201,6 +201,7 @@ export default defineComponent({
         : `http://localhost:8000/api/cards/all/?${params.toString()}`;
 
       try {
+        console.log(url);
         const response = await fetch(url);
         const responseText = await response.text();
         const data = JSON.parse(responseText);

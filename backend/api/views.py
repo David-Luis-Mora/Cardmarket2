@@ -628,7 +628,7 @@ def all_cards(request):
             )
             sellers = [
                 {
-                    'id': str(seller.id),
+                    'id_letter_sale': seller.id,
                     'sellerNickname': seller.seller.user.username,
                     'price': float(seller.price),
                     'quantity': seller.quantity,

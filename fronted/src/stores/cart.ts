@@ -12,6 +12,7 @@ export interface Product {
   id_letter_sale : string;
   cartItemId: string; 
 }
+
 interface CartItemDTO {
   id: string; // 👈 ID del CartItem
   id_letter_sale: string;
@@ -39,6 +40,10 @@ export const useCartStore = defineStore('cart', {
   },
 
   actions: {
+    quantityOf(id: number): number {
+    const item = this.products.find(p => p.id === id)
+    return item?.quantity ?? 0
+  },
     /** 1) Traer carrito */
     async fetchCartFromAPI() {
       const token = localStorage.getItem('token');
@@ -186,5 +191,6 @@ await this.fetchCartFromAPI();
 
       return payload;
     },
+    
   }
 });
