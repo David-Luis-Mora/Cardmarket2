@@ -104,6 +104,8 @@
       "passwordPlaceholder": "Crea tu contraseña",
       "submit": "Registrar",
       "loading": "Cargando",
+      "success": "Registro exitoso.",
+    "networkError": "Error de red o servidor.",
       "errors": {
         "firstNameRequired": "El nombre es obligatorio.",
         "lastNameRequired": "El apellido es obligatorio.",
@@ -111,9 +113,7 @@
         "emailInvalid": "Por favor ingresa un correo electrónico válido.",
         "usernameRequired": "El nombre de usuario es obligatorio.",
         "passwordRequired": "La contraseña es obligatoria.",
-        "unknownError": "Error desconocido.",
-    "success": "Registro exitoso.",
-    "networkError": "Error de red o servidor."
+        "unknownError": "Error desconocido."
       }
     },
      "aboutus": {
@@ -189,8 +189,10 @@
       "prevPage": "Página anterior",
       "nextPage": "Página siguiente",
       "lastPage": "Última página",
-      "fetchError": "Hubo un error al obtener las cartas.",
-    "invalidInput": "Por favor, indica precio y cantidad.",
+      "fetchError": "Hubo un error al obtener las cartas."
+    },
+    "sellcards":{
+      "invalidInput": "Por favor, indica precio y cantidad.",
     "publishSuccess": "Carta publicada correctamente 🎉",
     "publishError": "Error al publicar: {message}"
     },

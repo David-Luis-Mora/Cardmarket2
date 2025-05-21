@@ -9,3 +9,4 @@ backend/venv/
 frontend.log
 start_all.sh
 stop_all.sh
+frontend/.env

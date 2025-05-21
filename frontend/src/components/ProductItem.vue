@@ -26,7 +26,7 @@
       </div>
       <div class="col-md-10">
         <div class="card-body d-flex flex-column">
-          <div v-if="totalSellers === 0" class="no-sellers mt-3 text-center text-muted">
+          <div v-if="totalSellers === 0" class="no-sellers mt-3 text-center">
             <i class="bi bi-emoji-frown-fill"></i>
             <p>{{ $t("productCard.noAvailable") }}</p>
           </div>
@@ -154,6 +154,7 @@ async function onAddToCart(seller: Seller, idx: number) {
     console.log(cartItem);
     await cartStore.addProduct(cartItem);
     alert(t("cartt.addSuccess"));
+    // window.location.reload();
   } catch (err: any) {
     console.error("Error al añadir al carrito:", err);
     alert(t("cartt.addError", { message: err.message }));
@@ -264,5 +265,77 @@ function viewAllSellers() {
 }
 .seller-link:hover {
   text-decoration: underline;
+}
+/* ==========================
+   RESPONSIVE
+   ========================== */
+
+/* Tablets y pantallas medias */
+@media (max-width: 992px) {
+  .title-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  .view-button {
+    margin-top: 0.5rem;
+  }
+  .row.g-0 {
+    display: flex;
+    flex-direction: column;
+  }
+  .col-md-2,
+  .col-md-10 {
+    width: 100%;
+    padding: 0 1rem;
+  }
+  .product-img {
+    max-width: 250px;
+    margin: 0 auto 1rem;
+  }
+  .card-body {
+    padding: 1rem;
+  }
+}
+
+/* Móviles */
+@media (max-width: 576px) {
+  .product-card {
+    padding: 0;
+  }
+  .title-row {
+    padding: 1rem;
+  }
+  .card-title {
+    font-size: 1.1rem;
+  }
+  .product-img {
+    max-width: 180px;
+    height: auto;
+  }
+  .seller-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+  }
+  .seller-info span {
+    display: block;
+    font-size: 0.85rem;
+  }
+  .action-controls {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .form-select-sm {
+    width: 60px;
+  }
+  .btn-success {
+    padding: 0.35rem 0.75rem;
+    font-size: 0.85rem;
+  }
+  .no-sellers p {
+    font-size: 0.9rem;
+  }
 }
 </style>

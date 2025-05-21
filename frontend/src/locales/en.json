@@ -103,6 +103,8 @@
       "passwordPlaceholder": "Create a password",
       "submit": "Register",
       "loading": "Loading",
+      "success": "Registration successful.",
+      "networkError": "Network or server error.",
       "errors": {
         "firstNameRequired": "First name is required.",
         "lastNameRequired": "Last name is required.",
@@ -110,9 +112,8 @@
         "emailInvalid": "Please enter a valid email address.",
         "usernameRequired": "Username is required.",
         "passwordRequired": "Password is required.",
-        "unknownError": "An unknown error occurred.",
-    "success": "Registration successful.",
-    "networkError": "Network or server error."
+        "unknownError": "An unknown error occurred."
+    
       }
     },
     "aboutus": {
@@ -188,8 +189,10 @@
       "prevPage": "Previous page",
       "nextPage": "Next page",
       "lastPage": "Last page",
-      "fetchError": "There was an error fetching cards.",
-    "invalidInput": "Please specify a price and quantity.",
+      "fetchError": "There was an error fetching cards."
+    },
+    "sellcards":{
+      "invalidInput": "Please specify a price and quantity.",
     "publishSuccess": "Card published successfully 🎉",
     "publishError": "Error publishing: {message}"
     },

@@ -131,7 +131,7 @@ const cheapestPrice = computed(() =>
   sortedSellers.value.length ? sortedSellers.value[0].price : product.value?.basePrice ?? 0
 );
 
-function addToCart(seller: Seller, idx: number) {
+async function addToCart(seller: Seller, idx: number) {
   const qty = selectedQuantities.value[idx] || 1;
 
   const payload: CartProduct = {
@@ -140,8 +140,13 @@ function addToCart(seller: Seller, idx: number) {
     quantity: qty,
   };
 
-  cartStore.addProduct(payload).catch((e) => alert("Error al añadir: " + e.message));
-  alert(t("cartt.addSuccess"));
+  try {
+    await cartStore.addProduct(payload);
+    alert(t("cartt.addSuccess"));
+    await fetchProduct();
+  } catch (e: any) {
+    alert("Error al añadir: " + e.message);
+  }
 }
 
 onMounted(fetchProduct);

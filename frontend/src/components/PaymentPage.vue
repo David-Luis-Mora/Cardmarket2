@@ -240,7 +240,7 @@ export default defineComponent({
           message: data.message || t("payment.successMessage"),
         };
         cartStore.clearCart();
-        alert("payment.successMessage");
+        alert(t("payment.successMessage"));
         router.push({
           name: "MyProfile",
           params: { lang: locale.value },
@@ -444,5 +444,153 @@ input:focus {
 .error {
   background-color: #f87171;
   color: #7f1d1d;
+}
+
+.payment-container {
+  padding: 1rem;
+  max-width: 1100px;
+  margin: 40px auto;
+  background: linear-gradient(135deg, #6964ae, #652597, #363636);
+  border-radius: 12px;
+  color: #e9d8fd;
+}
+
+/* Rejilla principal */
+.payment-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+}
+
+/* Columnas */
+.left-column,
+.right-column {
+  width: 100%;
+}
+
+/* Tarjetas */
+.card {
+  background: rgba(59, 7, 100, 0.7);
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+  color: #e9d8fd;
+}
+
+/* Formularios */
+.payment-form,
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+input {
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #7c3aed;
+  border-radius: 6px;
+  background-color: #1e1b4b;
+  color: #e9d8fd;
+}
+
+input::placeholder {
+  color: #c4b5fd;
+}
+
+input:focus {
+  outline: none;
+  border-color: #c084fc;
+  box-shadow: 0 0 0 2px #c084fc55;
+}
+
+.submit-btn {
+  padding: 12px;
+  background-color: #7c3aed;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.submit-btn:hover {
+  background-color: #a855f7;
+}
+
+.summary-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 10px 0;
+}
+
+.summary-list li {
+  padding: 4px 0;
+}
+
+.total {
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.payment-status {
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 6px;
+  font-weight: bold;
+}
+
+.success {
+  background-color: #4ade80;
+  color: #1e3a1e;
+}
+
+.error {
+  background-color: #f87171;
+  color: #7f1d1d;
+}
+
+/* ==========================
+   RESPONSIVE
+   ========================== */
+
+/* Tablets y pantallas medias */
+@media (max-width: 1024px) {
+  .payment-grid {
+    grid-template-columns: 1fr; /* Una sola columna */
+  }
+  .payment-method-selector {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
+/* Móviles */
+@media (max-width: 600px) {
+  .payment-container {
+    padding: 0.5rem;
+    margin: 20px auto;
+  }
+  .payment-method-selector label {
+    font-size: 0.9rem;
+  }
+  .card {
+    padding: 15px;
+  }
+  input {
+    font-size: 14px;
+    padding: 8px;
+  }
+  .submit-btn {
+    padding: 10px;
+    font-size: 14px;
+  }
+  .summary-list {
+    max-height: 150px;
+    overflow-y: auto;
+  }
 }
 </style>

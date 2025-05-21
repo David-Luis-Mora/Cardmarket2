@@ -133,7 +133,9 @@ const handleLogin = async () => {
         localStorage.setItem("user", JSON.stringify(data.user));
       }
       alert(t("login.loginSuccess"));
-      router.push(`/${locale.value}/`);
+      router.push(`/${locale.value}/`).then(() => {
+        window.location.reload();
+      });
     } else {
       if (data.error === "Invalid credentials") {
         errors.value.password = t("login.incorrectCredentials");

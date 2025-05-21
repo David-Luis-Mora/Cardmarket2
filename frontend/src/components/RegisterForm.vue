@@ -215,7 +215,9 @@ const handleRegister = async () => {
       alert(t("register.success"));
       localStorage.setItem("token", result.token);
       if (logueado) logueado.value = true;
-      router.push(`/${locale}/`);
+      router.push(`/${locale.value}/`).then(() => {
+        window.location.reload();
+      });
     }
   } catch (err: any) {
     console.error(err);

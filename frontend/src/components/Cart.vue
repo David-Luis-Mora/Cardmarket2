@@ -404,25 +404,68 @@ export default defineComponent({
   margin-top: 0;
 }
 
-@media (max-width: 768px) {
-  .cart-item {
+/* Tablets y pantallas medias */
+@media (max-width: 800px) {
+  .cart-wrapper {
     flex-direction: column;
     align-items: center;
-    text-align: center;
+    gap: 20px;
   }
+  .cart-side-summary {
+    position: relative;
+    top: auto;
+    margin-top: 0;
+    width: 100%;
+    max-width: none;
+  }
+  .cart {
+    width: 100%;
+    max-width: 600px;
+  }
+}
 
+/* Móviles */
+@media (max-width: 600px) {
+  .cart {
+    padding: 20px;
+    margin: 20px auto;
+  }
+  .cart-title {
+    font-size: 24px;
+  }
+  .cart-item {
+    padding: 15px;
+  }
   .product-image {
-    margin-right: 0;
-    margin-bottom: 10px;
+    width: 100px;
+    height: 140px;
   }
-
+  .product-name {
+    font-size: 18px;
+  }
   .product-actions {
-    justify-content: center;
+    gap: 10px;
   }
-
+  .quantity-input {
+    padding: 3px 6px;
+  }
+  .product-price {
+    font-size: 14px;
+  }
   .remove-btn {
-    top: 10px;
-    right: 10px;
+    width: 24px;
+    height: 24px;
+    font-size: 14px;
+    top: 8px;
+    right: 8px;
+  }
+  .summary-table td {
+    font-size: 14px;
+  }
+  .buy-btn,
+  .clear-cart-btn {
+    padding: 10px;
+    font-size: 14px;
   }
 }
 </style>
