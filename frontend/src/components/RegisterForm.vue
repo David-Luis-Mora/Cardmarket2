@@ -62,6 +62,7 @@
           required
           :aria-invalid="errors.email ? 'true' : 'false'"
           aria-describedby="err-email"
+          :class="{ 'is-invalid': email && !validateEmail(email) }"
         />
         <div v-if="errors.email" id="err-email" class="error" role="alert" aria-live="assertive">
           {{ errors.email }}
@@ -125,7 +126,7 @@
         </div>
       </div>
 
-      <button type="submit" class="submit-btn">
+      <button type="submit" class="submit-btn" :disabled="hasErrors || loading">
         <span v-if="loading">{{ $t("register.loading") }}</span>
         <span v-else>{{ $t("register.submit") }}</span>
       </button>

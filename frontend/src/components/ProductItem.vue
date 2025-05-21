@@ -154,7 +154,7 @@ async function onAddToCart(seller: Seller, idx: number) {
     console.log(cartItem);
     await cartStore.addProduct(cartItem);
     alert(t("cartt.addSuccess"));
-    // window.location.reload();
+    window.location.reload();
   } catch (err: any) {
     console.error("Error al añadir al carrito:", err);
     alert(t("cartt.addError", { message: err.message }));
