@@ -3,3 +3,9 @@ db.sqlite3
 *.pyc
 .mypy_cache
 backend/data_cartas
+backend.log
+backend/backend.log
+backend/venv/
+frontend.log
+start_all.sh
+stop_all.sh
