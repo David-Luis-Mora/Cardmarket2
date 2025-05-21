@@ -162,7 +162,7 @@ export default defineComponent({
       walletLoading.value = true;
       walletError.value = "";
       try {
-        const res = await fetch("http://localhost:8000/api/users/wallet/", {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/users/wallet/`, {
           method: "GET",
           headers: getAuthHeaders(),
         });
@@ -215,13 +215,13 @@ export default defineComponent({
       try {
         let res, data;
         if (method.value === "wallet") {
-          res = await fetch("http://localhost:8000/api/users/cart/buy-for-wallet/", {
+          res = await fetch(`${import.meta.env.VITE_API_URL}/api/users/cart/buy-for-wallet/`, {
             method: "POST",
             headers: getAuthHeaders(),
             body: null,
           });
         } else {
-          res = await fetch("http://localhost:8000/api/users/cart/buy-for-card/", {
+          res = await fetch(`${import.meta.env.VITE_API_URL}/api/users/cart/buy-for-card/`, {
             method: "POST",
             headers: getAuthHeaders(),
             body: JSON.stringify({

@@ -161,7 +161,7 @@ function goToCards() {
 }
 const fetchRandomCards = async (count = 6) => {
   try {
-    const response = await fetch(`http://localhost:8000/api/cards/random/?count=${count}`, {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/cards/random/?count=${count}`, {
       headers: { Accept: "application/json" },
     });
     if (!response.ok) {

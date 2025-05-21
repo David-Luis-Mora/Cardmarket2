@@ -133,7 +133,7 @@ export default defineComponent({
     const loading = ref(false);
 
     const fetchExpansions = async () => {
-      const res = await fetch("http://localhost:8000/api/cards/expansions/");
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/cards/expansions/`);
       const data = await res.json();
       expansions.value = data.expansions || [];
     };
@@ -151,8 +151,10 @@ export default defineComponent({
         });
 
         const url = selected
-          ? `http://localhost:8000/api/cards/expansion/${expansionCode}/?${params.toString()}`
-          : `http://localhost:8000/api/cards/all/?${params.toString()}`;
+          ? `${
+              import.meta.env.VITE_API_URL
+            }/api/cards/expansion/${expansionCode}/?${params.toString()}`
+          : `${import.meta.env.VITE_API_URL}/api/cards/all/?${params.toString()}`;
 
         const res = await fetch(url);
         if (!res.ok) {
@@ -182,7 +184,7 @@ export default defineComponent({
 
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("http://localhost:8000/api/users/sell/", {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/users/sell/`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

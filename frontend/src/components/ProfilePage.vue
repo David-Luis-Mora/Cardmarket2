@@ -311,7 +311,7 @@ const router = useRouter();
 const fetchUserProfile = async () => {
   const token = localStorage.getItem("token");
   try {
-    const res = await fetch("http://localhost:8000/api/users/edit/", {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/users/edit/`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -394,7 +394,7 @@ const save = async () => {
       formData.append("phone", form.value.phone);
       formData.append("bio", form.value.bio);
 
-      response = await fetch("http://localhost:8000/api/users/edit/", {
+      response = await fetch(`${import.meta.env.VITE_API_URL}/api/users/edit/`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -402,7 +402,7 @@ const save = async () => {
         body: formData,
       });
     } else {
-      response = await fetch("http://localhost:8000/api/users/edit/", {
+      response = await fetch(`${import.meta.env.VITE_API_URL}/api/users/edit/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -467,7 +467,7 @@ const tempEdits = reactive<Record<number, { quantity: number; price: number; car
 
 async function fetchMyCardsForSale() {
   const token = localStorage.getItem("token");
-  const res = await fetch("http://localhost:8000/api/users/my-cards-for-sale/", {
+  const res = await fetch(`${import.meta.env.VITE_API_URL}/api/users/my-cards-for-sale/`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   const data = await res.json();
@@ -494,17 +494,20 @@ function cancelEdit() {
 
 async function saveEdit(card: Card) {
   const token = localStorage.getItem("token");
-  const res = await fetch(`http://localhost:8000/api/users/my-cards-for-sale/${card.id}/`, {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify({
-      quantity: tempEdits[card.id].quantity,
-      price: tempEdits[card.id].price,
-    }),
-  });
+  const res = await fetch(
+    `${import.meta.env.VITE_API_URL}/api/users/my-cards-for-sale/${card.id}/`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        quantity: tempEdits[card.id].quantity,
+        price: tempEdits[card.id].price,
+      }),
+    }
+  );
 
   if (res.status === 204) {
     cardsForSale.value = cardsForSale.value.filter((c) => c.id !== card.id);
@@ -527,7 +530,7 @@ async function saveEdit(card: Card) {
 async function confirmDelete(card: Card) {
   if (confirm(t("profile.confirmDeleteSaleMessage", { name: card.name }))) {
     const token = localStorage.getItem("token");
-    await fetch(`http://localhost:8000/api/users/my-cards-for-sale/${card.id}/`, {
+    await fetch(`${import.meta.env.VITE_API_URL}/api/users/my-cards-for-sale/${card.id}/`, {
       method: "DELETE",
       headers: {
         Authorization: `Token ${token}`, // ✅ sin espacio extra
@@ -543,7 +546,7 @@ async function fetchMySoldCards() {
   const token = localStorage.getItem("token");
   if (!token) throw new Error("No estás autenticado");
 
-  const res = await fetch("http://localhost:8000/api/users/all-cards-sold-by-user/", {
+  const res = await fetch(`${import.meta.env.VITE_API_URL}/api/users/all-cards-sold-by-user/`, {
     method: "POST",
     headers: {
       Authorization: `Token ${token}`,
@@ -564,14 +567,17 @@ async function fetchMySoldCards() {
 const purchasedCards = ref<Card[]>([]);
 async function fetchMyPurchasedCards() {
   const token = localStorage.getItem("token");
-  const res = await fetch("http://localhost:8000/api/users/all-card-purchased-for-user/", {
-    method: "POST",
-    headers: {
-      Authorization: `Token ${token}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({}),
-  });
+  const res = await fetch(
+    `${import.meta.env.VITE_API_URL}/api/users/all-card-purchased-for-user/`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Token ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({}),
+    }
+  );
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const data = await res.json();
   purchasedCards.value = data.cards;
@@ -582,7 +588,7 @@ const confirmDeleteAccount = async () => {
 
   const token = localStorage.getItem("token");
   try {
-    const res = await fetch("http://localhost:8000/api/users/delete/", {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/users/delete/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

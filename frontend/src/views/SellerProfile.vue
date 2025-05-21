@@ -127,7 +127,9 @@ const avatarSrc = computed(() => {
 
 async function fetchProfile() {
   try {
-    const res = await fetch(`http://localhost:8000/api/seller/${props.nickname}/profile/`);
+    const res = await fetch(
+      `${import.meta.env.VITE_API_URL}/api/seller/${props.nickname}/profile/`
+    );
     if (!res.ok) throw new Error("Error al cargar perfil");
     const data = await res.json();
     profile.value = data.profile;

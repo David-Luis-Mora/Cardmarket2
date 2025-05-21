@@ -106,7 +106,7 @@ const product = ref<CardDetail | null>(null);
 const selectedQuantities = ref<number[]>([]);
 
 async function fetchProduct(): Promise<void> {
-  const res = await fetch(`http://localhost:8000/api/cards/${productId}/`);
+  const res = await fetch(`${import.meta.env.VITE_API_URL}/api/cards/${productId}/`);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   product.value = (await res.json()) as CardDetail;
 }

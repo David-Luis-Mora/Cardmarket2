@@ -190,7 +190,7 @@ const handleRegister = async () => {
 
   loading.value = true;
   try {
-    const resp = await fetch("http://localhost:8000/api/users/signup/", {
+    const resp = await fetch(`${import.meta.env.VITE_API_URL}/api/users/signup/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

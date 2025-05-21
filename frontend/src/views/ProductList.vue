@@ -166,7 +166,7 @@ export default defineComponent({
 
     const fetchExpansions = async () => {
       try {
-        const res = await fetch("http://localhost:8000/api/cards/expansions/");
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/cards/expansions/`);
         const text = await res.text();
 
         let data;
@@ -199,8 +199,10 @@ export default defineComponent({
       });
 
       const url = expansionCode
-        ? `http://localhost:8000/api/cards/expansion/${expansionCode}/?${params.toString()}`
-        : `http://localhost:8000/api/cards/all/?${params.toString()}`;
+        ? `${
+            import.meta.env.VITE_API_URL
+          }/api/cards/expansion/${expansionCode}/?${params.toString()}`
+        : `${import.meta.env.VITE_API_URL}/api/cards/all/?${params.toString()}`;
 
       try {
         console.log(url);
