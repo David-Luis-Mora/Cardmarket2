@@ -43,7 +43,7 @@
               <i class="fas fa-envelope" aria-hidden="true"></i>
               <span class="sr-only">{{ $t("email") }}:</span>
             </dt>
-            <dd class="contact-detail">cardshop@gmail.com</dd>
+            <dd class="contact-detail">cardshop2204@gmail.com</dd>
           </div>
           <div>
             <dt class="contact-term">

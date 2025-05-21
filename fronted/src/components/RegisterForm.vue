@@ -138,7 +138,7 @@ import { ref, computed, inject, type Ref } from "vue";
 import { useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 
-const { locale } = useI18n();
+const { t, locale } = useI18n();
 const logueado = inject("logueado") as Ref<boolean>;
 const router = useRouter();
 
@@ -165,7 +165,6 @@ const errors = ref<{
 });
 
 const validateEmail = (e: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
-
 const validatePassword = (p: string) => /^(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&+=!]).{8,}$/.test(p);
 
 const hasErrors = computed(() => {
@@ -187,14 +186,6 @@ const handleRegister = async () => {
     password: "",
   };
 
-  // if (!firstName.value.trim()) errors.value.firstName = "El nombre es obligatorio.";
-  // if (!lastName.value.trim()) errors.value.lastName = "El apellido es obligatorio.";
-  // if (!validateEmail(email.value)) errors.value.email = "El formato del correo es inválido.";
-  // if (!username.value.trim()) errors.value.username = "El usuario es obligatorio.";
-  // if (!validatePassword(password.value))
-  //   errors.value.password =
-  //     "La contraseña debe tener al menos 8 caracteres, una letra mayúscula, un número y un carácter especial.";
-
   if (Object.values(errors.value).some((e) => e)) return;
 
   loading.value = true;
@@ -213,18 +204,22 @@ const handleRegister = async () => {
     const result = await resp.json();
 
     if (!resp.ok) {
-      if (result.error?.includes("email")) errors.value.email = result.error;
-      else if (result.error?.includes("username")) errors.value.username = result.error;
-      else alert(result.error || "Error desconocido");
+      if (result.error?.includes("email")) {
+        errors.value.email = result.error;
+      } else if (result.error?.includes("username")) {
+        errors.value.username = result.error;
+      } else {
+        alert(t("register.unknownError"));
+      }
     } else {
-      alert("Registro exitoso");
+      alert(t("register.success"));
       localStorage.setItem("token", result.token);
       if (logueado) logueado.value = true;
       router.push(`/${locale}/`);
     }
-  } catch (err) {
+  } catch (err: any) {
     console.error(err);
-    alert("Error de red o servidor.");
+    alert(t("register.networkError"));
   } finally {
     loading.value = false;
   }

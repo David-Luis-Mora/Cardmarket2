@@ -14,7 +14,7 @@ export interface Product {
 }
 
 interface CartItemDTO {
-  id: string; // 👈 ID del CartItem
+  id: string; 
   id_letter_sale: string;
   card_id: number;
   number_cards: number;
@@ -26,6 +26,12 @@ interface CartItemDTO {
     seller: string;
     rarity : string;
   };
+  quantity: number;
+}
+
+export interface CartProduct {
+  id_letter_sale: number;
+  sellerNickname: string;
   quantity: number;
 }
 
@@ -71,23 +77,28 @@ export const useCartStore = defineStore('cart', {
     },
 
     /** 2) Añadir producto */
-    async addProduct(product: Product) {
-      const token = localStorage.getItem('token');
-      if (!token) throw new Error('No autenticado');
+    async addProduct(product: CartProduct) {
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("No autenticado");
 
-      console.log('Identificacion del objecto: ',product.id_letter_sale, product.sellerNickname, product.quantity)
+      console.log(
+        "Identificación del objeto:",
+        product.id_letter_sale,
+        product.sellerNickname,
+        product.quantity
+      );
 
-      const res = await fetch('http://localhost:8000/api/users/cart/add/', {
-        method: 'POST',
+      const res = await fetch("http://localhost:8000/api/users/cart/add/", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Token ${token}`,
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
         },
         body: JSON.stringify({
-          'card-id': product.id_letter_sale,
-          'nickname': product.sellerNickname,
-          'number-cards': product.quantity
-        })
+          "card-id":       product.id_letter_sale,
+          nickname:        product.sellerNickname,
+          "number-cards":  product.quantity,
+        }),
       });
 
       if (!res.ok) {

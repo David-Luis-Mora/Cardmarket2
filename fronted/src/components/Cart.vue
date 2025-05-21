@@ -25,6 +25,7 @@
                       v-model="product.quantity"
                       @change="updateQuantity(product.id, product.quantity)"
                       class="quantity-input"
+                      disabled
                     >
                       <option v-for="n in product.quantity" :key="n" :value="n">
                         {{ n }}

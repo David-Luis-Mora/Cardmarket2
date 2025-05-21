@@ -113,10 +113,11 @@
 
 <script lang="ts">
 import { defineComponent, ref, computed, onMounted, watch } from "vue";
-
+import { useI18n } from "vue-i18n";
 export default defineComponent({
   name: "SellCardList",
   setup() {
+    const { t } = useI18n();
     const cards = ref<any[]>([]);
     const searchTerm = ref("");
     const selectedExpansion = ref("");
@@ -164,7 +165,7 @@ export default defineComponent({
         totalCards.value = data.total || 0;
       } catch (error) {
         console.error("Error al obtener cartas:", error);
-        alert("Hubo un error al obtener las cartas");
+        alert(t("sellcards.fetchError"));
       } finally {
         loading.value = false;
       }
@@ -175,7 +176,7 @@ export default defineComponent({
       const quantity = sellQuantity.value[card.id];
 
       if (!price || !quantity) {
-        alert("Por favor, indica precio y cantidad");
+        alert(t("sellcards.invalidInput"));
         return;
       }
 
@@ -206,11 +207,11 @@ export default defineComponent({
           throw new Error(data.error || `Error ${res.status}`);
         }
 
-        alert("Carta publicada correctamente 🎉");
+        alert(t("sellcards.publishSuccess"));
         sellPrice.value[card.id] = 0;
         sellQuantity.value[card.id] = 0;
       } catch (err: any) {
-        alert("Error: " + err.message);
+        alert(t("sellcards.publishError", { message: err.message }));
       }
     };
 

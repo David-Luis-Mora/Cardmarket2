@@ -39,7 +39,9 @@
       "buy": "Buy",
       "clear": "Clear Cart",
       "emptyMessage": "Your cart is empty.",
-    "goShop": "Go to the store"
+      "goShop": "Go to the store",
+      "addSuccess": "Card added to cart!",
+      "addError": "Error adding to cart: {message}"
     },
     "payment": {
     "title": "Payment Method",
@@ -76,11 +78,17 @@
       "noAccount": "Don't have an account?",
       "register": "Register here",
       "loading": "Loading",
+      "userRequired": "Username is required.",
+      "passwordRequired": "Password is required.",
+      "loginSuccess": "Login successful.",
+      "incorrectCredentials": "Email or password is incorrect.",
+      "unexpectedError": "An unexpected error occurred.",
+      "networkError": "Network or server error."
+    },
       "errors": {
         "usernameRequired": "Username is required.",
         "passwordRequired": "Password is required."
-      }
-    },
+      },
     "register": {
       "title": "Register",
       "firstName": "First Name",
@@ -101,7 +109,10 @@
         "emailRequired": "Email is required.",
         "emailInvalid": "Please enter a valid email address.",
         "usernameRequired": "Username is required.",
-        "passwordRequired": "Password is required."
+        "passwordRequired": "Password is required.",
+        "unknownError": "An unknown error occurred.",
+    "success": "Registration successful.",
+    "networkError": "Network or server error."
       }
     },
     "aboutus": {
@@ -144,7 +155,16 @@
       "soldTitle": "My Sold Cards",
       "noSold": "You haven't sold any cards yet.",
       "purchasedTitle": "My Purchased Cards",
-      "noPurchased": "You haven't purchased any cards yet."
+      "noPurchased": "You haven't purchased any cards yet.",
+      "deleteAccount": "Delete account",
+      "confirmDeleteAccountMessage": "Are you sure you want to delete your account? This action is irreversible!",
+      "deleteAccountSuccess": "Your account has been deleted.",
+      "deleteAccountError": "The account could not be deleted",
+      "loadError": "Could not load user profile.",
+    "updateSuccess": "Profile updated successfully.",
+    "updateError": "There was a problem saving your profile data.",
+    "updateSaleError": "Error updating sale: {message}",
+    "confirmDeleteSaleMessage": "Delete “{name}” from your sales?"
     },
     "productCard": {
       "items": "items",
@@ -167,7 +187,11 @@
       "firstPage": "First page",
       "prevPage": "Previous page",
       "nextPage": "Next page",
-      "lastPage": "Last page"
+      "lastPage": "Last page",
+      "fetchError": "There was an error fetching cards.",
+    "invalidInput": "Please specify a price and quantity.",
+    "publishSuccess": "Card published successfully 🎉",
+    "publishError": "Error publishing: {message}"
     },
     "productDetail": {
       "typeLabel": "Type",
@@ -188,7 +212,8 @@
       "firstPage": "First page",
       "prevPage": "Previous page",
       "nextPage": "Next page",
-      "lastPage": "Last page"
+      "lastPage": "Last page",
+      "loginRequired": "Please log in to add products to the cart."
     },
     "products": {
     "foundations": {

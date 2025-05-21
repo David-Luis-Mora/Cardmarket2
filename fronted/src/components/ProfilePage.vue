@@ -136,6 +136,9 @@
               <button class="btn btn-outline-primary mt-2" @click="edit">
                 {{ $t("profile.editProfile") }}
               </button>
+              <button class="btn btn-outline-danger mt-2 ms-2" @click="confirmDeleteAccount">
+                {{ t("profile.deleteAccount") }}
+              </button>
             </div>
           </div>
         </div>
@@ -162,7 +165,20 @@
                     class="list-group-item d-flex align-items-center justify-content-between"
                   >
                     <div class="d-flex align-items-center">
-                      <span class="ms-3">{{ $t("profile.name") }}: {{ card.name }}</span>
+                      <!-- <span class="ms-3">{{ $t("profile.name") }}: {{ card.name }}</span> -->
+                      <span class="ms-3">
+                        {{ $t("profile.name") }}:
+                        <router-link
+                          :to="{
+                            name: 'ProductDetail',
+                            params: { lang: locale, productId: card.card_id },
+                          }"
+                          class="text-decoration-none"
+                        >
+                          {{ card.name }}
+                        </router-link>
+                      </span>
+
                       <template v-if="editingCardId !== card.id">
                         <span class="ms-3">{{ $t("profile.price") }}: ${{ card.price }}</span>
                         <span class="ms-3">{{ $t("profile.quantity") }}: {{ card.quantity }}</span>
@@ -192,7 +208,19 @@
                     class="list-group-item d-flex align-items-center"
                   >
                     <div class="d-flex align-items-center">
-                      <span class="ms-3">{{ $t("profile.name") }}: {{ card.name }}</span>
+                      <!-- <span class="ms-3">{{ $t("profile.name") }}: {{ card.name }}</span> -->
+                      <span class="ms-3">
+                        {{ $t("profile.name") }}:
+                        <router-link
+                          :to="{
+                            name: 'ProductDetail',
+                            params: { lang: locale, productId: card.card_id },
+                          }"
+                          class="text-decoration-none"
+                        >
+                          {{ card.name }}
+                        </router-link>
+                      </span>
                       <template v-if="editingCardId !== card.id">
                         <span class="ms-3">{{ $t("profile.price") }}: ${{ card.price }}</span>
                         <span class="ms-3">{{ $t("profile.quantity") }}: {{ card.quantity }}</span>
@@ -216,7 +244,19 @@
                 <ul class="list-group list-group-flush">
                   <li v-for="card in purchasedCards" :key="card.id" class="list-group-item">
                     <div class="d-flex align-items-center">
-                      <span class="ms-3">{{ $t("profile.name") }}: {{ card.name }}</span>
+                      <!-- <span class="ms-3">{{ $t("profile.name") }}: {{ card.name }}</span> -->
+                      <span class="ms-3">
+                        {{ $t("profile.name") }}:
+                        <router-link
+                          :to="{
+                            name: 'ProductDetail',
+                            params: { lang: locale, productId: card.card_id },
+                          }"
+                          class="text-decoration-none"
+                        >
+                          {{ card.name }}
+                        </router-link>
+                      </span>
                       <template v-if="editingCardId !== card.id">
                         <span class="ms-3">{{ $t("profile.price") }}: ${{ card.price }}</span>
                         <span class="ms-3">{{ $t("profile.quantity") }}: {{ card.quantity }}</span>
@@ -240,9 +280,11 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from "vue";
-import { ref, computed, reactive } from "vue";
+import { onMounted, ref, computed, reactive } from "vue";
 import { useUserStore } from "@/stores/userStore";
+import { useRouter } from "vue-router";
+import { useI18n } from "vue-i18n";
+const { t, locale } = useI18n();
 const countries = ref([
   { code: "AR", name: "Argentina" },
   { code: "BR", name: "Brasil" },
@@ -258,11 +300,14 @@ const countries = ref([
 
 interface Card {
   id: number;
+  card_id: number;
   name: string;
   price: number;
   quantity: number;
   image: string;
 }
+
+const router = useRouter();
 const fetchUserProfile = async () => {
   const token = localStorage.getItem("token");
   try {
@@ -290,7 +335,7 @@ const fetchUserProfile = async () => {
     userStore.setUser(data);
   } catch (error) {
     console.error("❌ Error al cargar perfil:", error);
-    alert("No se pudo cargar el perfil del usuario.");
+    alert(t("profile.loadError"));
   }
 };
 
@@ -385,10 +430,10 @@ const save = async () => {
 
     userStore.setUser(updatedData);
     editing.value = false;
-    alert("Perfil actualizado correctamente");
+    alert(t("profile.updateSuccess"));
   } catch (err) {
     console.error("❌ Error al guardar perfil:", err);
-    alert("Hubo un problema al guardar los datos del perfil.");
+    alert(t("profile.updateError"));
   }
 };
 
@@ -416,7 +461,9 @@ function cancel() {
 
 const cardsForSale = ref<Card[]>([]);
 const editingCardId = ref<number | null>(null);
-const tempEdits = reactive<Record<number, { quantity: number; price: number }>>({});
+const tempEdits = reactive<Record<number, { quantity: number; price: number; card_id: number }>>(
+  {}
+);
 
 async function fetchMyCardsForSale() {
   const token = localStorage.getItem("token");
@@ -426,7 +473,7 @@ async function fetchMyCardsForSale() {
   const data = await res.json();
   cardsForSale.value = data.cards_for_sale.filter((c: Card) => c.quantity > 0);
   data.cards_for_sale.forEach((c: Card) => {
-    tempEdits[c.id] = { quantity: c.quantity, price: c.price };
+    tempEdits[c.id] = { quantity: c.quantity, price: c.price, card_id: c.card_id };
   });
 }
 
@@ -436,7 +483,6 @@ function startEdit(card: Card) {
 
 function cancelEdit() {
   if (editingCardId.value !== null) {
-    // Restaurar valores
     const orig = cardsForSale.value.find((c) => c.id === editingCardId.value);
     if (orig) {
       tempEdits[orig.id].quantity = orig.quantity;
@@ -468,7 +514,7 @@ async function saveEdit(card: Card) {
 
   if (!res.ok) {
     const err = await res.text();
-    alert("Error al actualizar la venta: " + err);
+    alert(t("profile.updateSaleError", { message: err }));
     return;
   }
 
@@ -479,7 +525,7 @@ async function saveEdit(card: Card) {
 }
 
 async function confirmDelete(card: Card) {
-  if (confirm(`¿Eliminar "${card.name}" de tus ventas?`)) {
+  if (confirm(t("profile.confirmDeleteSaleMessage", { name: card.name }))) {
     const token = localStorage.getItem("token");
     await fetch(`http://localhost:8000/api/users/my-cards-for-sale/${card.id}/`, {
       method: "DELETE",
@@ -492,7 +538,6 @@ async function confirmDelete(card: Card) {
   }
 }
 
-// Sold
 const soldCards = ref<Card[]>([]);
 async function fetchMySoldCards() {
   const token = localStorage.getItem("token");
@@ -516,7 +561,6 @@ async function fetchMySoldCards() {
   soldCards.value = Array.isArray(cards) ? cards : [];
 }
 
-// Purchases
 const purchasedCards = ref<Card[]>([]);
 async function fetchMyPurchasedCards() {
   const token = localStorage.getItem("token");
@@ -533,7 +577,31 @@ async function fetchMyPurchasedCards() {
   purchasedCards.value = data.cards;
 }
 
-// Inicialización
+const confirmDeleteAccount = async () => {
+  if (!confirm(t("profile.confirmDeleteAccountMessage"))) return;
+
+  const token = localStorage.getItem("token");
+  try {
+    const res = await fetch("http://localhost:8000/api/users/delete/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || JSON.stringify(data));
+
+    alert(t("profile.deleteAccountSuccess"));
+    localStorage.removeItem("token");
+    await router.push({ name: "Login", params: { lang: locale.value } });
+    window.location.reload();
+  } catch (error: any) {
+    console.error("Error al eliminar cuenta:", error);
+    alert(`${t("profile.deleteAccountError")}: ${error.message || error}`);
+  }
+};
+
 onMounted(() => {
   fetchUserProfile();
   fetchMyCardsForSale();

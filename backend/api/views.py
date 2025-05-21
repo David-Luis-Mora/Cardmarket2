@@ -516,17 +516,15 @@ def my_cards_for_sale(request):
     profile = request.user.profile
 
     if request.method == 'POST':
-        # ✅ Procesar eliminación de carta
+        # ✅ Procesar eliminación de carta en venta
         try:
             body = json.loads(request.body.decode('utf-8'))
-            card_id = body.get('id')  # se espera que envíes el ID de la carta en venta
+            card_id = body.get('id')  # ID de la venta (CardForSale.id)
             if not card_id:
                 return JsonResponse({'error': 'ID no proporcionado'}, status=400)
 
             # Buscar la carta en venta
             card_for_sale = CardForSale.objects.get(id=card_id, seller=profile)
-
-            # Restaurar el stock (opcional)
             card_for_sale.delete()
 
             return JsonResponse({'success': 'Carta eliminada correctamente'}, status=200)
@@ -536,29 +534,27 @@ def my_cards_for_sale(request):
         except Exception as e:
             return JsonResponse({'error': f'Error al eliminar: {str(e)}'}, status=500)
 
-    else:
-        # ✅ Método GET: devolver las cartas en venta
-        listings = CardForSale.objects.filter(seller=profile).select_related('card')
-        cards = []
-        for l in listings:
-            try:
-                uris = json.loads(l.card.image_uris or '[]')
-                img = uris[0] if uris else ''
-            except json.JSONDecodeError:
-                img = l.card.image_uris or ''
+    # GET: devolver las cartas en venta con id de la carta y de la venta
+    listings = CardForSale.objects.filter(seller=profile).select_related('card')
+    cards = []
+    for l in listings:
+        try:
+            uris = json.loads(l.card.image_uris or '[]')
+            img = uris[0] if uris else ''
+        except json.JSONDecodeError:
+            img = l.card.image_uris or ''
 
-            cards.append(
-                {
-                    'id': str(l.id),
-                    'name': l.card.name,
-                    'quantity': l.quantity,
-                    'price': float(l.price),
-                    'image': request.build_absolute_uri(img),
-                    'listed_at': l.listed_at.isoformat(),
-                }
-            )
+        cards.append({
+            'id': str(l.id),            # ID de la venta (CardForSale)
+            'card_id': str(l.card.id),   # ID de la carta
+            'name': l.card.name,
+            'quantity': l.quantity,
+            'price': float(l.price),
+            'image': request.build_absolute_uri(img),
+            'listed_at': l.listed_at.isoformat(),
+        })
 
-        return JsonResponse({'cards_for_sale': cards})
+    return JsonResponse({'cards_for_sale': cards})
 
 
 # @require_get
@@ -821,7 +817,8 @@ def card_detail(request, card_id):
     for sale in sales_qs:
         sellers.append(
             {
-                'username': sale.seller.user.username,  # el username real del User
+                'id_letter_sale': sale.id,                   
+                'username': sale.seller.user.username,
                 'price': float(sale.price),
                 'quantity': sale.quantity,
                 'listed_at': sale.listed_at.isoformat(),

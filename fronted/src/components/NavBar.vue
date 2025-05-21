@@ -261,6 +261,17 @@ nav a.router-link-active {
   }
 }
 
+@media (max-width: 570px) {
+  nav .nav-link,
+  nav .box {
+    font-size: 0.3rem;
+  }
+
+  nav .box {
+    padding: 6px 10px;
+  }
+}
+
 /* ESCRITORIO */
 @media (max-width: 1250px) {
   nav {

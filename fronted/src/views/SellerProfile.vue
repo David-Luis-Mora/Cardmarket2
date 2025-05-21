@@ -46,22 +46,39 @@
               <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">{{ $t("profile.forSaleTitle") }}</h5>
               </div>
-              <ul class="list-group list-group-flush">
-                <li v-if="cardsForSale.length === 0" class="list-group-item text-center text-muted">
-                  {{ $t("profile.noForSale") }}
-                </li>
-                <li
-                  v-for="card in cardsForSale"
-                  :key="card.id"
-                  class="list-group-item d-flex align-items-center justify-content-between"
-                >
-                  <div class="d-flex align-items-center">
-                    <span class="ms-3">{{ $t("profile.name") }}: {{ card.name }}</span>
-                    <span class="ms-3">{{ $t("profile.price") }}: ${{ card.price }}</span>
-                    <span class="ms-3">{{ $t("profile.quantity") }}: {{ card.quantity }}</span>
-                  </div>
-                </li>
-              </ul>
+              <div class="list-wrapper" style="max-height: calc(8 * 3.5rem); overflow-y: auto">
+                <ul class="list-group list-group-flush">
+                  <li
+                    v-if="cardsForSale.length === 0"
+                    class="list-group-item text-center text-muted"
+                  >
+                    {{ $t("profile.noForSale") }}
+                  </li>
+                  <li
+                    v-for="card in cardsForSale"
+                    :key="card.id"
+                    class="list-group-item d-flex align-items-center justify-content-between"
+                  >
+                    <div class="d-flex align-items-center">
+                      <!-- <span class="ms-3">{{ $t("profile.name") }}: {{ card.name }}</span> -->
+                      <span class="ms-3">
+                        {{ $t("profile.name") }}:
+                        <router-link
+                          :to="{
+                            name: 'ProductDetail',
+                            params: { lang: locale, productId: card.id },
+                          }"
+                          class="text-decoration-none"
+                        >
+                          {{ card.name }}
+                        </router-link>
+                      </span>
+                      <span class="ms-3">{{ $t("profile.price") }}: ${{ card.price }}</span>
+                      <span class="ms-3">{{ $t("profile.quantity") }}: {{ card.quantity }}</span>
+                    </div>
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
         </div>
@@ -73,6 +90,8 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, defineProps } from "vue";
 import { useRoute } from "vue-router";
+import { useI18n } from "vue-i18n";
+const { t, locale } = useI18n();
 
 interface Profile {
   user: { username: string; first_name: string; last_name: string };

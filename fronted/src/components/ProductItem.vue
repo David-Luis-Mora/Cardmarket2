@@ -79,7 +79,8 @@
 import { ref, computed, watch } from "vue";
 import { useCartStore } from "@/stores/cart";
 import { useRoute, useRouter } from "vue-router";
-
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
 interface Seller {
   sellerNickname: string;
   price: number;
@@ -152,10 +153,10 @@ async function onAddToCart(seller: Seller, idx: number) {
   try {
     console.log(cartItem);
     await cartStore.addProduct(cartItem);
-    alert("¡Carta añadida al carrito!");
+    alert(t("cartt.addSuccess"));
   } catch (err: any) {
     console.error("Error al añadir al carrito:", err);
-    alert("Error al añadir: " + err.message);
+    alert(t("cartt.addError", { message: err.message }));
   }
 }
 

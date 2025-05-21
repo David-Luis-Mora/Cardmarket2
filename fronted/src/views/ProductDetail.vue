@@ -1,26 +1,25 @@
 <template>
   <div class="product-detail d-flex flex-column flex-md-row p-4">
-    <div class="info-box p-3 mb-4 mb-md-0 me-md-4 rounded">
+    <!-- Info del producto -->
+    <div class="info-box p-3 mb-4 mb-md-0 me-md-4 rounded" v-if="product">
       <div class="image-box mb-3">
-        <img :src="product?.image" :alt="product?.name" class="detail-img rounded" />
+        <img :src="product.image" :alt="product.name" class="detail-img rounded" />
       </div>
       <div class="basic-info text-center">
-        <h2 class="detail-title mb-2">{{ product?.name }}</h2>
+        <h2 class="detail-title mb-2">{{ product.name }}</h2>
         <p class="mb-1">
-          <strong>{{ $t("productDetail.typeLabel") }}:</strong>
-          {{ product?.type }}
+          <strong>{{ $t("productDetail.typeLabel") }}:</strong> {{ product.type }}
         </p>
         <p class="mb-1">
-          <strong>{{ $t("productDetail.rarityLabel") }}:</strong>
-          {{ product?.rarity }}
+          <strong>{{ $t("productDetail.rarityLabel") }}:</strong> {{ product.rarity }}
         </p>
         <p class="mb-0">
-          <strong>{{ $t("productDetail.basePriceLabel") }}:</strong>
-          ${{ cheapestPrice.toFixed(2) }}
+          <strong>{{ $t("productDetail.basePriceLabel") }}:</strong> ${{ cheapestPrice.toFixed(2) }}
         </p>
       </div>
     </div>
 
+    <!-- Lista de vendedores -->
     <div class="sellers-box flex-grow-1 p-3 rounded">
       <h4 class="section-title mb-3">
         {{ $t("productDetail.sellersTitle", { total: totalSellers }) }}
@@ -39,7 +38,7 @@
       >
         <div
           v-for="(seller, idx) in sortedSellers"
-          :key="seller.username + '-' + idx"
+          :key="seller.id_letter_sale + '-' + idx"
           class="seller-row d-flex justify-content-between align-items-center p-2 mb-2 rounded"
         >
           <div>
@@ -53,19 +52,20 @@
             >
               {{ seller.username }}
             </router-link>
-            <span class="ms-3">
-              {{ $t("productDetail.priceLabel") }}: ${{ seller.price.toFixed(2) }}
-            </span>
-            <span class="ms-3">
-              {{ $t("productDetail.quantityLabel") }}:
-              {{ seller.quantity }}
-            </span>
+            <span class="ms-3"
+              >{{ $t("productDetail.priceLabel") }}: ${{ seller.price.toFixed(2) }}</span
+            >
+            <span class="ms-3">{{ $t("productDetail.quantityLabel") }}: {{ seller.quantity }}</span>
           </div>
           <div class="action-controls d-flex align-items-center">
             <select v-model="selectedQuantities[idx]" class="form-select form-select-sm me-2">
               <option v-for="n in seller.quantity" :key="n" :value="n">{{ n }}</option>
             </select>
-            <button class="btn btn-success btn-sm" @click="addToCart(seller, idx)">
+            <button
+              class="btn btn-success btn-sm"
+              :disabled="!product"
+              @click="addToCart(seller, idx)"
+            >
               {{ $t("productDetail.add") }}
             </button>
           </div>
@@ -78,14 +78,16 @@
 <script lang="ts" setup>
 import { ref, computed, watch, onMounted } from "vue";
 import { useRoute } from "vue-router";
-import { useCartStore } from "@/stores/cart";
-
+import { useCartStore, type CartProduct } from "@/stores/cart";
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
 interface Seller {
+  id_letter_sale: number;
   username: string;
   price: number;
   quantity: number;
 }
-interface Product {
+interface CardDetail {
   id: number;
   name: string;
   image: string;
@@ -100,20 +102,19 @@ const currentLang = (route.params.lang as string) || "es";
 const productId = route.params.productId as string;
 const cartStore = useCartStore();
 
-const product = ref<Product | null>(null);
+const product = ref<CardDetail | null>(null);
 const selectedQuantities = ref<number[]>([]);
 
 async function fetchProduct(): Promise<void> {
   const res = await fetch(`http://localhost:8000/api/cards/${productId}/`);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  const data = (await res.json()) as Product;
-  product.value = data;
+  product.value = (await res.json()) as CardDetail;
 }
 
-const sortedSellers = computed<Seller[]>((): Seller[] => {
-  if (!product.value) return [];
+const sortedSellers = computed(() => {
+  if (!product.value) return [] as Seller[];
   return product.value.sellers
-    .filter((seller) => seller.quantity > 0)
+    .filter((s) => s.quantity > 0)
     .sort((a, b) => a.price - b.price || a.username.localeCompare(b.username));
 });
 
@@ -125,26 +126,22 @@ watch(
   { immediate: true }
 );
 
-const totalSellers = computed((): number => sortedSellers.value.length);
-
-const cheapestPrice = computed((): number => {
-  const sellers = sortedSellers.value;
-  return sellers.length ? sellers[0].price : product.value?.basePrice ?? 0;
-});
+const totalSellers = computed(() => sortedSellers.value.length);
+const cheapestPrice = computed(() =>
+  sortedSellers.value.length ? sortedSellers.value[0].price : product.value?.basePrice ?? 0
+);
 
 function addToCart(seller: Seller, idx: number) {
   const qty = selectedQuantities.value[idx] || 1;
-  cartStore
-    .addProduct({
-      id: product.value!.id,
-      name: product.value!.name,
-      img: product.value!.image,
-      price: seller.price,
-      quantity: qty,
-      rarity: product.value!.rarity,
-      sellerNickname: seller.username,
-    })
-    .catch((e) => alert("Error al añadir: " + e.message));
+
+  const payload: CartProduct = {
+    id_letter_sale: seller.id_letter_sale,
+    sellerNickname: seller.username,
+    quantity: qty,
+  };
+
+  cartStore.addProduct(payload).catch((e) => alert("Error al añadir: " + e.message));
+  alert(t("cartt.addSuccess"));
 }
 
 onMounted(fetchProduct);

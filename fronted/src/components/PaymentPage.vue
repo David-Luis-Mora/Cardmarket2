@@ -240,6 +240,7 @@ export default defineComponent({
           message: data.message || t("payment.successMessage"),
         };
         cartStore.clearCart();
+        alert("payment.successMessage");
         router.push({
           name: "MyProfile",
           params: { lang: locale.value },

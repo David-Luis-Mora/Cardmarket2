@@ -119,12 +119,14 @@
 
 <script lang="ts">
 import { defineComponent, ref, computed, onMounted, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import ProductItem from "../components/ProductItem.vue";
 import { useAuthStore } from "../stores/authStore";
 export default defineComponent({
   name: "ProductList",
   components: { ProductItem },
   setup() {
+    const { t } = useI18n();
     const searchTerm = ref("");
     const sort = ref("name");
     const selectedProduct = ref<any | null>(null);
@@ -283,7 +285,7 @@ export default defineComponent({
         cart.value.push(product);
         console.log("Added to cart:", product);
       } else {
-        alert("Por favor, inicie sesión para añadir productos al carrito.");
+        alert(t("productList.loginRequired"));
       }
     };
 

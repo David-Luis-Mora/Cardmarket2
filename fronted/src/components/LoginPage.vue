@@ -74,15 +74,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, inject, type Ref } from "vue";
+import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
-import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
-import { auth, db } from "../firebaseConfig";
-import ChildComponent from "./ProductItem.vue";
-const { locale } = useI18n();
-const login = inject("login") as (userData: any) => void;
+
+const { t, locale } = useI18n();
+const router = useRouter();
 
 const username = ref("");
 const password = ref("");
@@ -90,31 +87,36 @@ const errors = ref({
   username: "",
   password: "",
 });
-const logueado = inject("logueado") as Ref<boolean>;
-const router = useRouter();
+const showPassword = ref(false);
+const loading = ref(false);
+
+const hasErrors = computed(() => {
+  return Boolean(errors.value.username) || Boolean(errors.value.password);
+});
+
 const handleLogin = async () => {
+  // reset de errores
   errors.value = {
     username: "",
     password: "",
   };
 
+  // validaciones locales
   if (!username.value.trim()) {
-    errors.value.username = "El correo es obligatorio.";
+    errors.value.username = t("login.userRequired");
     return;
   }
 
   if (!password.value.trim()) {
-    // errors.value.password = "La contraseña es obligatoria.";
-    return true;
+    errors.value.password = t("login.passwordRequired");
     return;
   }
 
+  loading.value = true;
   try {
     const response = await fetch("http://localhost:8000/api/users/login/", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         username: username.value,
         password: password.value,
@@ -122,30 +124,28 @@ const handleLogin = async () => {
     });
 
     const data = await response.json();
-    console.log("Login response data:", data);
 
     if (response.ok) {
+      // éxito
       const token = data.token;
-
       localStorage.setItem("token", token);
-      window.location.href = `/${locale.value}/`;
       if (data.user) {
         localStorage.setItem("user", JSON.stringify(data.user));
       }
-
-      alert("Inicio de sesión exitoso");
-
-      router.push("/");
+      alert(t("login.loginSuccess"));
+      router.push(`/${locale.value}/`);
     } else {
       if (data.error === "Invalid credentials") {
-        errors.value.password = "Correo o contraseña incorrectos.";
+        errors.value.password = t("login.incorrectCredentials");
       } else {
-        alert("Error inesperado");
+        alert(t("login.unexpectedError"));
       }
     }
-  } catch (error) {
-    console.error("Error al hacer login:", error);
-    alert("Error de red o servidor.");
+  } catch (err) {
+    console.error(err);
+    alert(t("login.networkError"));
+  } finally {
+    loading.value = false;
   }
 };
 </script>

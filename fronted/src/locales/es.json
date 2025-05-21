@@ -39,7 +39,9 @@
     "buy": "Comprar",
     "clear": "Vaciar Carrito",
     "emptyMessage": "Tu carrito está vacío.",
-    "goShop": "Ir a la tienda"
+    "goShop": "Ir a la tienda",
+    "addSuccess": "¡Carta añadida al carrito!",
+    "addError": "Error al añadir al carrito: {message}"
   },
 
     "payment": {
@@ -77,11 +79,17 @@
       "noAccount": "¿No tienes cuenta?",
       "register": "Regístrate aquí",
       "loading": "Cargando",
+      "userRequired": "El nombre de usuario es obligatorio.",
+      "passwordRequired": "La contraseña es obligatoria.",
+      "loginSuccess": "Inicio de sesión exitoso.",
+      "incorrectCredentials": "Correo o contraseña incorrectos.",
+      "unexpectedError": "Ocurrió un error inesperado.",
+      "networkError": "Error de red o servidor."
+    },
       "errors": {
         "usernameRequired": "El nombre de usuario es obligatorio.",
         "passwordRequired": "La contraseña es obligatoria."
-      }
-    },
+      },
     "register": {
       "title": "Registro",
       "firstName": "Nombre",
@@ -102,7 +110,10 @@
         "emailRequired": "El correo electrónico es obligatorio.",
         "emailInvalid": "Por favor ingresa un correo electrónico válido.",
         "usernameRequired": "El nombre de usuario es obligatorio.",
-        "passwordRequired": "La contraseña es obligatoria."
+        "passwordRequired": "La contraseña es obligatoria.",
+        "unknownError": "Error desconocido.",
+    "success": "Registro exitoso.",
+    "networkError": "Error de red o servidor."
       }
     },
      "aboutus": {
@@ -145,7 +156,16 @@
       "soldTitle": "Mis cartas vendidas",
       "noSold": "Aún no has vendido cartas.",
       "purchasedTitle": "Mis cartas compradas",
-      "noPurchased": "Aún no has comprado cartas."
+      "noPurchased": "Aún no has comprado cartas.",
+      "deleteAccount": "Eliminar cuenta",
+      "confirmDeleteAccountMessage": "¿Estás seguro de que quieres eliminar tu cuenta? ¡Esta acción es irreversible!",
+      "deleteAccountSuccess": "Tu cuenta ha sido eliminada.",
+      "deleteAccountError": "No se pudo eliminar la cuenta",
+      "loadError": "No se pudo cargar el perfil del usuario.",
+    "updateSuccess": "Perfil actualizado correctamente.",
+    "updateError": "Hubo un problema al guardar los datos del perfil.",
+    "updateSaleError": "Error al actualizar la venta: {message}",
+    "confirmDeleteSaleMessage": "¿Eliminar «{name}» de tus ventas?"
     },
     "productCard": {
       "items": "artículos",
@@ -168,7 +188,11 @@
       "firstPage": "Primera página",
       "prevPage": "Página anterior",
       "nextPage": "Página siguiente",
-      "lastPage": "Última página"
+      "lastPage": "Última página",
+      "fetchError": "Hubo un error al obtener las cartas.",
+    "invalidInput": "Por favor, indica precio y cantidad.",
+    "publishSuccess": "Carta publicada correctamente 🎉",
+    "publishError": "Error al publicar: {message}"
     },
     "productDetail": {
       "typeLabel": "Tipo",
@@ -189,7 +213,8 @@
       "firstPage": "Primera página",
       "prevPage": "Página anterior",
       "nextPage": "Página siguiente",
-      "lastPage": "Última página"
+      "lastPage": "Última página",
+       "loginRequired": "Por favor, inicie sesión para añadir productos al carrito."
     },
     "products": {
     "foundations": {
