@@ -126,7 +126,7 @@
         </div>
       </div>
 
-      <button type="submit" class="submit-btn" :disabled="hasErrors || loading">
+      <button type="submit" class="submit-btn" :disabled="loading">
         <span v-if="loading">{{ $t("register.loading") }}</span>
         <span v-else>{{ $t("register.submit") }}</span>
       </button>

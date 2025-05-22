@@ -63,17 +63,19 @@
       </button>
       <ul>
         <li>
-          <router-link @click="isSidebarOpen = false" :to="`/${locale}/cards`">{{
-            t("cards")
-          }}</router-link>
+          <router-link @click="isSidebarOpen = false" :to="`/${locale}/cards`"
+            ><i class="bi bi-droplet"></i> {{ t("cards") }}</router-link
+          >
         </li>
         <li>
-          <router-link @click="isSidebarOpen = false" :to="`/${locale}/cart`">{{
-            t("cart")
-          }}</router-link>
+          <router-link @click="isSidebarOpen = false" :to="`/${locale}/cart`"
+            ><i class="bi bi-cart2"></i> {{ t("cart") }}</router-link
+          >
         </li>
         <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown">{{ t("language") }}</a>
+          <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown">
+            <i class="bi bi-translate"></i> {{ t("language") }}</a
+          >
           <ul class="dropdown-menu">
             <li><a class="dropdown-item" @click.prevent="changeLanguage('es')">Español</a></li>
             <li><a class="dropdown-item" @click.prevent="changeLanguage('en')">English</a></li>
@@ -83,16 +85,18 @@
           <router-link
             @click="isSidebarOpen = false"
             :to="{ name: 'MyProfile', params: { lang: locale } }"
-            >{{ t("navprofile") }}</router-link
+            ><i class="bi bi-person-fill"></i> {{ t("navprofile") }}</router-link
           >
         </li>
         <li v-if="!isLoggedIn">
-          <router-link @click="isSidebarOpen = false" :to="`/${locale}/login`">{{
-            t("navlogin")
-          }}</router-link>
+          <router-link @click="isSidebarOpen = false" :to="`/${locale}/login`"
+            ><i class="bi bi-person"></i> {{ t("navlogin") }}</router-link
+          >
         </li>
         <li v-if="isLoggedIn">
-          <button class="btn-logout" @click="logout">{{ t("navlogout") }}</button>
+          <button class="btn-logout" @click="logout">
+            <i class="bi bi-box-arrow-right"></i> {{ t("navlogout") }}
+          </button>
         </li>
       </ul>
     </div>
@@ -188,6 +192,7 @@ nav {
   cursor: pointer;
   padding: 8px;
   transition: transform 0.2s ease-in-out;
+  color: #e9d8fd;
 }
 
 .menu-btn:hover {
