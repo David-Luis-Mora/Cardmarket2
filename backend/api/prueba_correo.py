@@ -7,10 +7,8 @@ from dotenv import load_dotenv
 base_dir = os.path.dirname(os.path.abspath(__file__))
 env_path = os.path.join(base_dir, '..', '..', '.env')
 
-# Carga el archivo .env desde esa ruta
 load_dotenv(dotenv_path=env_path)
 
-# 👇 Carga el archivo .env indicando ruta absoluta
 EMAIL = os.environ.get('EMAIL_USER')
 APP_PASSWORD = os.environ.get('EMAIL_APP_PASS')
 
@@ -38,5 +36,4 @@ def enviar_correo(destinatario):
         print(f'❌ Error al enviar el correo: {e}')
 
 
-# Ejecutar prueba
 enviar_correo('davidsamuel.dev2007@gmail.com')

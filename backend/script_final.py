@@ -7,14 +7,11 @@ from datetime import datetime
 import django
 from django.db import IntegrityError
 
-# Configuración de Django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'main.settings')
 django.setup()
 
-# Importar modelo después de setup
 from api.models import Card
 
-# Lock para proteger escritura en la base de datos
 lock = threading.Lock()
 
 
@@ -78,7 +75,6 @@ def main():
     ]
     print(f'🗂️ Archivos encontrados: {len(archivos)}')
 
-    # Usamos múltiples hilos para procesar varios archivos a la vez
     with ThreadPoolExecutor(max_workers=10) as executor:
         executor.map(process_expansion_file, archivos)
 

@@ -455,20 +455,17 @@ input:focus {
   color: #e9d8fd;
 }
 
-/* Rejilla principal */
 .payment-grid {
   display: grid;
   grid-template-columns: 2fr 1fr;
   gap: 20px;
 }
 
-/* Columnas */
 .left-column,
 .right-column {
   width: 100%;
 }
 
-/* Tarjetas */
 .card {
   background: rgba(59, 7, 100, 0.7);
   padding: 20px;
@@ -477,7 +474,6 @@ input:focus {
   color: #e9d8fd;
 }
 
-/* Formularios */
 .payment-form,
 .form-group {
   display: flex;
@@ -553,14 +549,9 @@ input:focus {
   color: #7f1d1d;
 }
 
-/* ==========================
-   RESPONSIVE
-   ========================== */
-
-/* Tablets y pantallas medias */
 @media (max-width: 1024px) {
   .payment-grid {
-    grid-template-columns: 1fr; /* Una sola columna */
+    grid-template-columns: 1fr;
   }
   .payment-method-selector {
     flex-direction: column;
@@ -568,7 +559,6 @@ input:focus {
   }
 }
 
-/* Móviles */
 @media (max-width: 600px) {
   .payment-container {
     padding: 0.5rem;

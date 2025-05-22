@@ -105,7 +105,6 @@ export default defineComponent({
       console.log(
         "Has agregado al carrito:",
         cartStore.quantityOf(product.id),
-        // cartStore.getQuantityById(product.id),
         "unidades de",
         product.name
       );
@@ -404,7 +403,6 @@ export default defineComponent({
   margin-top: 0;
 }
 
-/* Tablets y pantallas medias */
 @media (max-width: 800px) {
   .cart-wrapper {
     flex-direction: column;
@@ -424,7 +422,6 @@ export default defineComponent({
   }
 }
 
-/* Móviles */
 @media (max-width: 600px) {
   .cart {
     padding: 20px;

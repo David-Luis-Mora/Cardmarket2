@@ -15,6 +15,8 @@ Esta arquitectura modular atiende tanto a la gestión de inventarios como a la e
 
 ---
 
+# Backend
+
 ## `models.py`
 
 ### Modelo `Card`

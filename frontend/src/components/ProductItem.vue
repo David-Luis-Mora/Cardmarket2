@@ -266,11 +266,7 @@ function viewAllSellers() {
 .seller-link:hover {
   text-decoration: underline;
 }
-/* ==========================
-   RESPONSIVE
-   ========================== */
 
-/* Tablets y pantallas medias */
 @media (max-width: 992px) {
   .title-row {
     flex-direction: column;
@@ -298,7 +294,6 @@ function viewAllSellers() {
   }
 }
 
-/* Móviles */
 @media (max-width: 576px) {
   .product-card {
     padding: 0;

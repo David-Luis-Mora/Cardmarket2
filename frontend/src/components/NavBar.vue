@@ -1,7 +1,6 @@
 <template>
   <nav>
     <div class="logo-menu-container">
-      <!-- Menu Button for Mobile -->
       <button class="menu-btn" @click="isSidebarOpen = true">
         <i class="bi bi-list"></i>
       </button>
@@ -10,7 +9,6 @@
       </router-link>
     </div>
 
-    <!-- Desktop Links -->
     <div class="nav-links">
       <div class="box">
         <router-link class="nav-link js-scroll-trigger" :to="`/${locale}/cards`">
@@ -38,7 +36,6 @@
           <li><a class="dropdown-item" @click.prevent="changeLanguage('en')">English</a></li>
         </ul>
       </div>
-      <!-- Authentication -->
       <div v-if="isLoggedIn" class="box">
         <router-link class="nav-link" :to="{ name: 'MyProfile', params: { lang: locale } }">
           <i class="bi bi-person-fill"></i> {{ t("navprofile") }}
@@ -56,7 +53,6 @@
       </div>
     </div>
 
-    <!-- Sidebar for Mobile -->
     <div class="sidebar" :class="{ open: isSidebarOpen }">
       <button class="close-btn" @click="isSidebarOpen = false">
         <i class="bi bi-x-lg"></i>
@@ -230,13 +226,11 @@ nav a.router-link-active {
   transform: scale(1.1);
 }
 
-/* Sidebar & overlay hidden by default */
 .sidebar,
 .overlay {
   display: none;
 }
 
-/* ESCRITORIO */
 @media (max-width: 1300px) {
   nav {
     width: 100%;
@@ -257,7 +251,7 @@ nav a.router-link-active {
     gap: 20px;
   }
 }
-/* Mobile specific */
+
 @media (max-width: 800px) {
   nav {
     width: 100%;
@@ -266,7 +260,6 @@ nav a.router-link-active {
   .menu-btn {
     display: block;
   }
-  /* Hide desktop links in mobile */
   .nav-links {
     display: none;
   }
@@ -338,7 +331,6 @@ nav a.router-link-active {
   }
 }
 
-/* Mobile text sizes */
 @media (max-width: 768px) {
   nav .nav-link,
   nav .box {

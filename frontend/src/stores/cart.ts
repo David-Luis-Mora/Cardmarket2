@@ -50,7 +50,6 @@ export const useCartStore = defineStore("cart", {
       const item = this.products.find((p) => p.id === id);
       return item?.quantity ?? 0;
     },
-    /** 1) Traer carrito */
     async fetchCartFromAPI() {
       const token = localStorage.getItem("token");
       if (!token) return;
@@ -76,7 +75,6 @@ export const useCartStore = defineStore("cart", {
       }));
     },
 
-    /** 2) Añadir producto */
     async addProduct(product: CartProduct) {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("No autenticado");
@@ -109,7 +107,6 @@ export const useCartStore = defineStore("cart", {
       await this.fetchCartFromAPI();
     },
 
-    /** 3) Actualizar cantidad */
     async updateQuantity(itemId: number, quantity: number) {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("No autenticado");
@@ -125,7 +122,6 @@ export const useCartStore = defineStore("cart", {
       await this.fetchCartFromAPI();
     },
 
-    /** 4) Eliminar item */
     async removeProduct(product: Product) {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("No estás autenticado");
@@ -142,7 +138,6 @@ export const useCartStore = defineStore("cart", {
         },
         body: JSON.stringify({
           cart: product.cartItemId,
-          // "nickname": product.sellerNickname,
         }),
       });
 
@@ -152,7 +147,6 @@ export const useCartStore = defineStore("cart", {
       }
       await this.fetchCartFromAPI();
     },
-    // Eliminar todas las cartas del carrito
     async clearCart() {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("No autenticado");

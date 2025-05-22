@@ -95,13 +95,11 @@ const hasErrors = computed(() => {
 });
 
 const handleLogin = async () => {
-  // reset de errores
   errors.value = {
     username: "",
     password: "",
   };
 
-  // validaciones locales
   if (!username.value.trim()) {
     errors.value.username = t("login.userRequired");
     return;
@@ -126,7 +124,6 @@ const handleLogin = async () => {
     const data = await response.json();
 
     if (response.ok) {
-      // éxito
       const token = data.token;
       localStorage.setItem("token", token);
       if (data.user) {

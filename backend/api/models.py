@@ -7,14 +7,14 @@ from django.db import models
 class Card(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, unique=True)
     name = models.CharField(max_length=255)
-    mana_cost = models.TextField(null=True, blank=True)  # Usar TextField si puede ser largo
-    type_line = models.TextField(null=True, blank=True)  # Usar TextField
+    mana_cost = models.TextField(null=True, blank=True)  
+    type_line = models.TextField(null=True, blank=True)  
     text = models.TextField(null=True, blank=True)
-    power = models.TextField(null=True, blank=True)  # Usar TextField
-    toughness = models.TextField(null=True, blank=True)  # Usar TextField
-    loyalty = models.TextField(null=True, blank=True)  # Usar TextField
-    colors = models.TextField(null=True, blank=True)  # Si es una lista, convertirla a cadena
-    image_uris = models.TextField(null=True, blank=True)  # Usar TextField para URLs múltiples
+    power = models.TextField(null=True, blank=True)  
+    toughness = models.TextField(null=True, blank=True)  
+    loyalty = models.TextField(null=True, blank=True)  
+    colors = models.TextField(null=True, blank=True)  
+    image_uris = models.TextField(null=True, blank=True) 
     quantity = models.IntegerField()
     rarity = models.CharField(max_length=20)
     price = models.IntegerField()
@@ -50,15 +50,12 @@ class Profile(models.Model):
         upload_to='avatars/', blank=True, null=True, help_text='Imagen subida por el usuario'
     )
 
-    # Cartas Comprada [Imagen de la carta, precio,vendedor, fecha,cantidad]
-    # Cartas Vender [Imagen de la carta ,fecha, cantidad, precio]
-    # Carrito mediante  añade el usuario
 
     def __str__(self):
         return self.user.username
 
 
-# Cuando el usuario vende las cartas
+
 class CardForSale(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     seller = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='cards_for_sale')
@@ -68,7 +65,6 @@ class CardForSale(models.Model):
     listed_at = models.DateTimeField(auto_now_add=True)
 
 
-# Cuando el usuario añade al carrito
 class CartItem(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='cart_items')
@@ -77,7 +73,6 @@ class CartItem(models.Model):
     added_at = models.DateTimeField(auto_now_add=True)
 
 
-# Cuando el usuario compra las cartas [Que se mostrara en el perfil]
 class Purchase(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     buyer = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='purchases')

@@ -7,21 +7,17 @@ import django
 import requests
 from django.db import IntegrityError
 
-# Establecer la variable de entorno para la configuración de Django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'main.settings')
 django.setup()
 
-# Importa tus modelos DESPUÉS de hacer setup
 from api.models import Card
 
-# Crear un objeto Lock para asegurarse de que solo un hilo escriba en la base de datos a la vez
 lock = threading.Lock()
 
 
 def save_card(card_data):
     """Función para guardar las cartas en la base de datos con bloqueadores."""
     try:
-        # Adquirir el bloqueo para asegurarse de que solo un hilo pueda escribir
         with lock:
             card, created = Card.objects.get_or_create(
                 id=card_data['id'],
@@ -35,9 +31,9 @@ def save_card(card_data):
                     'loyalty': card_data.get('loyalty', ''),
                     'colors': card_data.get('colors', []),
                     'image_uris': card_data.get('image_uris', {}).get('normal', ''),
-                    'quantity': 1,  # Puedes ajustar la cantidad según tus necesidades
+                    'quantity': 1,  
                     'rarity': card_data.get('rarity', ''),
-                    'price': 0,  # No tienes precio en la API, puedes dejarlo en 0 o procesarlo si tienes datos
+                    'price': 0, 
                     'set_name': card_data.get('set_name', ''),
                     'set_code': card_data.get('set', ''),
                     'release_date': datetime.strptime(card_data.get('released_at', ''), '%Y-%m-%d')
@@ -70,7 +66,6 @@ def get_and_save_cards(page):
     latest_cards = data.get('data', [])
     print(f'Cartas nuevas encontradas en la página {page}: {len(latest_cards)}')
 
-    # Procesar las cartas obtenidas
     for card_data in latest_cards:
         save_card(card_data)
 
@@ -86,7 +81,7 @@ def get_total_pages():
 
     data = response.json()
     total_cards = data.get('total_cards', 0)
-    cards_per_page = data.get('page_size', 175)  # Por defecto, son 175 cartas por página
+    cards_per_page = data.get('page_size', 175)  
     total_pages = (total_cards // cards_per_page) + (1 if total_cards % cards_per_page else 0)
 
     return total_pages
@@ -102,12 +97,8 @@ def main():
 
     print(f'Total de páginas disponibles: {total_pages}')
 
-    # Usar ThreadPoolExecutor para procesar cada página en paralelo
     with ThreadPoolExecutor(max_workers=10) as executor:
-        # Crear una lista de números de página y asignarlos a los hilos
         pages = range(1, total_pages + 1)
         executor.map(get_and_save_cards, pages)
 
-
-# Llamada a la función principal
 main()

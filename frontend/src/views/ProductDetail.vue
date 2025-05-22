@@ -1,6 +1,5 @@
 <template>
   <div class="product-detail d-flex flex-column flex-md-row p-4">
-    <!-- Info del producto -->
     <div class="info-box p-3 mb-4 mb-md-0 me-md-4 rounded" v-if="product">
       <div class="image-box mb-3">
         <img :src="product.image" :alt="product.name" class="detail-img rounded" />
@@ -19,7 +18,6 @@
       </div>
     </div>
 
-    <!-- Lista de vendedores -->
     <div class="sellers-box flex-grow-1 p-3 rounded">
       <h4 class="section-title mb-3">
         {{ $t("productDetail.sellersTitle", { total: totalSellers }) }}

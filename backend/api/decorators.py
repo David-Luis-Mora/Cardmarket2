@@ -59,11 +59,6 @@ def validate_json(required_fields=None):
     return wrapper
 
 
-
-
-
-
-
 def auth_required(view_func):
     def wrapper(request, *args, **kwargs):
         auth_header = request.headers.get('Authorization', '')

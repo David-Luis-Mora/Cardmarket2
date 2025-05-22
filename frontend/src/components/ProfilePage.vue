@@ -165,7 +165,6 @@
                     class="list-group-item d-flex align-items-center justify-content-between"
                   >
                     <div class="d-flex align-items-center">
-                      <!-- <span class="ms-3">{{ $t("profile.name") }}: {{ card.name }}</span> -->
                       <span class="ms-3">
                         {{ $t("profile.name") }}:
                         <router-link
@@ -208,7 +207,6 @@
                     class="list-group-item d-flex align-items-center"
                   >
                     <div class="d-flex align-items-center">
-                      <!-- <span class="ms-3">{{ $t("profile.name") }}: {{ card.name }}</span> -->
                       <span class="ms-3">
                         {{ $t("profile.name") }}:
                         <router-link
@@ -244,7 +242,6 @@
                 <ul class="list-group list-group-flush">
                   <li v-for="card in purchasedCards" :key="card.id" class="list-group-item">
                     <div class="d-flex align-items-center">
-                      <!-- <span class="ms-3">{{ $t("profile.name") }}: {{ card.name }}</span> -->
                       <span class="ms-3">
                         {{ $t("profile.name") }}:
                         <router-link
@@ -533,8 +530,8 @@ async function confirmDelete(card: Card) {
     await fetch(`${import.meta.env.VITE_API_URL}/api/users/my-cards-for-sale/${card.id}/`, {
       method: "DELETE",
       headers: {
-        Authorization: `Token ${token}`, // ✅ sin espacio extra
-        "Content-Type": "application/json", // ✅ comillas añadidas
+        Authorization: `Token ${token}`,
+        "Content-Type": "application/json",
       },
     });
     cardsForSale.value = cardsForSale.value.filter((c) => c.id !== card.id);

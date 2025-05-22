@@ -12,7 +12,6 @@ urlpatterns = [
     path('users/login/', views.user_login, name='user-login'),
     path('users/signup/', views.user_signup, name='user-signup'),
     path('users/edit/', views.edit_profile, name='edit-profile'),
-    # Estas son las ultimas views que he añadido
     path(
         'users/all-card-sale-for-user/', views.all_card_sale_for_user, name='all-card-sale-for-user'
     ),
@@ -24,7 +23,6 @@ urlpatterns = [
         views.all_card_purchased_for_user,
         name='all-card-purchased-for-user',
     ),
-    # path('users/profile/', views.edit_profile, name='edit-profile'),
     path('users/cart/add/', views.add_cart, name='add-cart'),
     path('users/cart/delete/', views.delete_cart, name='delete-cart'),
     path('users/cart/delete/all/', views.delete_all_cart_items, name='delete-all-cart-items'),
@@ -47,11 +45,9 @@ urlpatterns = [
     path('users/cart/', views.user_cart, name='user_cart'),
     path('cart/<int:pk>/', views.cart_item_detail, name='cart_item_detail'),
     path('users/cart/buy/', views.buy_for_card, name='buy-for-card'),
-    # Ultima implementacion
     path('users/delete/', views.delete_account, name='delete-account'),
     path('cards/edit/', views.edit_card, name='edit-card'),
     path('cards/delete/', views.delete_card, name='delete-card'),
-    # urls.py
     path(
         'users/my-cards-for-sale/<uuid:sale_id>/',
         views.delete_card_for_sale,

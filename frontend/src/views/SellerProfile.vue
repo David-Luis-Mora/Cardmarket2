@@ -1,7 +1,6 @@
 <template>
   <div v-if="profile" class="container my-4">
     <div class="row">
-      <!-- Columna izquierda: info de usuario -->
       <div class="col-md-4">
         <div class="card mb-4">
           <div class="card-body text-center">
@@ -37,10 +36,8 @@
         </div>
       </div>
 
-      <!-- Columna derecha: ventas -->
       <div class="col-md-8">
         <div class="row">
-          <!-- Cartas en venta -->
           <div class="col-12 mb-12">
             <div class="card">
               <div class="card-header d-flex justify-content-between align-items-center">
@@ -60,7 +57,6 @@
                     class="list-group-item d-flex align-items-center justify-content-between"
                   >
                     <div class="d-flex align-items-center">
-                      <!-- <span class="ms-3">{{ $t("profile.name") }}: {{ card.name }}</span> -->
                       <span class="ms-3">
                         {{ $t("profile.name") }}:
                         <router-link
@@ -189,7 +185,7 @@ onMounted(() => {
   max-width: 600px;
   margin: 2rem auto;
   padding: 2rem;
-  background-color: #0f172a; /* fondo oscuro */
+  background-color: #0f172a;
   border-radius: 1rem;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
   font-family: "Segoe UI", sans-serif;

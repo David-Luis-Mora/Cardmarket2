@@ -9,13 +9,12 @@ import "../style.css"
 import { createPinia } from 'pinia';
 const pinia = createPinia();
 const app = createApp(App);
-// Sincroniza el idioma en la URL con i18n
 watchEffect(() => {
     const currentRoute = router.currentRoute.value;
     const langParam = currentRoute.params.lang;
     const lang = (typeof langParam === 'string' && (langParam === 'es' || langParam === 'en'))
       ? langParam
-      : 'es'; // por defecto 'es'
+      : 'es'; 
   
     if (i18n.global.locale.value !== lang) {
       i18n.global.locale.value = lang;
